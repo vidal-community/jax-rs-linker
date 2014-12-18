@@ -10,12 +10,23 @@ public final class ClassName {
         this.name = name;
     }
 
-    public String getName() {
-        return name;
-    }
-
     public static ClassName valueOf(String name) {
         return new ClassName(name);
+    }
+
+    public ClassName append(String suffix) {
+        return new ClassName(name + suffix);
+    }
+
+    public String packageName() {
+        if (!name.contains(".")) {
+            return "";
+        }
+        return name.substring(0, name.lastIndexOf('.'));
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override

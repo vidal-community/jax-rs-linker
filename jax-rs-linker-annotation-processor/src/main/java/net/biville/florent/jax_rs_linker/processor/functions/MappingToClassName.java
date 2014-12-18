@@ -1,8 +1,8 @@
 package net.biville.florent.jax_rs_linker.processor.functions;
 
 import com.google.common.base.Function;
-import net.biville.florent.jax_rs_linker.processor.model.Mapping;
 import net.biville.florent.jax_rs_linker.processor.model.ClassName;
+import net.biville.florent.jax_rs_linker.processor.model.Mapping;
 
 public enum MappingToClassName implements Function<Mapping, ClassName> {
 
