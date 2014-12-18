@@ -1,6 +1,6 @@
 package net.biville.florent.jax_rs_linker.processor;
 
-import net.biville.florent.catalog.model.Self;
+import net.biville.florent.jax_rs_linker.model.Self;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

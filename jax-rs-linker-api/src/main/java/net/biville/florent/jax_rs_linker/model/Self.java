@@ -1,4 +1,4 @@
-package net.biville.florent.catalog.model;
+package net.biville.florent.jax_rs_linker.model;
 
 import java.lang.annotation.Documented;
 

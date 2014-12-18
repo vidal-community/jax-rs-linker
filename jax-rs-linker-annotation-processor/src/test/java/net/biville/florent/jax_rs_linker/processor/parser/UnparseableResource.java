@@ -1,7 +1,7 @@
 package net.biville.florent.jax_rs_linker.processor.parser;
 
-import net.biville.florent.catalog.model.Self;
-import net.biville.florent.catalog.model.SubResource;
+import net.biville.florent.jax_rs_linker.model.Self;
+import net.biville.florent.jax_rs_linker.model.SubResource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
