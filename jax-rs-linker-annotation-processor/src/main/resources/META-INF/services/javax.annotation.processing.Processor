@@ -1,1 +1,1 @@
-net.biville.florent.jax_rs_linker.processor.RestAnnotationProcessor
+net.biville.florent.jax_rs_linker.processor.LinkerAnnotationProcessor

@@ -9,7 +9,7 @@ import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 import static org.truth0.Truth.ASSERT;
 
 
-public class RestAnnotationProcessorTest {
+public class LinkerAnnotationProcessorTest {
 
     @Rule
     public CompilationRule compilation = new CompilationRule();
@@ -18,7 +18,7 @@ public class RestAnnotationProcessorTest {
     public void generates_a_single_linker() {
         ASSERT.about(javaSource())
             .that(forResource("ProductResource.java"))
-            .processedWith(new RestAnnotationProcessor())
+            .processedWith(new LinkerAnnotationProcessor())
             .compilesWithoutError()
             .and().generatesSources(forResource("ProductResourceLinker.java"));
     }

@@ -8,7 +8,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.squareup.javawriter.JavaWriter;
 import net.biville.florent.jax_rs_linker.model.*;
-import net.biville.florent.jax_rs_linker.processor.RestAnnotationProcessor;
+import net.biville.florent.jax_rs_linker.processor.LinkerAnnotationProcessor;
 import net.biville.florent.jax_rs_linker.processor.functions.ClassToName;
 
 import javax.annotation.Generated;
@@ -108,6 +108,6 @@ public class LinkerWriter implements AutoCloseable {
     }
 
     private ImmutableMap<String, String> processorQualifiedName() {
-        return ImmutableMap.of("value", format("\"%s\"", RestAnnotationProcessor.class.getName()));
+        return ImmutableMap.of("value", format("\"%s\"", LinkerAnnotationProcessor.class.getName()));
     }
 }

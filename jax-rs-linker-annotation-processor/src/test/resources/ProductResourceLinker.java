@@ -13,7 +13,7 @@ import net.biville.florent.jax_rs_linker.model.TemplatedPath;
 import net.biville.florent.jax_rs_linker.processor.functions.ClassToName;
 
 
-@Generated("net.biville.florent.jax_rs_linker.processor.RestAnnotationProcessor")
+@Generated("net.biville.florent.jax_rs_linker.processor.LinkerAnnotationProcessor")
 public class ProductResourceLinker {
 
     private final Map<ClassName, ApiPath> relatedMappings = new HashMap<>();
