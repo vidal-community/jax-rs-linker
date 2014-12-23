@@ -8,6 +8,7 @@ import org.junit.rules.ExpectedException;
 import java.util.Collection;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static net.biville.florent.jax_rs_linker.api.PathArgument.argument;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TemplatedPathTest {
@@ -38,7 +39,7 @@ public class TemplatedPathTest {
                 Lists.<PathParameter>newArrayList()
         );
 
-        templatedPath.replace(pathArgument("id", "42"));
+        templatedPath.replace(argument("id", "42"));
     }
 
     @Test
@@ -60,13 +61,9 @@ public class TemplatedPathTest {
 
         assertThat(
                 templatedPath
-                        .replace(pathArgument("id", "42"))
+                        .replace(argument("id", "42"))
                         .value()
         ).isEqualTo("/product/42");
-    }
-
-    private PathArgument pathArgument(String name, String value) {
-        return new PathArgument(name, value);
     }
 
     private TemplatedPath templatedPath(String path, Collection<PathParameter> parameters) {

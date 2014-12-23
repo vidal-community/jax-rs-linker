@@ -1,5 +1,6 @@
-package net.biville.florent.jax_rs_linker.model;
+package net.biville.florent.jax_rs_linker.api;
 
+import com.google.common.base.Function;
 import com.google.common.base.Objects;
 
 public class PathArgument {
@@ -7,8 +8,19 @@ public class PathArgument {
     private final String name;
     private final String value;
 
-    public PathArgument(String name, String value) {
+    public static PathArgument argument(String name, String value) {
+        return new PathArgument(name, value);
+    }
 
+    public static <T extends Number> PathArgument argument(String name, T value) {
+        return new PathArgument(name, value.toString());
+    }
+
+    public static <T> PathArgument argument(String name, T value, Function<T, String> toString) {
+        return new PathArgument(name, toString.apply(value));
+    }
+
+    private PathArgument(String name, String value) {
         this.name = name;
         this.value = value;
     }

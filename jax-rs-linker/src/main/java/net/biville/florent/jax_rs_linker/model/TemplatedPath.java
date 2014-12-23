@@ -3,6 +3,7 @@ package net.biville.florent.jax_rs_linker.model;
 import com.google.common.base.Joiner;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
+import net.biville.florent.jax_rs_linker.api.PathArgument;
 
 import java.util.Collection;
 
