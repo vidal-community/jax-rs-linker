@@ -19,7 +19,9 @@ import java.util.*;
 
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Sets.immutableEnumSet;
+import static com.squareup.javawriter.JavaWriter.stringLiteral;
 import static java.lang.String.format;
+import static net.biville.florent.jax_rs_linker.processor.predicates.MappingByApiLinkTargetPredicate.BY_API_LINK_TARGET_PRESENCE;
 
 public class LinkerWriter implements AutoCloseable {
 
@@ -32,57 +34,58 @@ public class LinkerWriter implements AutoCloseable {
     public void write(ClassName generatedClass, Collection<Mapping> mappings) throws IOException {
         javaWriter.setIndent("\t");
         JavaWriter writer = javaWriter
-                .emitPackage(generatedClass.packageName())
-                .emitImports(Optional.class, Generated.class, Arrays.class, HashMap.class, Map.class, ApiPath.class, ClassName.class, PathParameter.class, TemplatedPath.class, ClassToName.class)
-                .emitEmptyLine()
-                .emitAnnotation(Generated.class, processorQualifiedName())
-                .beginType(generatedClass.getName(), "class", EnumSet.of(Modifier.PUBLIC))
-                .emitEmptyLine()
-                .emitField("Map<ClassName, ApiPath>", "relatedMappings", immutableEnumSet(Modifier.PRIVATE, Modifier.FINAL), "new HashMap<>()")
-                .emitEmptyLine()
-                .beginConstructor(immutableEnumSet(Modifier.PUBLIC));
+            .emitPackage(generatedClass.packageName())
+            .emitImports(Optional.class, Generated.class, Arrays.class, HashMap.class, Map.class, ApiPath.class, ClassName.class, PathParameter.class, TemplatedPath.class, ClassToName.class)
+            .emitEmptyLine()
+            .emitAnnotation(Generated.class, processorQualifiedName())
+            .beginType(generatedClass.getName(), "class", EnumSet.of(Modifier.PUBLIC))
+            .emitEmptyLine()
+            .emitField("Map<ClassName, ApiPath>", "relatedMappings", immutableEnumSet(Modifier.PRIVATE, Modifier.FINAL), "new HashMap<>()")
+            .emitEmptyLine()
+            .beginConstructor(immutableEnumSet(Modifier.PUBLIC));
 
-        for (Mapping mapping : mappings) {
+        for (Mapping mapping : linked(mappings)) {
             Api api = mapping.getApi();
-            Optional<ClassName> target = api.getApiLink().getTarget();
-            if (target.isPresent()) {
-                String statementTemplate = "relatedMappings.put(%nClassName.valueOf(\"%s\"),%nnew ApiPath(\"%s\", Arrays.asList(%s)))";
-                ApiPath apiPath = api.getApiPath();
-                writer = writer.emitStatement(
-                        statementTemplate,
-                        target.get(),
-                        apiPath.getPath(),
-                        parameters(apiPath.getPathParameters())
-                );
-            }
+            ClassName target = api.getApiLink().getTarget().get();
+            String statementTemplate = "relatedMappings.put(%nClassName.valueOf(%s),%nnew ApiPath(%s, Arrays.asList(%s)))";
+            ApiPath apiPath = api.getApiPath();
+            writer = writer.emitStatement(
+                statementTemplate,
+                stringLiteral(target.getName()),
+                stringLiteral(apiPath.getPath()),
+                parameters(apiPath.getPathParameters())
+            );
         }
         Optional<Mapping> mapping = FluentIterable.from(mappings)
-                .firstMatch(new Predicate<Mapping>() {
-                    @Override
-                    public boolean apply(@Nullable Mapping input) {
-                        return input.getApi().getApiLink().getApiLinkType() == ApiLinkType.SELF;
-                    }
-                });
+            .firstMatch(new Predicate<Mapping>() {
+                @Override
+                public boolean apply(@Nullable Mapping input) {
+                    return input.getApi().getApiLink().getApiLinkType() == ApiLinkType.SELF;
+                }
+            });
 
-        if (!mapping.isPresent()) {
-            // TODO: raise a compilation error **BEFORE** (exactly 1 @Self should be present on class)
-        }
         ApiPath apiPath = mapping.get().getApi().getApiPath();
         writer.endConstructor()
-                .emitEmptyLine()
-                .beginMethod("TemplatedPath", "self", immutableEnumSet(Modifier.PUBLIC))
-                .emitStatement("return new TemplatedPath(\"%s\", Arrays.asList(%s))", apiPath.getPath(), parameters(apiPath.getPathParameters()))
-                .endMethod()
-                .emitEmptyLine()
-                .beginMethod("Optional<TemplatedPath>", "related", immutableEnumSet(Modifier.PUBLIC), "Class<?>", "resourceClass")
-                .emitStatement("ApiPath path = relatedMappings.get(ClassToName.INSTANCE.apply(resourceClass))")
-                .beginControlFlow("if (path == null)")
-                .emitStatement("return Optional.<TemplatedPath>absent()")
-                .endControlFlow()
-                .emitStatement("return Optional.of(new TemplatedPath(path.getPath(), path.getPathParameters()))")
-                .endMethod()
-                .endType();
+            .emitEmptyLine()
+            .beginMethod("TemplatedPath", "self", immutableEnumSet(Modifier.PUBLIC))
+            .emitStatement("return new TemplatedPath(%s, Arrays.asList(%s))", stringLiteral(apiPath.getPath()), parameters(apiPath.getPathParameters()))
+            .endMethod()
+            .emitEmptyLine()
+            .beginMethod("Optional<TemplatedPath>", "related", immutableEnumSet(Modifier.PUBLIC), "Class<?>", "resourceClass")
+            .emitStatement("ApiPath path = relatedMappings.get(ClassToName.INSTANCE.apply(resourceClass))")
+            .beginControlFlow("if (path == null)")
+            .emitStatement("return Optional.<TemplatedPath>absent()")
+            .endControlFlow()
+            .emitStatement("return Optional.of(new TemplatedPath(path.getPath(), path.getPathParameters()))")
+            .endMethod()
+            .endType();
 
+    }
+
+    private Iterable<Mapping> linked(Collection<Mapping> mappings) {
+        return FluentIterable.from(mappings)
+            .filter(BY_API_LINK_TARGET_PRESENCE)
+            .toList();
     }
 
     @Override
@@ -97,17 +100,22 @@ public class LinkerWriter implements AutoCloseable {
 
     private String parameters(Collection<PathParameter> pathParameters) {
         return FluentIterable.from(pathParameters)
-                .transform(new Function<PathParameter, String>() {
-                    @Nullable
-                    @Override
-                    public String apply(PathParameter input) {
-                        return String.format("new PathParameter(ClassName.valueOf(\"%s\"), \"%s\")", input.getType().getName(), input.getName());
-                    }
-                })
-                .join(Joiner.on(", "));
+            .transform(new Function<PathParameter, String>() {
+                @Nullable
+                @Override
+                public String apply(PathParameter input) {
+                    return String.format(
+                        "new PathParameter(ClassName.valueOf(%s), %s)",
+                        stringLiteral(input.getType().getName()),
+                        stringLiteral(input.getName())
+                    );
+                }
+            })
+            .join(Joiner.on(", "));
     }
 
     private ImmutableMap<String, String> processorQualifiedName() {
-        return ImmutableMap.of("value", format("\"%s\"", LinkerAnnotationProcessor.class.getName()));
+        return ImmutableMap.of("value", format("%s", stringLiteral(LinkerAnnotationProcessor.class.getName())));
     }
+
 }
