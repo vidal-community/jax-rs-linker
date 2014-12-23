@@ -1,7 +1,6 @@
 package net.biville.florent.jax_rs_linker.processor;
 
 import com.google.testing.compile.CompilationRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 

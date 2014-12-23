@@ -2,8 +2,8 @@ package net.biville.florent.jax_rs_linker.processor.functions;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import net.biville.florent.jax_rs_linker.processor.parser.ElementParser;
 import net.biville.florent.jax_rs_linker.model.Mapping;
+import net.biville.florent.jax_rs_linker.processor.parser.ElementParser;
 
 import javax.annotation.Nullable;
 import javax.annotation.processing.RoundEnvironment;

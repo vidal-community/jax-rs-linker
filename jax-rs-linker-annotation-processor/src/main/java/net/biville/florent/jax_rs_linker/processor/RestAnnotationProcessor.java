@@ -1,30 +1,34 @@
 package net.biville.florent.jax_rs_linker.processor;
 
-import com.google.common.base.*;
-import com.google.common.base.Optional;
-import com.google.common.collect.*;
+import com.google.common.base.Throwables;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.squareup.javawriter.JavaWriter;
-import net.biville.florent.jax_rs_linker.model.*;
-import net.biville.florent.jax_rs_linker.processor.functions.*;
+import net.biville.florent.jax_rs_linker.model.ClassName;
+import net.biville.florent.jax_rs_linker.model.Mapping;
+import net.biville.florent.jax_rs_linker.model.Self;
+import net.biville.florent.jax_rs_linker.model.SubResource;
+import net.biville.florent.jax_rs_linker.processor.functions.ClassToName;
+import net.biville.florent.jax_rs_linker.processor.functions.MappingToClassName;
+import net.biville.florent.jax_rs_linker.processor.functions.OptionalFunctions;
+import net.biville.florent.jax_rs_linker.processor.functions.TypeElementToElement;
 import net.biville.florent.jax_rs_linker.processor.parser.ElementParser;
 import net.biville.florent.jax_rs_linker.processor.predicates.OptionalPredicates;
 import net.biville.florent.jax_rs_linker.processor.writer.LinkerWriter;
 
-import javax.annotation.Generated;
-import javax.annotation.Nullable;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Set;
 
 import static com.google.common.base.Predicates.notNull;
-import static com.google.common.collect.Sets.immutableEnumSet;
-import static java.lang.String.format;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static net.biville.florent.jax_rs_linker.processor.functions.JavaxElementToMappings.INTO_OPTIONAL_MAPPING;
 import static net.biville.florent.jax_rs_linker.processor.predicates.ElementHasKind.BY_KIND;
@@ -36,7 +40,8 @@ public class RestAnnotationProcessor extends AbstractProcessor {
                     .from(Lists.<Class<?>>newArrayList(Self.class, SubResource.class))
                     .transform(ClassToName.INSTANCE)
                     .toSet();
-    public static final String GENERATED_CLASSNAME_SUFFIX = "Linker";
+
+    private static final String GENERATED_CLASSNAME_SUFFIX = "Linker";
 
     private ElementParser elementParser;
 
