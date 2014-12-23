@@ -16,7 +16,6 @@ public class RestAnnotationProcessorTest {
     public CompilationRule compilation = new CompilationRule();
 
     @Test
-    @Ignore("draft implementation")
     public void generates_a_single_linker() {
         ASSERT.about(javaSource())
             .that(forResource("ProductResource.java"))
