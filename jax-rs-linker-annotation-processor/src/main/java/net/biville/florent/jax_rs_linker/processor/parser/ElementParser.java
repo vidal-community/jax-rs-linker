@@ -1,9 +1,7 @@
 package net.biville.florent.jax_rs_linker.processor.parser;
 
 import com.google.common.base.Optional;
-import net.biville.florent.jax_rs_linker.model.Self;
-import net.biville.florent.jax_rs_linker.model.SubResource;
-import net.biville.florent.jax_rs_linker.processor.model.*;
+import net.biville.florent.jax_rs_linker.model.*;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;

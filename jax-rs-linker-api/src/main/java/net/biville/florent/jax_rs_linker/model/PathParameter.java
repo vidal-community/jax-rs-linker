@@ -1,4 +1,4 @@
-package net.biville.florent.jax_rs_linker.processor.model;
+package net.biville.florent.jax_rs_linker.model;
 
 import com.google.common.base.Objects;
 
@@ -12,6 +12,14 @@ public class PathParameter {
     public PathParameter(ClassName type, String name) {
         this.type = type;
         this.name = name;
+    }
+
+    public ClassName getType() {
+        return type;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override

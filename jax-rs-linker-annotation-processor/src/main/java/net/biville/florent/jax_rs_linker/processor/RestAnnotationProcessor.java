@@ -6,8 +6,8 @@ import com.squareup.javawriter.JavaWriter;
 import net.biville.florent.jax_rs_linker.model.Self;
 import net.biville.florent.jax_rs_linker.model.SubResource;
 import net.biville.florent.jax_rs_linker.processor.functions.*;
-import net.biville.florent.jax_rs_linker.processor.model.ClassName;
-import net.biville.florent.jax_rs_linker.processor.model.Mapping;
+import net.biville.florent.jax_rs_linker.model.ClassName;
+import net.biville.florent.jax_rs_linker.model.Mapping;
 import net.biville.florent.jax_rs_linker.processor.parser.ElementParser;
 import net.biville.florent.jax_rs_linker.processor.predicates.OptionalPredicates;
 

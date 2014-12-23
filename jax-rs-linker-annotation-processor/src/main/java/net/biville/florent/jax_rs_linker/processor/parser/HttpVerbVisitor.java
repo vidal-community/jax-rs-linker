@@ -3,7 +3,7 @@ package net.biville.florent.jax_rs_linker.processor.parser;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
-import net.biville.florent.jax_rs_linker.processor.model.HttpVerb;
+import net.biville.florent.jax_rs_linker.model.HttpVerb;
 
 import javax.lang.model.element.ExecutableElement;
 import javax.ws.rs.*;

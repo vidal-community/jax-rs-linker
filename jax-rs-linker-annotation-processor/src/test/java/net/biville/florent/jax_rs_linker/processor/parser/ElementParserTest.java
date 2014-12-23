@@ -2,7 +2,7 @@ package net.biville.florent.jax_rs_linker.processor.parser;
 
 import com.google.common.base.Optional;
 import com.google.testing.compile.CompilationRule;
-import net.biville.florent.jax_rs_linker.processor.model.*;
+import net.biville.florent.jax_rs_linker.model.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

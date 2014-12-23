@@ -1,4 +1,4 @@
-package net.biville.florent.jax_rs_linker.processor.model;
+package net.biville.florent.jax_rs_linker.model;
 
 public enum HttpVerb {
 

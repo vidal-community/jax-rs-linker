@@ -1,8 +1,8 @@
 package net.biville.florent.jax_rs_linker.processor.functions;
 
 import com.google.common.base.Function;
-import net.biville.florent.jax_rs_linker.processor.model.ClassName;
-import net.biville.florent.jax_rs_linker.processor.model.PathParameter;
+import net.biville.florent.jax_rs_linker.model.ClassName;
+import net.biville.florent.jax_rs_linker.model.PathParameter;
 
 import javax.annotation.Nullable;
 import javax.lang.model.element.VariableElement;

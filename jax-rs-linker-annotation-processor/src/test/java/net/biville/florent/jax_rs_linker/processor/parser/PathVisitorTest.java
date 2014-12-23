@@ -1,8 +1,8 @@
 package net.biville.florent.jax_rs_linker.processor.parser;
 
 import com.google.testing.compile.CompilationRule;
-import net.biville.florent.jax_rs_linker.processor.model.ClassName;
-import net.biville.florent.jax_rs_linker.processor.model.PathParameter;
+import net.biville.florent.jax_rs_linker.model.ClassName;
+import net.biville.florent.jax_rs_linker.model.PathParameter;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

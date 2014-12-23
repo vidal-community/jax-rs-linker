@@ -1,7 +1,7 @@
 package net.biville.florent.jax_rs_linker.processor.parser;
 
 import com.google.testing.compile.CompilationRule;
-import net.biville.florent.jax_rs_linker.processor.model.HttpVerb;
+import net.biville.florent.jax_rs_linker.model.HttpVerb;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
