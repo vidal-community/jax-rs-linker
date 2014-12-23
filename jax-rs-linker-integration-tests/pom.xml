@@ -10,32 +10,26 @@
 
     <artifactId>jaw-rs-linker-integration-tests</artifactId>
 
+    <name>JAX RS Linker: integration test suite</name>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>jax-rs-linker-annotation-processor</artifactId>
+            <artifactId>jax-rs-linker</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>jax-rs-linker-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.11</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>1.7.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -1,4 +1,4 @@
-package net.biville.florent.jax_rs_linker.it;
+package net.biville.florent.jax_rs_linker.parser;
 
 import net.biville.florent.jax_rs_linker.api.Self;
 import net.biville.florent.jax_rs_linker.api.SubResource;
@@ -17,7 +17,7 @@ public class ProductResource {
 
     }
 
-    @SubResource("net.biville.florent.jax_rs_linker.processor.BrandResource")
+    @SubResource("net.biville.florent.jax_rs_linker.parser.BrandResource")
     @Path("/{id}/brand")
     @GET
     public void getBrandByProductId(@PathParam("id") int productId) {
