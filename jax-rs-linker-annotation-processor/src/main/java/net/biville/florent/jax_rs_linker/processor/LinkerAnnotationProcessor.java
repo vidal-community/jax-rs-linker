@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import static com.google.common.base.Predicates.notNull;
+import static javax.lang.model.SourceVersion.latest;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static net.biville.florent.jax_rs_linker.processor.functions.JavaxElementToMappings.INTO_OPTIONAL_MAPPING;
 import static net.biville.florent.jax_rs_linker.processor.predicates.ElementHasKind.BY_KIND;
@@ -57,7 +58,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     @Override
     public SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.RELEASE_7;
+        return latest();
     }
 
     @Override
