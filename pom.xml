@@ -21,6 +21,6 @@
     <modules>
         <module>jax-rs-linker-api</module>
         <module>jax-rs-linker-annotation-processor</module>
-        <module>jax-rs-linker-example</module>
+        <module>jax-rs-linker-integration-tests</module>
     </modules>
 </project>
