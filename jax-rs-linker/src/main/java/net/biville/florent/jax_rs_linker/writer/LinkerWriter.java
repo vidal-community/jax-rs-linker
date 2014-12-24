@@ -5,23 +5,31 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableMap;
 import com.squareup.javawriter.JavaWriter;
 import com.squareup.javawriter.StringLiteral;
-import net.biville.florent.jax_rs_linker.LinkerAnnotationProcessor;
 import net.biville.florent.jax_rs_linker.functions.ClassToName;
-import net.biville.florent.jax_rs_linker.model.*;
+import net.biville.florent.jax_rs_linker.model.Api;
+import net.biville.florent.jax_rs_linker.model.ApiLinkType;
+import net.biville.florent.jax_rs_linker.model.ApiPath;
+import net.biville.florent.jax_rs_linker.model.ClassName;
+import net.biville.florent.jax_rs_linker.model.Mapping;
+import net.biville.florent.jax_rs_linker.model.PathParameter;
+import net.biville.florent.jax_rs_linker.model.TemplatedPath;
 import net.biville.florent.jax_rs_linker.predicates.MappingByApiLinkTargetPredicate;
 
 import javax.annotation.Generated;
 import javax.annotation.Nullable;
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Sets.immutableEnumSet;
-import static java.lang.String.format;
+import static net.biville.florent.jax_rs_linker.LinkerAnnotationProcessor.processorQualifiedName;
 
 public class LinkerWriter implements AutoCloseable {
 
@@ -118,10 +126,6 @@ public class LinkerWriter implements AutoCloseable {
                 }
             })
             .join(Joiner.on(", "));
-    }
-
-    private ImmutableMap<String, String> processorQualifiedName() {
-        return ImmutableMap.of("value", format("%s", StringLiteral.forValue(LinkerAnnotationProcessor.class.getName()).literal()));
     }
 
 }

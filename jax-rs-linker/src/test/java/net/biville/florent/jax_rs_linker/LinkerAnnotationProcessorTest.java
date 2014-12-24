@@ -30,7 +30,8 @@ public class LinkerAnnotationProcessorTest {
             .and()
             .generatesSources(
                     forResource("ProductResourceLinker.java"),
-                    forResource("BrandResourceLinker.java")
+                    forResource("BrandResourceLinker.java"),
+                    forResource("linkers/Linkers.java")
             );
     }
 
@@ -74,4 +75,5 @@ public class LinkerAnnotationProcessorTest {
                         "\n  \tGiven method: <SelfObsessedResource#getMoreSelf>"
                 );
     }
+
 }

@@ -1,11 +1,9 @@
 package net.biville.florent.jax_rs_linker;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 import com.squareup.javawriter.JavaWriter;
+import com.squareup.javawriter.StringLiteral;
 import net.biville.florent.jax_rs_linker.api.Self;
 import net.biville.florent.jax_rs_linker.api.SubResource;
 import net.biville.florent.jax_rs_linker.functions.ClassToName;
@@ -15,6 +13,7 @@ import net.biville.florent.jax_rs_linker.model.Mapping;
 import net.biville.florent.jax_rs_linker.parser.ElementParser;
 import net.biville.florent.jax_rs_linker.predicates.OptionalPredicates;
 import net.biville.florent.jax_rs_linker.writer.LinkerWriter;
+import net.biville.florent.jax_rs_linker.writer.LinkersWriter;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -26,6 +25,7 @@ import java.util.Set;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.base.Throwables.propagate;
+import static java.lang.String.format;
 import static javax.lang.model.SourceVersion.latest;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static net.biville.florent.jax_rs_linker.functions.JavaxElementToMappings.intoOptionalMapping;
@@ -33,18 +33,23 @@ import static net.biville.florent.jax_rs_linker.functions.MappingToClassName.INT
 import static net.biville.florent.jax_rs_linker.functions.TypeElementToElement.intoElement;
 import static net.biville.florent.jax_rs_linker.predicates.ElementHasKind.byKind;
 
+
 @AutoService(Processor.class)
 public class LinkerAnnotationProcessor extends AbstractProcessor {
 
+    public static final String GENERATED_CLASSNAME_SUFFIX = "Linker";
     private static final Set<String> SUPPORTED_ANNOTATIONS =
             FluentIterable
                     .from(Lists.<Class<?>>newArrayList(Self.class, SubResource.class))
                     .transform(ClassToName.INSTANCE)
                     .toSet();
 
-    private static final String GENERATED_CLASSNAME_SUFFIX = "Linker";
-
     private ElementParser elementParser;
+    private Multimap<ClassName, Mapping> elements = HashMultimap.create();
+
+    public static ImmutableMap<String, String> processorQualifiedName() {
+        return ImmutableMap.of("value", format("%s", StringLiteral.forValue(LinkerAnnotationProcessor.class.getName()).literal()));
+    }
 
     @Override
     public Set<String> getSupportedOptions() {
@@ -85,17 +90,25 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
                         .filter(notNull())
                         .index(INTO_CLASS_NAME);
 
-        generate(elements);
+        this.elements.putAll(elements);
+        try {
+            generateLinkers(elements);
+            if (roundEnv.processingOver()) {
+                generateEntryPoint(this.elements.keySet());
+            }
+        }
+        catch (IOException ioe) {
+            throw propagate(ioe);
+        }
 
         return false;
     }
 
-    private void generate(Multimap<ClassName, Mapping> elements) {
-        try {
-            generateLinkers(elements);
-        }
-        catch (IOException ioe) {
-            throw propagate(ioe);
+    private void generateEntryPoint(Set<ClassName> classes) throws IOException {
+        ClassName linkers = ClassName.valueOf("net.biville.florent.jax_rs_linker.Linkers");
+        JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(linkers.getName());
+        try (LinkersWriter writer = new LinkersWriter(new JavaWriter(sourceFile.openWriter()))) {
+            writer.write(linkers, classes);
         }
     }
 

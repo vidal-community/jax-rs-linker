@@ -25,6 +25,13 @@ public final class ClassName {
         return name.substring(0, name.lastIndexOf('.'));
     }
 
+    public String className() {
+        if (!name.contains(".")) {
+            return name;
+        }
+        return name.substring(name.lastIndexOf('.') + 1);
+    }
+
     public String getName() {
         return name;
     }
