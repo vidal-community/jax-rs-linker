@@ -29,7 +29,7 @@ public class ProductResourceLinker {
     }
 
     public Optional<TemplatedPath> related(Class<?> resourceClass) {
-        ApiPath path = relatedMappings.get(ClassToName.INSTANCE.apply(resourceClass));
+        ApiPath path = relatedMappings.get(ClassName.valueOf(ClassToName.INSTANCE.apply(resourceClass)));
         if (path == null) {
             return Optional.<TemplatedPath>absent();
         }

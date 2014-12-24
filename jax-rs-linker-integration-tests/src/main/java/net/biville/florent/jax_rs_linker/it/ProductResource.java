@@ -17,10 +17,17 @@ public class ProductResource {
 
     }
 
-    @SubResource("net.biville.florent.jax_rs_linker.processor.BrandResource")
+    @SubResource("net.biville.florent.jax_rs_linker.it.BrandResource")
     @Path("/{id}/brand")
     @GET
     public void getBrandByProductId(@PathParam("id") int productId) {
+
+    }
+
+    @SubResource("net.biville.florent.jax_rs_linker.it.CompanyResource")
+    @Path("/{id}/company")
+    @GET
+    public void getBrandByCompanyId(@PathParam("id") int companyId) {
 
     }
 }

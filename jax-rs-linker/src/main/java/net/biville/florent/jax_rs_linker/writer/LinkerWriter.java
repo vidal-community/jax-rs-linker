@@ -7,6 +7,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.squareup.javawriter.JavaWriter;
+import com.squareup.javawriter.StringLiteral;
 import net.biville.florent.jax_rs_linker.LinkerAnnotationProcessor;
 import net.biville.florent.jax_rs_linker.functions.ClassToName;
 import net.biville.florent.jax_rs_linker.model.*;
@@ -20,7 +21,6 @@ import java.util.*;
 
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Sets.immutableEnumSet;
-import static com.squareup.javawriter.JavaWriter.stringLiteral;
 import static java.lang.String.format;
 
 public class LinkerWriter implements AutoCloseable {
@@ -51,8 +51,8 @@ public class LinkerWriter implements AutoCloseable {
             ApiPath apiPath = api.getApiPath();
             writer = writer.emitStatement(
                 statementTemplate,
-                stringLiteral(target.getName()),
-                stringLiteral(apiPath.getPath()),
+                StringLiteral.forValue(target.getName()).literal(),
+                StringLiteral.forValue(apiPath.getPath()).literal(),
                 parameters(apiPath.getPathParameters())
             );
         }
@@ -68,11 +68,11 @@ public class LinkerWriter implements AutoCloseable {
         writer.endConstructor()
             .emitEmptyLine()
             .beginMethod("TemplatedPath", "self", immutableEnumSet(Modifier.PUBLIC))
-            .emitStatement("return new TemplatedPath(%s, Arrays.asList(%s))", stringLiteral(apiPath.getPath()), parameters(apiPath.getPathParameters()))
+            .emitStatement("return new TemplatedPath(%s, Arrays.asList(%s))", StringLiteral.forValue(apiPath.getPath()).literal(), parameters(apiPath.getPathParameters()))
             .endMethod()
             .emitEmptyLine()
             .beginMethod("Optional<TemplatedPath>", "related", immutableEnumSet(Modifier.PUBLIC), "Class<?>", "resourceClass")
-            .emitStatement("ApiPath path = relatedMappings.get(ClassToName.INSTANCE.apply(resourceClass))")
+            .emitStatement("ApiPath path = relatedMappings.get(ClassName.valueOf(ClassToName.INSTANCE.apply(resourceClass)))")
             .beginControlFlow("if (path == null)")
             .emitStatement("return Optional.<TemplatedPath>absent()")
             .endControlFlow()
@@ -106,8 +106,8 @@ public class LinkerWriter implements AutoCloseable {
                 public String apply(PathParameter input) {
                     return String.format(
                         "new PathParameter(ClassName.valueOf(%s), %s)",
-                        stringLiteral(input.getType().getName()),
-                        stringLiteral(input.getName())
+                        StringLiteral.forValue(input.getType().getName()).literal(),
+                        StringLiteral.forValue(input.getName()).literal()
                     );
                 }
             })
@@ -115,7 +115,7 @@ public class LinkerWriter implements AutoCloseable {
     }
 
     private ImmutableMap<String, String> processorQualifiedName() {
-        return ImmutableMap.of("value", format("%s", stringLiteral(LinkerAnnotationProcessor.class.getName())));
+        return ImmutableMap.of("value", format("%s", StringLiteral.forValue(LinkerAnnotationProcessor.class.getName()).literal()));
     }
 
 }
