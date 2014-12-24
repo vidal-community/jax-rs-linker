@@ -13,7 +13,7 @@ public class CompanyResource {
     @Self
     @Path("/{id}")
     @GET
-    public void getById(@PathParam("id") int id) {
-
+    public String getById(@PathParam("id") int id) {
+        return "Company " + String.valueOf(id);
     }
 }

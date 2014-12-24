@@ -13,7 +13,7 @@ public class BrandResource {
     @Self
     @Path("/{id}")
     @GET
-    public void getById(@PathParam("id") int id) {
-
+    public String getById(@PathParam("id") int id) {
+        return "Brand " + String.valueOf(id);
     }
 }
