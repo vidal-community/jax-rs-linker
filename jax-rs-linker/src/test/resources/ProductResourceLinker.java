@@ -17,15 +17,21 @@ import net.biville.florent.jax_rs_linker.model.TemplatedPath;
 public class ProductResourceLinker {
 
     private final Map<ClassName, ApiPath> relatedMappings = new HashMap<>();
+    private final String contextPath;
 
     public ProductResourceLinker() {
+        this("");
+    }
+
+    public ProductResourceLinker(String contextPath) {
+        this.contextPath = contextPath;
         relatedMappings.put(
                 ClassName.valueOf("net.biville.florent.jax_rs_linker.parser.BrandResource"),
                 new ApiPath("/product/{id}/brand", Arrays.asList(new PathParameter(ClassName.valueOf("int"), "id"))));
     }
 
     public TemplatedPath self() {
-        return new TemplatedPath("/product/{id}", Arrays.asList(new PathParameter(ClassName.valueOf("int"), "id")));
+        return new TemplatedPath(contextPath + "/product/{id}", Arrays.asList(new PathParameter(ClassName.valueOf("int"), "id")));
     }
 
     public Optional<TemplatedPath> related(Class<?> resourceClass) {
@@ -33,6 +39,6 @@ public class ProductResourceLinker {
         if (path == null) {
             return Optional.<TemplatedPath>absent();
         }
-        return Optional.of(new TemplatedPath(path.getPath(), path.getPathParameters()));
+        return Optional.of(new TemplatedPath(contextPath + path.getPath(), path.getPathParameters()));
     }
 }

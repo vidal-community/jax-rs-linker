@@ -41,8 +41,14 @@ public class LinkerWriter implements AutoCloseable {
             .beginType(generatedClass.getName(), "class", EnumSet.of(Modifier.PUBLIC))
             .emitEmptyLine()
             .emitField("Map<ClassName, ApiPath>", "relatedMappings", immutableEnumSet(Modifier.PRIVATE, Modifier.FINAL), "new HashMap<>()")
+            .emitField("String", "contextPath", immutableEnumSet(Modifier.PRIVATE, Modifier.FINAL))
             .emitEmptyLine()
-            .beginConstructor(immutableEnumSet(Modifier.PUBLIC));
+            .beginConstructor(immutableEnumSet(Modifier.PUBLIC))
+            .emitStatement("this(\"\")")
+            .endConstructor()
+            .emitEmptyLine()
+            .beginConstructor(immutableEnumSet(Modifier.PUBLIC), "String", "contextPath")
+            .emitStatement("this.contextPath = contextPath");
 
         for (Mapping mapping : linked(mappings)) {
             Api api = mapping.getApi();
@@ -68,7 +74,7 @@ public class LinkerWriter implements AutoCloseable {
         writer.endConstructor()
             .emitEmptyLine()
             .beginMethod("TemplatedPath", "self", immutableEnumSet(Modifier.PUBLIC))
-            .emitStatement("return new TemplatedPath(%s, Arrays.asList(%s))", StringLiteral.forValue(apiPath.getPath()).literal(), parameters(apiPath.getPathParameters()))
+            .emitStatement("return new TemplatedPath(contextPath + %s, Arrays.asList(%s))", StringLiteral.forValue(apiPath.getPath()).literal(), parameters(apiPath.getPathParameters()))
             .endMethod()
             .emitEmptyLine()
             .beginMethod("Optional<TemplatedPath>", "related", immutableEnumSet(Modifier.PUBLIC), "Class<?>", "resourceClass")
@@ -76,7 +82,7 @@ public class LinkerWriter implements AutoCloseable {
             .beginControlFlow("if (path == null)")
             .emitStatement("return Optional.<TemplatedPath>absent()")
             .endControlFlow()
-            .emitStatement("return Optional.of(new TemplatedPath(path.getPath(), path.getPathParameters()))")
+            .emitStatement("return Optional.of(new TemplatedPath(contextPath + path.getPath(), path.getPathParameters()))")
             .endMethod()
             .endType();
 
