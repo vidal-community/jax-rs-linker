@@ -75,7 +75,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
                 FluentIterable.from(annotations)
                         .transformAndConcat(TypeElementToElement.INTO_ELEMENT(roundEnv))
                         .filter(ElementHasKind.BY_KIND(METHOD))
-                        .transform(INTO_OPTIONAL_MAPPING(elementParser, roundEnv))
+                        .transform(INTO_OPTIONAL_MAPPING(elementParser))
                         .filter(OptionalPredicates.<Mapping>BY_PRESENCE())
                         .transform(OptionalFunctions.<Mapping>INTO_UNWRAPPED())
                         .filter(notNull())
