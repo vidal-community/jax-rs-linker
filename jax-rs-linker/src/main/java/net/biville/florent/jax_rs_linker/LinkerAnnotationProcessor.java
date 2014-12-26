@@ -1,6 +1,6 @@
 package net.biville.florent.jax_rs_linker;
 
-import com.google.common.base.Throwables;
+import com.google.auto.service.AutoService;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -16,9 +16,7 @@ import net.biville.florent.jax_rs_linker.parser.ElementParser;
 import net.biville.florent.jax_rs_linker.predicates.OptionalPredicates;
 import net.biville.florent.jax_rs_linker.writer.LinkerWriter;
 
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
@@ -27,6 +25,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import static com.google.common.base.Predicates.notNull;
+import static com.google.common.base.Throwables.propagate;
 import static javax.lang.model.SourceVersion.latest;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static net.biville.florent.jax_rs_linker.functions.JavaxElementToMappings.intoOptionalMapping;
@@ -34,6 +33,7 @@ import static net.biville.florent.jax_rs_linker.functions.MappingToClassName.INT
 import static net.biville.florent.jax_rs_linker.functions.TypeElementToElement.intoElement;
 import static net.biville.florent.jax_rs_linker.predicates.ElementHasKind.byKind;
 
+@AutoService(Processor.class)
 public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     private static final Set<String> SUPPORTED_ANNOTATIONS =
@@ -64,8 +64,9 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     @Override
     public void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
+        Messager messager = processingEnv.getMessager();
         elementParser = new ElementParser(
-            processingEnv.getMessager(),
+            messager,
             processingEnv.getTypeUtils()
         );
     }
@@ -84,13 +85,18 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
                         .filter(notNull())
                         .index(INTO_CLASS_NAME);
 
+        generate(elements);
+
+        return false;
+    }
+
+    private void generate(Multimap<ClassName, Mapping> elements) {
         try {
             generateLinkers(elements);
         }
         catch (IOException ioe) {
-            throw Throwables.propagate(ioe);
+            throw propagate(ioe);
         }
-        return true;
     }
 
     private void generateLinkers(Multimap<ClassName, Mapping> elements) throws IOException {
