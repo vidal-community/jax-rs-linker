@@ -13,7 +13,7 @@ public class ElementHasKind implements Predicate<Element> {
         this.kind = kind;
     }
 
-    public static Predicate<Element> BY_KIND(ElementKind kind) {
+    public static Predicate<Element> byKind(ElementKind kind) {
         if (kind == null) {
             throw new IllegalArgumentException("Kind cannot be null");
         }

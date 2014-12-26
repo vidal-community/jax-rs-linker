@@ -6,16 +6,13 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.squareup.javawriter.JavaWriter;
-import net.biville.florent.jax_rs_linker.functions.MappingToClassName;
-import net.biville.florent.jax_rs_linker.model.ClassName;
-import net.biville.florent.jax_rs_linker.model.Mapping;
 import net.biville.florent.jax_rs_linker.api.Self;
 import net.biville.florent.jax_rs_linker.api.SubResource;
-import net.biville.florent.jax_rs_linker.parser.ElementParser;
-import net.biville.florent.jax_rs_linker.predicates.ElementHasKind;
 import net.biville.florent.jax_rs_linker.functions.ClassToName;
 import net.biville.florent.jax_rs_linker.functions.OptionalFunctions;
-import net.biville.florent.jax_rs_linker.functions.TypeElementToElement;
+import net.biville.florent.jax_rs_linker.model.ClassName;
+import net.biville.florent.jax_rs_linker.model.Mapping;
+import net.biville.florent.jax_rs_linker.parser.ElementParser;
 import net.biville.florent.jax_rs_linker.predicates.OptionalPredicates;
 import net.biville.florent.jax_rs_linker.writer.LinkerWriter;
 
@@ -32,7 +29,10 @@ import java.util.Set;
 import static com.google.common.base.Predicates.notNull;
 import static javax.lang.model.SourceVersion.latest;
 import static javax.lang.model.element.ElementKind.METHOD;
-import static net.biville.florent.jax_rs_linker.functions.JavaxElementToMappings.INTO_OPTIONAL_MAPPING;
+import static net.biville.florent.jax_rs_linker.functions.JavaxElementToMappings.intoOptionalMapping;
+import static net.biville.florent.jax_rs_linker.functions.MappingToClassName.INTO_CLASS_NAME;
+import static net.biville.florent.jax_rs_linker.functions.TypeElementToElement.intoElement;
+import static net.biville.florent.jax_rs_linker.predicates.ElementHasKind.byKind;
 
 public class LinkerAnnotationProcessor extends AbstractProcessor {
 
@@ -64,7 +64,10 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     @Override
     public void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        elementParser = new ElementParser(processingEnv.getMessager(), processingEnv.getTypeUtils());
+        elementParser = new ElementParser(
+            processingEnv.getMessager(),
+            processingEnv.getTypeUtils()
+        );
     }
 
     @Override
@@ -73,13 +76,13 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
         Multimap<ClassName, Mapping> elements =
                 FluentIterable.from(annotations)
-                        .transformAndConcat(TypeElementToElement.INTO_ELEMENT(roundEnv))
-                        .filter(ElementHasKind.BY_KIND(METHOD))
-                        .transform(INTO_OPTIONAL_MAPPING(elementParser))
-                        .filter(OptionalPredicates.<Mapping>BY_PRESENCE())
-                        .transform(OptionalFunctions.<Mapping>INTO_UNWRAPPED())
+                        .transformAndConcat(intoElement(roundEnv))
+                        .filter(byKind(METHOD))
+                        .transform(intoOptionalMapping(elementParser))
+                        .filter(OptionalPredicates.<Mapping>byPresence())
+                        .transform(OptionalFunctions.<Mapping>intoUnwrapped())
                         .filter(notNull())
-                        .index(MappingToClassName.INTO_CLASS_NAME);
+                        .index(INTO_CLASS_NAME);
 
         try {
             generateLinkers(elements);

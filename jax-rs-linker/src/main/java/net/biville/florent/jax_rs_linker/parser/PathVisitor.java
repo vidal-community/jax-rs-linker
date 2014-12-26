@@ -2,8 +2,8 @@ package net.biville.florent.jax_rs_linker.parser;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
-import net.biville.florent.jax_rs_linker.model.PathParameter;
 import net.biville.florent.jax_rs_linker.functions.VariableElementToPathParameter;
+import net.biville.florent.jax_rs_linker.model.PathParameter;
 import net.biville.florent.jax_rs_linker.predicates.ElementHasAnnotation;
 
 import javax.lang.model.element.Element;

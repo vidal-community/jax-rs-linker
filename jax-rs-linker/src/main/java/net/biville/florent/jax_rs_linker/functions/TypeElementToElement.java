@@ -16,7 +16,7 @@ public class TypeElementToElement<T extends TypeElement> implements Function<T, 
         this.roundEnvironment = roundEnvironment;
     }
 
-    public static <T extends TypeElement> Function<T, Set<? extends Element>> INTO_ELEMENT(RoundEnvironment roundEnvironment) {
+    public static <T extends TypeElement> Function<T, Set<? extends Element>> intoElement(RoundEnvironment roundEnvironment) {
         return new TypeElementToElement<>(roundEnvironment);
     }
 

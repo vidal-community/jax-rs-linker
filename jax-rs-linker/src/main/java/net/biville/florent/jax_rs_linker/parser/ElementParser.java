@@ -14,8 +14,8 @@ import javax.lang.model.util.Types;
 
 import static com.google.common.base.Optional.absent;
 import static javax.tools.Diagnostic.Kind.ERROR;
-import static net.biville.florent.jax_rs_linker.predicates.ElementHasAnnotation.BY_ANNOTATION;
 import static net.biville.florent.jax_rs_linker.errors.Messages.*;
+import static net.biville.florent.jax_rs_linker.predicates.ElementHasAnnotation.BY_ANNOTATION;
 
 public class ElementParser {
 

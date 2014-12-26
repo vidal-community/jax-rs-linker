@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 
 public class OptionalPredicates {
 
-    public static <T> Predicate<Optional<T>> BY_PRESENCE() {
+    public static <T> Predicate<Optional<T>> byPresence() {
         return new Predicate<Optional<T>>() {
             @Override
             public boolean apply(@Nullable Optional<T> input) {
