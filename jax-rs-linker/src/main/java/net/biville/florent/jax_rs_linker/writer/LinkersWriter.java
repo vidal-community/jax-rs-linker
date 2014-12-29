@@ -7,6 +7,7 @@ import net.biville.florent.jax_rs_linker.model.ClassName;
 import javax.annotation.Generated;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
 import java.beans.Introspector;
 import java.io.IOException;
 import java.util.EnumSet;
@@ -42,9 +43,10 @@ public class LinkersWriter implements AutoCloseable {
         javaWriter.setIndent("\t");
         JavaWriter writer = javaWriter
                 .emitPackage(linkers.packageName())
-                .emitImports(Generated.class, ServletContextEvent.class, ServletContextListener.class)
+                .emitImports(Generated.class, ServletContextEvent.class, ServletContextListener.class, WebListener.class)
                 .emitImports(transform(classes, TO_LINKER_NAME))
                 .emitEmptyLine()
+                .emitAnnotation(WebListener.class)
                 .emitAnnotation(Generated.class, processorQualifiedName())
                 .beginType(linkers.className(), "class", EnumSet.of(PUBLIC), null, "ServletContextListener")
                 .emitEmptyLine()
