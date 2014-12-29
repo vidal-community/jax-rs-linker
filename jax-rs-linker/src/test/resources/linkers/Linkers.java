@@ -11,7 +11,7 @@ import net.biville.florent.jax_rs_linker.parser.ProductResourceLinker;
 public class Linkers
         implements ServletContextListener {
 
-    private String contextPath = "";
+    private static String contextPath = "";
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -26,7 +26,7 @@ public class Linkers
         return new BrandResourceLinker(contextPath);
     }
 
-    public ProductResourceLinker productResourceLinker() {
+    public static ProductResourceLinker productResourceLinker() {
         return new ProductResourceLinker(contextPath);
     }
 }

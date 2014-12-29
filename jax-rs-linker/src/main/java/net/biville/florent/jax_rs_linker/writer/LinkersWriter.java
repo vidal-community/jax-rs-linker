@@ -16,6 +16,7 @@ import static com.google.common.collect.Collections2.transform;
 import static com.google.common.collect.Sets.immutableEnumSet;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
+import static javax.lang.model.element.Modifier.STATIC;
 import static net.biville.florent.jax_rs_linker.LinkerAnnotationProcessor.GENERATED_CLASSNAME_SUFFIX;
 import static net.biville.florent.jax_rs_linker.LinkerAnnotationProcessor.processorQualifiedName;
 import static net.biville.florent.jax_rs_linker.functions.ClassNameToLinkerName.TO_LINKER_NAME;
@@ -45,9 +46,9 @@ public class LinkersWriter implements AutoCloseable {
                 .emitImports(transform(classes, TO_LINKER_NAME))
                 .emitEmptyLine()
                 .emitAnnotation(Generated.class, processorQualifiedName())
-                .beginType(linkers.getName(), "class", EnumSet.of(PUBLIC), null, "ServletContextListener")
+                .beginType(linkers.className(), "class", EnumSet.of(PUBLIC), null, "ServletContextListener")
                 .emitEmptyLine()
-                .emitField("String", "contextPath", immutableEnumSet(PRIVATE), "\"\"")
+                .emitField("String", "contextPath", immutableEnumSet(PRIVATE, STATIC), "\"\"")
                 .emitEmptyLine()
                 .emitAnnotation(Override.class)
                 .beginMethod("void", "contextInitialized", immutableEnumSet(PUBLIC), "ServletContextEvent", "sce")
@@ -61,7 +62,7 @@ public class LinkersWriter implements AutoCloseable {
         for (ClassName linker : classes) {
             String linkerName = linkerName(linker);
             writer.emitEmptyLine()
-                    .beginMethod(linkerName, Introspector.decapitalize(linkerName), immutableEnumSet(PUBLIC))
+                    .beginMethod(linkerName, Introspector.decapitalize(linkerName), immutableEnumSet(PUBLIC, STATIC))
                     .emitStatement(String.format("return new %s(contextPath)", linkerName))
                     .endMethod();
         }
