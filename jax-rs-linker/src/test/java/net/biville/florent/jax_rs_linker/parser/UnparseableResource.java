@@ -3,6 +3,7 @@ package net.biville.florent.jax_rs_linker.parser;
 import net.biville.florent.jax_rs_linker.api.Self;
 import net.biville.florent.jax_rs_linker.api.SubResource;
 
+
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -24,6 +25,6 @@ public class UnparseableResource {
     @POST
     @Path("path2")
     @Self
-    @SubResource("net.biville.florent.processor.parser.ProductResource")
+    @SubResource(ProductResource.class)
     public void methodWithTooManyLinkTypes() {}
 }

@@ -26,6 +26,8 @@ These annotations are defined in:
 Example:
 
 ```java
+import com.acme.api.BrandResource;
+
 import net.biville.florent.jax_rs_linker.api.Self;
 import net.biville.florent.jax_rs_linker.api.SubResource;
 
@@ -52,7 +54,7 @@ public class ProductResource {
 		return productMapper.map(products.findById(id));
 	}
 
-	@SubResource("com.acme.api.BrandResource")
+	@SubResource(BrandResource.class)
 	@GET
 	@Path("/{id}/brand")
 	public Response getBrandsByProductId(@PathParam("id") int id) {

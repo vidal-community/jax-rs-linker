@@ -5,5 +5,5 @@ import java.lang.annotation.Documented;
 @Documented
 public @interface SubResource {
 
-    public String value();
+    public Class<?> value();
 }

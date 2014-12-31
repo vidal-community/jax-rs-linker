@@ -1,16 +1,14 @@
-package net.biville.florent.jax_rs_linker.parser;
-
 import net.biville.florent.jax_rs_linker.api.Self;
 import net.biville.florent.jax_rs_linker.api.SubResource;
 
-import net.biville.florent.jax_rs_linker.parser.BrandResource;
+import net.biville.florent.jax_rs_linker.parser.SelfObsessedResource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-@Path("/product")
-public class ProductResource {
+@Path("/gallery")
+public class GalleryResource {
 
     @Self
     @Path("/{id}")
@@ -19,10 +17,10 @@ public class ProductResource {
 
     }
 
-    @SubResource(BrandResource.class)
-    @Path("/{id}/brand")
+    @SubResource(SelfObsessedResource.class)
+    @Path("/{id}/selfie")
     @GET
-    public void getBrandByProductId(@PathParam("id") int productId) {
+    public void getSelfieByGalleryId(@PathParam("id") int galleryId) {
 
     }
 }
