@@ -2,6 +2,7 @@ package net.biville.florent.jax_rs_linker.writer;
 
 import com.google.common.base.Throwables;
 import com.squareup.javawriter.JavaWriter;
+import com.squareup.javawriter.StringLiteral;
 import net.biville.florent.jax_rs_linker.model.ClassName;
 
 import javax.annotation.Generated;
@@ -39,7 +40,7 @@ public class LinkersWriter implements AutoCloseable {
         }
     }
 
-    public void write(ClassName linkers, Set<ClassName> classes) throws IOException {
+    public void write(ClassName linkers, Set<ClassName> classes, String applicationName) throws IOException {
         javaWriter.setIndent("\t");
         JavaWriter writer = javaWriter
                 .emitPackage(linkers.packageName())
@@ -52,9 +53,10 @@ public class LinkersWriter implements AutoCloseable {
                 .emitEmptyLine()
                 .emitField("String", "contextPath", immutableEnumSet(PRIVATE, STATIC), "\"\"")
                 .emitEmptyLine()
+                .emitField("String", "applicationName", immutableEnumSet(PRIVATE, STATIC), StringLiteral.forValue(applicationName).literal())
                 .emitAnnotation(Override.class)
                 .beginMethod("void", "contextInitialized", immutableEnumSet(PUBLIC), "ServletContextEvent", "sce")
-                .emitStatement("contextPath = sce.getServletContext().getContextPath()")
+                .emitStatement("contextPath = sce.getServletContext().getContextPath() + sce.getServletContext().getServletRegistration(applicationName).getMappings().iterator().next()")
                 .endMethod()
                 .emitEmptyLine()
                 .emitAnnotation(Override.class)

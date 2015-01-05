@@ -1,9 +1,12 @@
 package net.biville.florent.jax_rs_linker;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.*;
 import com.squareup.javawriter.JavaWriter;
 import com.squareup.javawriter.StringLiteral;
+import net.biville.florent.jax_rs_linker.api.ExposedApplication;
 import net.biville.florent.jax_rs_linker.api.Self;
 import net.biville.florent.jax_rs_linker.api.SubResource;
 import net.biville.florent.jax_rs_linker.functions.ClassToName;
@@ -17,6 +20,7 @@ import net.biville.florent.jax_rs_linker.writer.LinkersWriter;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
@@ -40,12 +44,13 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     public static final String GENERATED_CLASSNAME_SUFFIX = "Linker";
     private static final Set<String> SUPPORTED_ANNOTATIONS =
             FluentIterable
-                    .from(Lists.<Class<?>>newArrayList(Self.class, SubResource.class))
+                    .from(Lists.<Class<?>>newArrayList(Self.class, SubResource.class, ExposedApplication.class))
                     .transform(ClassToName.INSTANCE)
                     .toSet();
 
     private ElementParser elementParser;
     private Multimap<ClassName, Mapping> elements = HashMultimap.create();
+    private String applicationName = "";
 
     public static ImmutableMap<String, String> processorQualifiedName() {
         return ImmutableMap.of("value", format("%s", StringLiteral.forValue(LinkerAnnotationProcessor.class.getName()).literal()));
@@ -80,6 +85,21 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations,
                            RoundEnvironment roundEnv) {
 
+        Optional<? extends TypeElement> mayProcessExposedApplication = FluentIterable.from(annotations)
+                .firstMatch(new Predicate<TypeElement>() {
+                    @Override
+                    public boolean apply(TypeElement typeElement) {
+                        return typeElement.getQualifiedName().contentEquals(ExposedApplication.class.getCanonicalName());
+                    }
+                });
+
+        if (mayProcessExposedApplication.isPresent()) {
+            Set<? extends Element> applications = roundEnv.getElementsAnnotatedWith(ExposedApplication.class);
+            // TODO check au moins une classe annotée
+            Element application = applications.iterator().next();
+            this.applicationName = application.getAnnotation(ExposedApplication.class).name();
+        }
+
         Multimap<ClassName, Mapping> elements =
                 FluentIterable.from(annotations)
                         .transformAndConcat(intoElement(roundEnv))
@@ -94,7 +114,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
         try {
             generateLinkers(elements);
             if (roundEnv.processingOver()) {
-                generateEntryPoint(this.elements.keySet());
+                generateEntryPoint();
             }
         }
         catch (IOException ioe) {
@@ -104,11 +124,11 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
         return false;
     }
 
-    private void generateEntryPoint(Set<ClassName> classes) throws IOException {
+    private void generateEntryPoint() throws IOException {
         ClassName linkers = ClassName.valueOf("net.biville.florent.jax_rs_linker.Linkers");
         JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(linkers.getName());
         try (LinkersWriter writer = new LinkersWriter(new JavaWriter(sourceFile.openWriter()))) {
-            writer.write(linkers, classes);
+            writer.write(linkers, elements.keySet(), applicationName);
         }
     }
 

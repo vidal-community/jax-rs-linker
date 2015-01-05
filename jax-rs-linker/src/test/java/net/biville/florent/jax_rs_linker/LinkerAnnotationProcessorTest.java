@@ -10,7 +10,6 @@ import static com.google.testing.compile.JavaFileObjects.forResource;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 import static com.google.testing.compile.JavaSourcesSubjectFactory.javaSources;
 
-
 public class LinkerAnnotationProcessorTest {
 
     @Rule
@@ -22,10 +21,12 @@ public class LinkerAnnotationProcessorTest {
     public void generates_graph_of_linkers() {
         assert_().about(javaSources())
             .that(ImmutableList.of(
+                forResource("Configuration.java"),
                 forResource("ProductResource.java"),
                 forResource("BrandResource.java")
             ))
             .processedWith(processor)
+
             .compilesWithoutError()
             .and()
             .generatesSources(

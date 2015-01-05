@@ -15,9 +15,11 @@ public class Linkers
 
     private static String contextPath = "";
 
+    private static String applicationName = "net.biville.florent.jax_rs_linker.it.jersey.Configuration";
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        contextPath = sce.getServletContext().getContextPath();
+        contextPath = sce.getServletContext().getContextPath() + sce.getServletContext().getServletRegistration(applicationName).getMappings().iterator().next();
     }
 
     @Override

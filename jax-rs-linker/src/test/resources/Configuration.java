@@ -1,4 +1,4 @@
-package net.biville.florent.jax_rs_linker.it.jersey;
+package net.biville.florent.jax_rs_linker.it;
 
 import net.biville.florent.jax_rs_linker.api.ExposedApplication;
 
