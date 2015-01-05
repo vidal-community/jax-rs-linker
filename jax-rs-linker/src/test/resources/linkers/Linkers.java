@@ -5,6 +5,7 @@ import javax.annotation.Generated;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
+import net.biville.florent.jax_rs_linker.servlet.ContextPaths;
 import net.biville.florent.jax_rs_linker.parser.BrandResourceLinker;
 import net.biville.florent.jax_rs_linker.parser.ProductResourceLinker;
 
@@ -19,7 +20,7 @@ public class Linkers
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        contextPath = sce.getServletContext().getContextPath() + sce.getServletContext().getServletRegistration(applicationName).getMappings().iterator().next();
+        contextPath = ContextPaths.contextPath(sce.getServletContext(), applicationName);
     }
 
     @Override

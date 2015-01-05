@@ -4,6 +4,7 @@ import com.google.common.base.Throwables;
 import com.squareup.javawriter.JavaWriter;
 import com.squareup.javawriter.StringLiteral;
 import net.biville.florent.jax_rs_linker.model.ClassName;
+import net.biville.florent.jax_rs_linker.servlet.ContextPaths;
 
 import javax.annotation.Generated;
 import javax.servlet.ServletContextEvent;
@@ -44,7 +45,7 @@ public class LinkersWriter implements AutoCloseable {
         javaWriter.setIndent("\t");
         JavaWriter writer = javaWriter
                 .emitPackage(linkers.packageName())
-                .emitImports(Generated.class, ServletContextEvent.class, ServletContextListener.class, WebListener.class)
+                .emitImports(Generated.class, ServletContextEvent.class, ServletContextListener.class, WebListener.class, ContextPaths.class)
                 .emitImports(transform(classes, TO_LINKER_NAME))
                 .emitEmptyLine()
                 .emitAnnotation(WebListener.class)
@@ -56,7 +57,7 @@ public class LinkersWriter implements AutoCloseable {
                 .emitField("String", "applicationName", immutableEnumSet(PRIVATE, STATIC), StringLiteral.forValue(applicationName).literal())
                 .emitAnnotation(Override.class)
                 .beginMethod("void", "contextInitialized", immutableEnumSet(PUBLIC), "ServletContextEvent", "sce")
-                .emitStatement("contextPath = sce.getServletContext().getContextPath() + sce.getServletContext().getServletRegistration(applicationName).getMappings().iterator().next()")
+                .emitStatement("contextPath = ContextPaths.contextPath(sce.getServletContext(), applicationName)")
                 .endMethod()
                 .emitEmptyLine()
                 .emitAnnotation(Override.class)
