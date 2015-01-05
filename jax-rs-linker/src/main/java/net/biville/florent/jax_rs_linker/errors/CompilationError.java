@@ -26,6 +26,12 @@ public enum CompilationError {
     TOO_MANY_SELF(
         "\n\tThe enclosing class already defined one @Self-annotated method. Only one method should be annotated so." +
         "\n\tGiven method: <%s>"
+    ),
+    ONE_APPLICATION_ONLY(
+        "\n\tThere should be exactly one @ExposedApplication-annotated Jersey Application."
+    ),
+    NO_APPLICATION_FOUND(
+        "\n\tThere should be exactly one @ExposedApplication-annotated Jersey Application: none found."
     );
 
     private final String errorMessage;

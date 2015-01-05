@@ -32,6 +32,9 @@ import static com.google.common.base.Throwables.propagate;
 import static java.lang.String.format;
 import static javax.lang.model.SourceVersion.latest;
 import static javax.lang.model.element.ElementKind.METHOD;
+import static javax.tools.Diagnostic.Kind.ERROR;
+import static net.biville.florent.jax_rs_linker.errors.CompilationError.NO_APPLICATION_FOUND;
+import static net.biville.florent.jax_rs_linker.errors.CompilationError.ONE_APPLICATION_ONLY;
 import static net.biville.florent.jax_rs_linker.functions.JavaxElementToMappings.intoOptionalMapping;
 import static net.biville.florent.jax_rs_linker.functions.MappingToClassName.INTO_CLASS_NAME;
 import static net.biville.florent.jax_rs_linker.functions.TypeElementToElement.intoElement;
@@ -95,7 +98,10 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
         if (mayProcessExposedApplication.isPresent()) {
             Set<? extends Element> applications = roundEnv.getElementsAnnotatedWith(ExposedApplication.class);
-            // TODO check au moins une classe annotée
+            if (applications.size() != 1) {
+                processingEnv.getMessager().printMessage(ERROR, ONE_APPLICATION_ONLY.text());
+                return false;
+            }
             Element application = applications.iterator().next();
             this.applicationName = application.getAnnotation(ExposedApplication.class).name();
         }
@@ -125,6 +131,11 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     }
 
     private void generateEntryPoint() throws IOException {
+        if (applicationName.isEmpty()) {
+            processingEnv.getMessager().printMessage(ERROR, NO_APPLICATION_FOUND.text());
+            return;
+        }
+
         ClassName linkers = ClassName.valueOf("net.biville.florent.jax_rs_linker.Linkers");
         JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(linkers.getName());
         try (LinkersWriter writer = new LinkersWriter(new JavaWriter(sourceFile.openWriter()))) {
