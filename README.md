@@ -58,7 +58,7 @@ public class ProductResource {
 }
 ```
 
-```
+```java
 import net.biville.florent.jax_rs_linker.api.Self;
 
 import javax.ws.rs.GET;
@@ -78,7 +78,7 @@ public class CompanyResource {
 
 JAX-RS is configured as follows:
 
-```
+```java
 import net.biville.florent.jax_rs_linker.api.ExposedApplication;
 
 import javax.ws.rs.ApplicationPath;
@@ -96,7 +96,7 @@ Now comes the challenge: how do you cleanly resolve links between your resources
 
 JAX-RS Linker, as you will see, does not require much more information. Just add the following to your resources:
 
-```
+```java
 import net.biville.florent.jax_rs_linker.Linkers;
 import net.biville.florent.jax_rs_linker.api.Self;
 import net.biville.florent.jax_rs_linker.api.SubResource;
@@ -126,7 +126,7 @@ public class ProductResource {
 }
 ```
 
-```
+```java
 import net.biville.florent.jax_rs_linker.api.Self;
 
 import javax.ws.rs.GET;
@@ -152,7 +152,7 @@ related resources.
 To be fully aware of the context path, JAX-RS linker requires a last twist to your
 existing application:
 
-```
+```java
 import net.biville.florent.jax_rs_linker.api.ExposedApplication;
 
 import javax.ws.rs.ApplicationPath;
@@ -170,7 +170,7 @@ Once these changes are done, the annotation processor can kick in and generate
 Here a simplistic example of one use of the generated classes (don't do this for complex
 mapping, confine it to a clean and decoupled mapper instead).
 
-```
+```java
 import net.biville.florent.jax_rs_linker.Linkers;
 import net.biville.florent.jax_rs_linker.api.Self;
 import net.biville.florent.jax_rs_linker.api.SubResource;
