@@ -23,81 +23,218 @@ These annotations are defined in:
 	</dependency>
 ```
 
-Example:
+### Example
+
+#### Initial setup
+
+Consider the following JAX-RS resources:
 
 ```java
-import com.acme.api.BrandResource;
 
+import net.biville.florent.jax_rs_linker.Linkers;
 import net.biville.florent.jax_rs_linker.api.Self;
 import net.biville.florent.jax_rs_linker.api.SubResource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Response;
+
+import static net.biville.florent.jax_rs_linker.api.PathArgument.argument;
 
 @Path("/product")
 public class ProductResource {
 
-	private ProductsRepository products;
-	private ProductResponseMapper productMapper;
-	
-	private BrandsRepository brands;
-	private BrandResponseMapper brandMapper; 
+    @Path("/{id}")
+    @GET
+    public String getById(@PathParam("id") int id) {
+        return "Product " + String.valueOf(id);
+    }
 
-	// [...]
-	
-	@Self
-	@GET
-	@Path("/{id}")
-	public Response getById(@PathParam("id") int id) {
-		return productMapper.map(products.findById(id));
-	}
-
-	@SubResource(BrandResource.class)
-	@GET
-	@Path("/{id}/brand")
-	public Response getBrandsByProductId(@PathParam("id") int id) {
-		return brandMapper.map(brands.findByProductId(id));
-	}
+    @Path("/{id}/company")
+    @GET
+    public String getCompanyByProductId(@PathParam("id") int productId) {
+        return "Company for Product " + productId;
+    }
 }
 ```
+
+```
+import net.biville.florent.jax_rs_linker.api.Self;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+
+@Path("/company")
+public class CompanyResource {
+
+    @Path("/{id}")
+    @GET
+    public String getById(@PathParam("id") int id) {
+        return "Company " + String.valueOf(id);
+    }
+}
+```
+
+JAX-RS is configured as follows:
+
+```
+import net.biville.florent.jax_rs_linker.api.ExposedApplication;
+
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
+
+@ApplicationPath("api")
+public class Configuration extends Application {
+}
+```
+
+Those are the basic building blocks of your hypermedia API.
+Now comes the challenge: how do you cleanly resolve links between your resources?
+
+#### Enriching your resources
+
+JAX-RS Linker, as you will see, does not require much more information. Just add the following to your resources:
+
+```
+import net.biville.florent.jax_rs_linker.Linkers;
+import net.biville.florent.jax_rs_linker.api.Self;
+import net.biville.florent.jax_rs_linker.api.SubResource;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+
+import static net.biville.florent.jax_rs_linker.api.PathArgument.argument;
+
+@Path("/product")
+public class ProductResource {
+
+    @Self
+    @Path("/{id}")
+    @GET
+    public String getById(@PathParam("id") int id) {
+        return "Product " + String.valueOf(id);
+    }
+
+    @SubResource(CompanyResource.class)
+    @Path("/{id}/company")
+    @GET
+    public String getCompanyByProductId(@PathParam("id") int productId) {
+        return "Company for Product " + productId;
+    }
+}
+```
+
+```
+import net.biville.florent.jax_rs_linker.api.Self;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+
+@Path("/company")
+public class CompanyResource {
+
+    @Self
+    @Path("/{id}")
+    @GET
+    public String getById(@PathParam("id") int id) {
+        return "Company " + String.valueOf(id);
+    }
+}
+```
+
+As you may have already guessed, `@Self` denotes the canonical path of the resource itself
+(therefore: exactly 1 per resource allowed), whereas `@SubResource` denotes paths to other
+related resources.
+
+To be fully aware of the context path, JAX-RS linker requires a last twist to your
+existing application:
+
+```
+import net.biville.florent.jax_rs_linker.api.ExposedApplication;
+
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
+
+@ApplicationPath("api")
+@ExposedApplication(name = "acme_servlet_name")
+public class Configuration extends Application {
+}
+```
+
+Once these changes are done, the annotation processor can kick in and generate
+*at compile time* all the boring link resolution for you.
+
+Here a simplistic example of one use of the generated classes (don't do this for complex
+mapping, confine it to a clean and decoupled mapper instead).
+
+```
+import net.biville.florent.jax_rs_linker.Linkers;
+import net.biville.florent.jax_rs_linker.api.Self;
+import net.biville.florent.jax_rs_linker.api.SubResource;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+
+import static net.biville.florent.jax_rs_linker.api.PathArgument.argument;
+
+@Path("/product")
+public class ProductResource {
+
+    @Self
+    @Path("/{id}")
+    @GET
+    public String getById(@PathParam("id") int id) {
+        return "Product " + String.valueOf(id);
+    }
+
+    @SubResource(CompanyResource.class)
+    @Path("/{id}/company")
+    @GET
+    public String getCompanyByProductId(@PathParam("id") int productId) {
+        return "Company for Product " + productId;
+    }
+
+    @Path("/{id}/self")
+    @GET
+    public String getSelfLink(@PathParam("id") int productId) {
+        return Linkers.productResourceLinker().self().replace(argument("id", productId)).value();
+    }
+
+    @Path("/{id}/related-company")
+    @GET
+    public String getRelatedLink(@PathParam("id") int productId) {
+        return Linkers.productResourceLinker().related(CompanyResource.class).get().replace(argument("id", productId)).value();
+    }
+}
+```
+
+One more realistic usecase is building ATOM feed for instance, where self, related and alternate links must be
+computed to navigate through your graph of resources.
+
+Your imagination is the limit!
 
 ## Annotation processor
 
-When jax-rs-linker is added to the classpath, its annotation processor is automatically registered as a processor candidate.
-Following the previous example, `ProductResourceLinker` will be generated, exposing 2 methods:
+When JAX-RS linker is added to the classpath, its annotation processor is automatically registered
+as a processor candidate.
 
-  - `self()` whose return type is a `TemplatedPath`
-  - `related(Class<?>)` whose return type is a `TemplatedPath`
+Following up the previous example, `Linkers` will be generated, exposing several methods, including:
 
-One usage of the generated Linker class could be then as follows:
+  - public static ProductResourceLinker productResourceLinker()
+  - public static CompanyResourceLinker companyResourceLinker()
 
-```java
-import javax.ws.rs.core.Response;
-import java.util.Map;
-import java.util.EnumMap;
 
-import com.acme.model.Product;
-import com.acme.api.LinkType;
-import com.acme.api.BrandResource;
+Each of these linker classes has been generated as well, defining the following API:
 
-import static net.biville.florent.jax_rs_linker.api.PathArgument.*;
+ - public TemplatedPath self() // gives access to the (possibly parameterized) self URI
+ - public Optional<TemplatedPath> related(Class<?> resourceClass) // gives access to the specified related resource
 
-public class ProductResponseMapper {
+Please note that `productResourceLinker.related(CompanyResourceLinker.class)` is *NOT* equivalent to
+`companyResourceLinker.related(ProductResourceLinker.class)`.
 
-	private final ProductResourceLinker linker = new ProductResourceLinker();
-
-	public Response map(Product product) {
-		Map<LinkType, String> links = new EnumMap<>();
-		links.put(LinkType.ALTERNATE, linker.self().replace(argument("id", product.getId())).value());
-		links.put(LinkType.RELATED, linker.related(BrandResource.class).replace(argument("id", product.getId())).value());
-		// [...]
-	}
-}
-
-```
-
-Each `XxxLinker` (where Xxx is a JAX-RS resource) gives you access to `Xxx` self path and its "sub-paths" (paths to other resources).
-Be aware that unnecessary calls to `related` (when no parameter to replace) and `value` (when still parameters to replace) will trigger
-a runtime exception.
+In the first case, the following wrapped URI will be: `/api/product/{id}/company`.
+In the second case, nothing will be returned as there is no link from CompanyResource to ProductResource.
