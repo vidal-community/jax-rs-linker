@@ -1,19 +1,19 @@
 
-package net.biville.florent.jax_rs_linker.parser;
+package com.vidal.oss.jax_rs_linker.parser;
 
 import com.google.common.base.Optional;
+import com.vidal.oss.jax_rs_linker.functions.ClassToName;
+import com.vidal.oss.jax_rs_linker.model.ApiPath;
+import com.vidal.oss.jax_rs_linker.model.ClassName;
+import com.vidal.oss.jax_rs_linker.model.PathParameter;
+import com.vidal.oss.jax_rs_linker.model.TemplatedPath;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
-import net.biville.florent.jax_rs_linker.functions.ClassToName;
-import net.biville.florent.jax_rs_linker.model.ApiPath;
-import net.biville.florent.jax_rs_linker.model.ClassName;
-import net.biville.florent.jax_rs_linker.model.PathParameter;
-import net.biville.florent.jax_rs_linker.model.TemplatedPath;
 
 
-@Generated("net.biville.florent.jax_rs_linker.LinkerAnnotationProcessor")
+@Generated("com.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
 public class ProductResourceLinker {
 
     private final Map<ClassName, ApiPath> relatedMappings = new HashMap<>();
@@ -26,7 +26,7 @@ public class ProductResourceLinker {
     public ProductResourceLinker(String contextPath) {
         this.contextPath = contextPath;
         relatedMappings.put(
-                ClassName.valueOf("net.biville.florent.jax_rs_linker.parser.BrandResource"),
+                ClassName.valueOf("com.vidal.oss.jax_rs_linker.parser.BrandResource"),
                 new ApiPath("/product/{id}/brand", Arrays.asList(new PathParameter(ClassName.valueOf("int"), "id"))));
     }
 

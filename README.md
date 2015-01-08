@@ -17,7 +17,7 @@ These annotations are defined in:
 
 ```xml
 	<dependency>
-		<groupId>net.biville.florent</groupId>
+		<groupId>com.vidal.oss</groupId>
 		<artifactId>jax-rs-linker</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</dependency>
@@ -31,15 +31,15 @@ Consider the following JAX-RS resources:
 
 ```java
 
-import net.biville.florent.jax_rs_linker.Linkers;
-import net.biville.florent.jax_rs_linker.api.Self;
-import net.biville.florent.jax_rs_linker.api.SubResource;
+import com.vidal.oss.jax_rs_linker.Linkers;
+import com.vidal.oss.jax_rs_linker.api.Self;
+import com.vidal.oss.jax_rs_linker.api.SubResource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import static net.biville.florent.jax_rs_linker.api.PathArgument.argument;
+import static com.vidal.oss.jax_rs_linker.api.PathArgument.argument;
 
 @Path("/product")
 public class ProductResource {
@@ -59,7 +59,7 @@ public class ProductResource {
 ```
 
 ```java
-import net.biville.florent.jax_rs_linker.api.Self;
+import com.vidal.oss.jax_rs_linker.api.Self;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -79,7 +79,7 @@ public class CompanyResource {
 JAX-RS is configured as follows:
 
 ```java
-import net.biville.florent.jax_rs_linker.api.ExposedApplication;
+import com.vidal.oss.jax_rs_linker.api.ExposedApplication;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -97,15 +97,15 @@ Now comes the challenge: how do you cleanly resolve links between your resources
 JAX-RS Linker, as you will see, does not require much more information. Just add the following to your resources:
 
 ```java
-import net.biville.florent.jax_rs_linker.Linkers;
-import net.biville.florent.jax_rs_linker.api.Self;
-import net.biville.florent.jax_rs_linker.api.SubResource;
+import com.vidal.oss.jax_rs_linker.Linkers;
+import com.vidal.oss.jax_rs_linker.api.Self;
+import com.vidal.oss.jax_rs_linker.api.SubResource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import static net.biville.florent.jax_rs_linker.api.PathArgument.argument;
+import static com.vidal.oss.jax_rs_linker.api.PathArgument.argument;
 
 @Path("/product")
 public class ProductResource {
@@ -127,7 +127,7 @@ public class ProductResource {
 ```
 
 ```java
-import net.biville.florent.jax_rs_linker.api.Self;
+import com.vidal.oss.jax_rs_linker.api.Self;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -153,7 +153,7 @@ To be fully aware of the context path, JAX-RS linker requires a last twist to yo
 existing application:
 
 ```java
-import net.biville.florent.jax_rs_linker.api.ExposedApplication;
+import com.vidal.oss.jax_rs_linker.api.ExposedApplication;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -171,15 +171,15 @@ Here a simplistic example of one use of the generated classes (don't do this for
 mapping, confine it to a clean and decoupled mapper instead).
 
 ```java
-import net.biville.florent.jax_rs_linker.Linkers;
-import net.biville.florent.jax_rs_linker.api.Self;
-import net.biville.florent.jax_rs_linker.api.SubResource;
+import com.vidal.oss.jax_rs_linker.Linkers;
+import com.vidal.oss.jax_rs_linker.api.Self;
+import com.vidal.oss.jax_rs_linker.api.SubResource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import static net.biville.florent.jax_rs_linker.api.PathArgument.argument;
+import static com.vidal.oss.jax_rs_linker.api.PathArgument.argument;
 
 @Path("/product")
 public class ProductResource {

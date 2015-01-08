@@ -1,6 +1,6 @@
-package net.biville.florent.jax_rs_linker.parser;
+package com.vidal.oss.jax_rs_linker.parser;
 
-import net.biville.florent.jax_rs_linker.api.Self;
+import com.vidal.oss.jax_rs_linker.api.Self;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
