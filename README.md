@@ -233,8 +233,8 @@ Each of these linker classes has been generated as well, defining the following 
  - public TemplatedPath self() // gives access to the (possibly parameterized) self URI
  - public Optional<TemplatedPath> related(Class<?> resourceClass) // gives access to the specified related resource
 
-Please note that `productResourceLinker.related(CompanyResourceLinker.class)` is *NOT* equivalent to
-`companyResourceLinker.related(ProductResourceLinker.class)`.
+Please note that `productResourceLinker.related(CompanyResource.class)` is *NOT* equivalent to
+`companyResourceLinker.related(ProductResource.class)`.
 
 In the first case, the following wrapped URI will be: `/api/product/{id}/company`.
 In the second case, nothing will be returned as there is no link from CompanyResource to ProductResource.
