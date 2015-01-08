@@ -1,0 +1,8 @@
+language: java
+jdk:
+- openjdk7
+- oraclejdk7
+- oraclejdk8
+script: "mvn -T4 clean package"
+after_success:
+  - mvn clean test jacoco:report coveralls:report
