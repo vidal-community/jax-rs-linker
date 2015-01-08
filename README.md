@@ -1,5 +1,10 @@
 # JAX-RS linker
 
+## Build status
+
+[![Build Status](https://travis-ci.org/softwarevidal/jax-rs-linker.png)](https://travis-ci.org/softwarevidal/jax-rs-linker)
+[![Coverage Status](https://coveralls.io/repos/softwarevidal/jax-rs-linker/badge.png)](https://coveralls.io/r/softwarevidal/jax-rs-linker)
+
 ## Scope
 
 JAX-RS linker aims at providing, at compile-time, the catalog of links 
@@ -224,14 +229,14 @@ as a processor candidate.
 
 Following up the previous example, `Linkers` will be generated, exposing several methods, including:
 
-  - public static ProductResourceLinker productResourceLinker()
-  - public static CompanyResourceLinker companyResourceLinker()
+  - `public static ProductResourceLinker productResourceLinker()`
+  - `public static CompanyResourceLinker companyResourceLinker()`
 
 
 Each of these linker classes has been generated as well, defining the following API:
 
- - public TemplatedPath self() // gives access to the (possibly parameterized) self URI
- - public Optional<TemplatedPath> related(Class<?> resourceClass) // gives access to the specified related resource
+ - `public TemplatedPath self() // gives access to the (possibly parameterized) self URI`
+ - `public Optional<TemplatedPath> related(Class<?> resourceClass) // gives access to the specified related resource`
 
 Please note that `productResourceLinker.related(CompanyResource.class)` is *NOT* equivalent to
 `companyResourceLinker.related(ProductResource.class)`.
