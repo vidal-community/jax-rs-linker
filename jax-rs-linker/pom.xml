@@ -82,6 +82,38 @@
                     </annotationProcessors>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.3</version>
+                <configuration>
+                    <artifactSet>
+                        <includes>
+                            <include>com.google.guava:guava</include>
+                        </includes>
+                    </artifactSet>
+                    <relocations>
+                        <relocation>
+                            <pattern>com.google</pattern>
+                            <shadedPattern>hidden.com.google</shadedPattern>
+                            <excludes>
+                                <exclude>com.google.common.base.Optional</exclude>
+                                <exclude>com.google.common.base.Present</exclude>
+                                <exclude>com.google.common.base.Absent</exclude>
+                            </excludes>
+                        </relocation>
+                    </relocations>
+                    <minimizeJar>true</minimizeJar>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
