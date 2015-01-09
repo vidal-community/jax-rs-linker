@@ -24,6 +24,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
@@ -137,7 +138,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
         ClassName linkers = ClassName.valueOf("com.vidal.oss.jax_rs_linker.Linkers");
         JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(linkers.getName());
-        try (LinkersWriter writer = new LinkersWriter(new JavaWriter(sourceFile.openWriter()))) {
+        try (LinkersWriter writer = new LinkersWriter(javaWriter(sourceFile))) {
             writer.write(linkers, elements.keySet(), applicationName);
         }
     }
@@ -152,9 +153,13 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
         ClassName generatedClass = className.append(GENERATED_CLASSNAME_SUFFIX);
         String generatedClassName = generatedClass.getName();
         JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(generatedClassName);
-        try (LinkerWriter writer = new LinkerWriter(new JavaWriter(sourceFile.openWriter()))) {
+        try (LinkerWriter writer = new LinkerWriter(javaWriter(sourceFile))) {
             writer.write(generatedClass, mappings);
         }
+    }
+
+    private JavaWriter javaWriter(JavaFileObject sourceFile) throws IOException {
+        return new JavaWriter(new BufferedWriter(sourceFile.openWriter()));
     }
 
 }
