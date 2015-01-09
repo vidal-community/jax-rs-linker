@@ -224,8 +224,8 @@ Your imagination is the limit!
 
 ## Annotation processor
 
-When JAX-RS linker is added to the classpath, its annotation processor is automatically registered
-as a processor candidate.
+When JAX-RS linker is added to the classpath, its annotation processor 
+(`com.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor`) is automatically registered as a processor candidate.
 
 Following up the previous example, `Linkers` will be generated, exposing several methods, including:
 
