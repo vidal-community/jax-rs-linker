@@ -1,19 +1,21 @@
 package com.vidal.oss.jax_rs_linker.parser;
 
+import com.vidal.oss.jax_rs_linker.api.PathParameters;
 import javax.annotation.Generated;
 
 @Generated("com.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
-public enum PersonResourcePathParameters {
-    FIRST_NAME("firstName"),
-    ID("id");
+public enum PersonResourcePathParameters
+    implements PathParameters {
+	FIRST_NAME("firstName"),
+	ID("id");
 
-    private final String value;
+	private final String placeholder;
 
-    PersonResourcePathParameters(String value) {
-        this.value = value;
-    }
+	PersonResourcePathParameters(String placeholder) {
+		this.placeholder = placeholder;
+	}
 
-    String value() {
-        return this.value;
-    }
+	public String placeholder() {
+		return this.placeholder;
+	}
 }

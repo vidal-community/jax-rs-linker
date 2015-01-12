@@ -4,6 +4,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Ordering;
 import com.squareup.javawriter.JavaWriter;
 import com.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor;
+import com.vidal.oss.jax_rs_linker.api.PathParameters;
 import com.vidal.oss.jax_rs_linker.functions.PathParameterToString;
 import com.vidal.oss.jax_rs_linker.model.ClassName;
 import com.vidal.oss.jax_rs_linker.model.Mapping;
@@ -33,25 +34,29 @@ public class PathParamsEnumWriter implements AutoCloseable {
     }
 
     public void write(ClassName generatedClass, Collection<Mapping> mappings) throws IOException {
+        if (mappings.isEmpty()) {
+            return;
+        }
+
         javaWriter.setIndent("\t");
         JavaWriter writer = javaWriter
             .emitPackage(generatedClass.packageName())
-            .emitImports(Generated.class)
+            .emitImports(Generated.class, PathParameters.class)
             .emitEmptyLine()
             .emitAnnotation(Generated.class, LinkerAnnotationProcessor.processorQualifiedName())
-            .beginType(generatedClass.getName(), "enum", EnumSet.of(PUBLIC));
+            .beginType(generatedClass.getName(), "enum", EnumSet.of(PUBLIC), null, PathParameters.class.getSimpleName());
 
         writeEnumeration(mappings, writer);
 
         writer.emitEmptyLine()
-            .emitField("String", "value", immutableEnumSet(PRIVATE, FINAL))
+            .emitField("String", "placeholder", immutableEnumSet(PRIVATE, FINAL))
             .emitEmptyLine()
-            .beginConstructor(Collections.<Modifier>emptySet(), "String", "value")
-                .emitStatement("this.value = value")
+            .beginConstructor(Collections.<Modifier>emptySet(), "String", "placeholder")
+                .emitStatement("this.placeholder = placeholder")
             .endConstructor()
             .emitEmptyLine()
-            .beginMethod("String", "value", Collections.<Modifier>emptySet())
-            .emitStatement("return this.value")
+            .beginMethod("String", "placeholder", immutableEnumSet(PUBLIC))
+            .emitStatement("return this.placeholder")
             .endMethod()
             .endType();
 

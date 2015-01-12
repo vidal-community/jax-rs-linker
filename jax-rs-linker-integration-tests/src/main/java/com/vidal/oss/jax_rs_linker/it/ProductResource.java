@@ -1,7 +1,6 @@
 package com.vidal.oss.jax_rs_linker.it;
 
 import com.vidal.oss.jax_rs_linker.Linkers;
-import com.vidal.oss.jax_rs_linker.api.PathArgument;
 import com.vidal.oss.jax_rs_linker.api.Self;
 import com.vidal.oss.jax_rs_linker.api.SubResource;
 
@@ -9,7 +8,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import static com.vidal.oss.jax_rs_linker.api.PathArgument.argument;
+import static com.vidal.oss.jax_rs_linker.Linkers.productResourceLinker;
 
 @Path("/product")
 public class ProductResource {
@@ -38,12 +37,12 @@ public class ProductResource {
     @Path("/{id}/self")
     @GET
     public String getSelfLink(@PathParam("id") int productId) {
-        return Linkers.productResourceLinker().self().replace(PathArgument.argument("id", productId)).value();
+        return productResourceLinker().self().replace(ProductResourcePathParameters.ID, String.valueOf(productId)).value();
     }
 
     @Path("/{id}/related-company")
     @GET
     public String getRelatedLink(@PathParam("id") int productId) {
-        return Linkers.productResourceLinker().related(CompanyResource.class).get().replace(PathArgument.argument("id", productId)).value();
+        return productResourceLinker().related(CompanyResource.class).get().replace(ProductResourcePathParameters.ID, String.valueOf(productId)).value();
     }
 }

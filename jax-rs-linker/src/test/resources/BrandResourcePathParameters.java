@@ -1,18 +1,20 @@
 package com.vidal.oss.jax_rs_linker.parser;
 
+import com.vidal.oss.jax_rs_linker.api.PathParameters;
 import javax.annotation.Generated;
 
 @Generated("com.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
-public enum BrandResourcePathParameters {
+public enum BrandResourcePathParameters
+    implements PathParameters {
     ID("id");
 
-    private final String value;
+    private final String placeholder;
 
-    BrandResourcePathParameters(String value) {
-        this.value = value;
+    BrandResourcePathParameters(String placeholder) {
+        this.placeholder = placeholder;
     }
 
-    String value() {
-        return this.value;
+    public String placeholder() {
+        return this.placeholder;
     }
 }
