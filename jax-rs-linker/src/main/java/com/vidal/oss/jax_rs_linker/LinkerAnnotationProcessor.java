@@ -35,6 +35,7 @@ import static com.google.common.base.Predicates.notNull;
 import static com.google.common.base.Throwables.propagate;
 import static com.vidal.oss.jax_rs_linker.functions.JavaxElementToMappings.intoOptionalMapping;
 import static com.vidal.oss.jax_rs_linker.functions.MappingToClassName.INTO_CLASS_NAME;
+import static com.vidal.oss.jax_rs_linker.functions.MappingToPathParameters.TO_PATH_PARAMETERS;
 import static com.vidal.oss.jax_rs_linker.functions.TypeElementToElement.intoElement;
 import static com.vidal.oss.jax_rs_linker.predicates.ElementHasKind.byKind;
 import static java.lang.String.format;
@@ -169,7 +170,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
         }
 
         ClassName linkers = ClassName.valueOf("com.vidal.oss.jax_rs_linker.Linkers");
-        JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(linkers.getName());
+        JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(linkers.fullyQualifiedName());
         try (LinkersWriter writer = new LinkersWriter(javaWriter(sourceFile))) {
             writer.write(linkers, elements.keySet(), applicationName);
         }
@@ -184,7 +185,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     private void generateLinkerClasses(ClassName className, Collection<Mapping> mappings) throws IOException {
         ClassName generatedClass = className.append(GENERATED_CLASSNAME_SUFFIX);
-        String generatedClassName = generatedClass.getName();
+        String generatedClassName = generatedClass.fullyQualifiedName();
         JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(generatedClassName);
         try (LinkerWriter writer = new LinkerWriter(javaWriter(sourceFile))) {
             writer.write(generatedClass, mappings);
@@ -192,8 +193,11 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     }
 
     private void generatePathParamEnums(ClassName className, Collection<Mapping> mappings) throws IOException {
+        if (FluentIterable.from(mappings).transformAndConcat(TO_PATH_PARAMETERS).isEmpty()) {
+            return;
+        }
         ClassName generatedEnum = className.append(GENERATED_ENUMNAME_SUFFIX);
-        String generatedEnumName = generatedEnum.getName();
+        String generatedEnumName = generatedEnum.fullyQualifiedName();
         JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(generatedEnumName);
         try (PathParamsEnumWriter writer = new PathParamsEnumWriter(javaWriter(sourceFile))) {
             writer.write(generatedEnum, mappings);

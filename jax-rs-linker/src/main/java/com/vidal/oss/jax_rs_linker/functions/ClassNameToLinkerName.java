@@ -12,6 +12,6 @@ public enum ClassNameToLinkerName implements Function<ClassName, String> {
     @Nullable
     @Override
     public String apply(ClassName className) {
-        return className.getName() + LinkerAnnotationProcessor.GENERATED_CLASSNAME_SUFFIX;
+        return className.fullyQualifiedName() + LinkerAnnotationProcessor.GENERATED_CLASSNAME_SUFFIX;
     }
 }

@@ -1,6 +1,7 @@
 package com.vidal.oss.jax_rs_linker.parser;
 
 import com.google.common.base.Optional;
+import com.vidal.oss.jax_rs_linker.api.NoPathParameters;
 import com.vidal.oss.jax_rs_linker.functions.ClassToName;
 import com.vidal.oss.jax_rs_linker.model.ApiPath;
 import com.vidal.oss.jax_rs_linker.model.ClassName;
@@ -10,7 +11,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
-
 
 @Generated("com.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
 public class BrandResourceLinker {
@@ -26,15 +26,15 @@ public class BrandResourceLinker {
         this.contextPath = contextPath;
     }
 
-    public TemplatedPath self() {
-        return new TemplatedPath(contextPath + "/brand/{id}", Arrays.asList(new PathParameter(ClassName.valueOf("int"), "id")));
+    public TemplatedPath<BrandResourcePathParameters> self() {
+        return new TemplatedPath<BrandResourcePathParameters>(contextPath + "/brand/{id}", Arrays.<PathParameter>asList(new PathParameter(ClassName.valueOf("int"), "id")));
     }
 
-    public Optional<TemplatedPath> related(Class<?> resourceClass) {
+    public Optional<TemplatedPath<BrandResourcePathParameters>> related(Class<?> resourceClass) {
         ApiPath path = relatedMappings.get(ClassName.valueOf(ClassToName.INSTANCE.apply(resourceClass)));
         if (path == null) {
-            return Optional.<TemplatedPath>absent();
+            return Optional.<TemplatedPath<BrandResourcePathParameters>>absent();
         }
-        return Optional.of(new TemplatedPath(contextPath + path.getPath(), path.getPathParameters()));
+        return Optional.of(new TemplatedPath<BrandResourcePathParameters>(contextPath + path.getPath(), path.getPathParameters()));
     }
 }

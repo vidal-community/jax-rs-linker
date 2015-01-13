@@ -2,6 +2,7 @@
 package com.vidal.oss.jax_rs_linker.parser;
 
 import com.google.common.base.Optional;
+import com.vidal.oss.jax_rs_linker.api.NoPathParameters;
 import com.vidal.oss.jax_rs_linker.functions.ClassToName;
 import com.vidal.oss.jax_rs_linker.model.ApiPath;
 import com.vidal.oss.jax_rs_linker.model.ClassName;
@@ -27,18 +28,18 @@ public class ProductResourceLinker {
         this.contextPath = contextPath;
         relatedMappings.put(
                 ClassName.valueOf("com.vidal.oss.jax_rs_linker.parser.BrandResource"),
-                new ApiPath("/product/{id}/brand", Arrays.asList(new PathParameter(ClassName.valueOf("int"), "id"))));
+                new ApiPath("/product/{id}/brand", Arrays.<PathParameter>asList(new PathParameter(ClassName.valueOf("int"), "id"))));
     }
 
-    public TemplatedPath self() {
-        return new TemplatedPath(contextPath + "/product/{id}", Arrays.asList(new PathParameter(ClassName.valueOf("int"), "id")));
+    public TemplatedPath<ProductResourcePathParameters> self() {
+        return new TemplatedPath<ProductResourcePathParameters>(contextPath + "/product/{id}", Arrays.<PathParameter>asList(new PathParameter(ClassName.valueOf("int"), "id")));
     }
 
-    public Optional<TemplatedPath> related(Class<?> resourceClass) {
+    public Optional<TemplatedPath<ProductResourcePathParameters>> related(Class<?> resourceClass) {
         ApiPath path = relatedMappings.get(ClassName.valueOf(ClassToName.INSTANCE.apply(resourceClass)));
         if (path == null) {
-            return Optional.<TemplatedPath>absent();
+            return Optional.<TemplatedPath<ProductResourcePathParameters>>absent();
         }
-        return Optional.of(new TemplatedPath(contextPath + path.getPath(), path.getPathParameters()));
+        return Optional.of(new TemplatedPath<ProductResourcePathParameters>(contextPath + path.getPath(), path.getPathParameters()));
     }
 }

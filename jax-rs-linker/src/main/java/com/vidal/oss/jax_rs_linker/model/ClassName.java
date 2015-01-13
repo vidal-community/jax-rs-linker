@@ -32,7 +32,7 @@ public final class ClassName {
         return name.substring(name.lastIndexOf('.') + 1);
     }
 
-    public String getName() {
+    public String fullyQualifiedName() {
         return name;
     }
 

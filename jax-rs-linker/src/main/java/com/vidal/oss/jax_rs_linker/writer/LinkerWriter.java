@@ -8,6 +8,7 @@ import com.google.common.collect.FluentIterable;
 import com.squareup.javawriter.JavaWriter;
 import com.squareup.javawriter.StringLiteral;
 import com.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor;
+import com.vidal.oss.jax_rs_linker.api.NoPathParameters;
 import com.vidal.oss.jax_rs_linker.model.Api;
 import com.vidal.oss.jax_rs_linker.model.ApiLinkType;
 import com.vidal.oss.jax_rs_linker.model.ClassName;
@@ -30,6 +31,7 @@ import java.util.Map;
 
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Sets.immutableEnumSet;
+import static java.lang.String.format;
 
 public class LinkerWriter implements AutoCloseable {
 
@@ -43,10 +45,10 @@ public class LinkerWriter implements AutoCloseable {
         javaWriter.setIndent("\t");
         JavaWriter writer = javaWriter
             .emitPackage(generatedClass.packageName())
-            .emitImports(Optional.class, Generated.class, Arrays.class, HashMap.class, Map.class, ApiPath.class, ClassName.class, PathParameter.class, TemplatedPath.class, ClassToName.class)
+            .emitImports(Optional.class, Generated.class, Arrays.class, HashMap.class, Map.class, ApiPath.class, ClassName.class, PathParameter.class, TemplatedPath.class, ClassToName.class, NoPathParameters.class)
             .emitEmptyLine()
             .emitAnnotation(Generated.class, LinkerAnnotationProcessor.processorQualifiedName())
-            .beginType(generatedClass.getName(), "class", EnumSet.of(Modifier.PUBLIC))
+            .beginType(generatedClass.fullyQualifiedName(), "class", EnumSet.of(Modifier.PUBLIC))
             .emitEmptyLine()
             .emitField("Map<ClassName, ApiPath>", "relatedMappings", immutableEnumSet(Modifier.PRIVATE, Modifier.FINAL), "new HashMap<>()")
             .emitField("String", "contextPath", immutableEnumSet(Modifier.PRIVATE, Modifier.FINAL))
@@ -61,11 +63,11 @@ public class LinkerWriter implements AutoCloseable {
         for (Mapping mapping : linked(mappings)) {
             Api api = mapping.getApi();
             ClassName target = api.getApiLink().getTarget().get();
-            String statementTemplate = "relatedMappings.put(%nClassName.valueOf(%s),%nnew ApiPath(%s, Arrays.asList(%s)))";
+            String statementTemplate = "relatedMappings.put(%nClassName.valueOf(%s),%nnew ApiPath(%s, Arrays.<PathParameter>asList(%s)))";
             ApiPath apiPath = api.getApiPath();
             writer = writer.emitStatement(
                 statementTemplate,
-                StringLiteral.forValue(target.getName()).literal(),
+                StringLiteral.forValue(target.fullyQualifiedName()).literal(),
                 StringLiteral.forValue(apiPath.getPath()).literal(),
                 parameters(apiPath.getPathParameters())
             );
@@ -79,21 +81,29 @@ public class LinkerWriter implements AutoCloseable {
             });
 
         ApiPath apiPath = mapping.get().getApi().getApiPath();
+        String parameterizedTemplatedPath = parameterizedTemplatedPath(apiPath, generatedClass.className());
         writer.endConstructor()
             .emitEmptyLine()
-            .beginMethod("TemplatedPath", "self", immutableEnumSet(Modifier.PUBLIC))
-            .emitStatement("return new TemplatedPath(contextPath + %s, Arrays.asList(%s))", StringLiteral.forValue(apiPath.getPath()).literal(), parameters(apiPath.getPathParameters()))
+            .beginMethod(parameterizedTemplatedPath, "self", immutableEnumSet(Modifier.PUBLIC))
+            .emitStatement("return new %s(contextPath + %s, Arrays.<PathParameter>asList(%s))", parameterizedTemplatedPath, StringLiteral.forValue(apiPath.getPath()).literal(), parameters(apiPath.getPathParameters()))
             .endMethod()
             .emitEmptyLine()
-            .beginMethod("Optional<TemplatedPath>", "related", immutableEnumSet(Modifier.PUBLIC), "Class<?>", "resourceClass")
+            .beginMethod(format("Optional<%s>", parameterizedTemplatedPath), "related", immutableEnumSet(Modifier.PUBLIC), "Class<?>", "resourceClass")
             .emitStatement("ApiPath path = relatedMappings.get(ClassName.valueOf(ClassToName.INSTANCE.apply(resourceClass)))")
             .beginControlFlow("if (path == null)")
-            .emitStatement("return Optional.<TemplatedPath>absent()")
+            .emitStatement("return Optional.<%s>absent()", parameterizedTemplatedPath)
             .endControlFlow()
-            .emitStatement("return Optional.of(new TemplatedPath(contextPath + path.getPath(), path.getPathParameters()))")
+            .emitStatement("return Optional.of(new %s(contextPath + path.getPath(), path.getPathParameters()))", parameterizedTemplatedPath)
             .endMethod()
             .endType();
 
+    }
+
+    private String parameterizedTemplatedPath(ApiPath apiPath, String generatedClass) {
+        if (apiPath.getPathParameters().isEmpty()) {
+            return format("TemplatedPath<%s>", NoPathParameters.class.getSimpleName());
+        }
+        return format("TemplatedPath<%s>", generatedClass.replace("Linker", "PathParameters"));
     }
 
     private Iterable<Mapping> linked(Collection<Mapping> mappings) {
@@ -118,10 +128,10 @@ public class LinkerWriter implements AutoCloseable {
                 @Nullable
                 @Override
                 public String apply(PathParameter input) {
-                    return String.format(
-                        "new PathParameter(ClassName.valueOf(%s), %s)",
-                        StringLiteral.forValue(input.getType().getName()).literal(),
-                        StringLiteral.forValue(input.getName()).literal()
+                    return format(
+                            "new PathParameter(ClassName.valueOf(%s), %s)",
+                            StringLiteral.forValue(input.getType().fullyQualifiedName()).literal(),
+                            StringLiteral.forValue(input.getName()).literal()
                     );
                 }
             })

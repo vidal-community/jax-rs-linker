@@ -21,19 +21,19 @@ public class LinkerTest {
 
     @Test
     public void should_return_sub_resource_link_for_brand() throws Exception {
-        Optional<TemplatedPath> brandLink = productLinker.related(BrandResource.class);
+        Optional<TemplatedPath<ProductResourcePathParameters>> brandLink = productLinker.related(BrandResource.class);
         assertThat(brandLink).isPresent();
 
-        String result = brandLink.get().replace(BrandResourcePathParameters.ID, "product-id").value();
+        String result = brandLink.get().replace(ProductResourcePathParameters.ID, "product-id").value();
         assertThat(result).isEqualTo("/product/product-id/brand");
     }
 
     @Test
     public void should_return_sub_resource_link_for_company() throws Exception {
-        Optional<TemplatedPath> companyLink = productLinker.related(CompanyResource.class);
+        Optional<TemplatedPath<ProductResourcePathParameters>> companyLink = productLinker.related(CompanyResource.class);
         assertThat(companyLink).isPresent();
 
-        String result = companyLink.get().replace(BrandResourcePathParameters.ID, "product-id").value();
+        String result = companyLink.get().replace(ProductResourcePathParameters.ID, "product-id").value();
         assertThat(result).isEqualTo("/product/product-id/company");
     }
 }

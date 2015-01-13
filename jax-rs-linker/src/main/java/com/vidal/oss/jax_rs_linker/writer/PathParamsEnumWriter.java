@@ -5,7 +5,6 @@ import com.google.common.collect.Ordering;
 import com.squareup.javawriter.JavaWriter;
 import com.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor;
 import com.vidal.oss.jax_rs_linker.api.PathParameters;
-import com.vidal.oss.jax_rs_linker.functions.PathParameterToString;
 import com.vidal.oss.jax_rs_linker.model.ClassName;
 import com.vidal.oss.jax_rs_linker.model.Mapping;
 
@@ -21,9 +20,7 @@ import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Sets.immutableEnumSet;
 import static com.vidal.oss.jax_rs_linker.functions.MappingToPathParameters.TO_PATH_PARAMETERS;
 import static com.vidal.oss.jax_rs_linker.functions.PathParameterToString.TO_STRING;
-import static javax.lang.model.element.Modifier.FINAL;
-import static javax.lang.model.element.Modifier.PRIVATE;
-import static javax.lang.model.element.Modifier.PUBLIC;
+import static javax.lang.model.element.Modifier.*;
 
 public class PathParamsEnumWriter implements AutoCloseable {
 
@@ -34,17 +31,13 @@ public class PathParamsEnumWriter implements AutoCloseable {
     }
 
     public void write(ClassName generatedClass, Collection<Mapping> mappings) throws IOException {
-        if (mappings.isEmpty()) {
-            return;
-        }
-
         javaWriter.setIndent("\t");
         JavaWriter writer = javaWriter
             .emitPackage(generatedClass.packageName())
             .emitImports(Generated.class, PathParameters.class)
             .emitEmptyLine()
             .emitAnnotation(Generated.class, LinkerAnnotationProcessor.processorQualifiedName())
-            .beginType(generatedClass.getName(), "enum", EnumSet.of(PUBLIC), null, PathParameters.class.getSimpleName());
+            .beginType(generatedClass.fullyQualifiedName(), "enum", EnumSet.of(PUBLIC), null, PathParameters.class.getSimpleName());
 
         writeEnumeration(mappings, writer);
 

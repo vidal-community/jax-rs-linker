@@ -27,7 +27,7 @@ public class PathParamsEnumWriterTest {
     @Test
     public void should_generate_correct_enum() throws IOException {
         ClassName generatedEnum = ClassName.valueOf("com.vidal.oss.jax_rs_linker.parser.PersonResourcePathParameters");
-        File generatedEnumFile = temporaryFolder.newFile(generatedEnum.getName());
+        File generatedEnumFile = temporaryFolder.newFile(generatedEnum.fullyQualifiedName());
         JavaWriter javaWriter = new JavaWriter(new BufferedWriter(new FileWriter(generatedEnumFile)));
 
         try (PathParamsEnumWriter writer = new PathParamsEnumWriter(javaWriter)) {
