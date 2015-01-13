@@ -37,7 +37,7 @@ public class PathParamsEnumWriterTest {
         String generatedBrandResourceEnum = fileContent(generatedEnumFile, StandardCharsets.UTF_8);
         String brandResourceEnum = fileContent(new File(getClass().getClassLoader().getResource("PersonResourcePathParameters.java").getFile()), StandardCharsets.UTF_8);
 
-        assertThat(generatedBrandResourceEnum).isEqualTo(brandResourceEnum);
+        assertThat(generatedBrandResourceEnum.replaceAll("    ", "\t")).isEqualTo(brandResourceEnum.replaceAll("    ", "\t"));
     }
 
     private String fileContent(File generatedEnumFile, Charset charset) throws IOException {

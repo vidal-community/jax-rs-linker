@@ -15,7 +15,8 @@ public enum PersonResourcePathParameters
 		this.placeholder = placeholder;
 	}
 
-	public String placeholder() {
-		return this.placeholder;
-	}
+    @Override
+    public String placeholder() {
+        return this.placeholder;
+    }
 }

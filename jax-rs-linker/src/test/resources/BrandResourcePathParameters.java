@@ -14,6 +14,7 @@ public enum BrandResourcePathParameters
         this.placeholder = placeholder;
     }
 
+    @Override
     public String placeholder() {
         return this.placeholder;
     }

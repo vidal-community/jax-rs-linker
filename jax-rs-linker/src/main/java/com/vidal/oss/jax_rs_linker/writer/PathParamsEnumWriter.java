@@ -48,6 +48,7 @@ public class PathParamsEnumWriter implements AutoCloseable {
                 .emitStatement("this.placeholder = placeholder")
             .endConstructor()
             .emitEmptyLine()
+            .emitAnnotation(Override.class)
             .beginMethod("String", "placeholder", immutableEnumSet(PUBLIC))
             .emitStatement("return this.placeholder")
             .endMethod()
