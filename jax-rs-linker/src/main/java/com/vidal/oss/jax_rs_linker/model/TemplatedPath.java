@@ -24,10 +24,10 @@ public class TemplatedPath<T extends PathParameters> {
         this.parameters = ImmutableList.copyOf(parameters);
     }
 
-    public TemplatedPath replace(T parameter, String value) {
+    public TemplatedPath<T> replace(T parameter, String value) {
         checkState(!parameters.isEmpty(), "No more parameters to replace");
         
-        return new TemplatedPath(
+        return new TemplatedPath<>(
             path.replace(placeholder(parameter.placeholder()), value),
             filter(parameters, not(byName(parameter.placeholder())))
         );

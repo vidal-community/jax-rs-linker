@@ -1,6 +1,7 @@
 package com.vidal.oss.jax_rs_linker.model;
 
 import com.google.common.collect.Lists;
+import com.vidal.oss.jax_rs_linker.api.PathParameters;
 import com.vidal.oss.jax_rs_linker.parser.ProductResource;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -22,7 +23,7 @@ public class TemplatedPathTest {
         thrown.expect(IllegalStateException.class);
         thrown.expectMessage("Parameters to replace: id");
 
-        TemplatedPath templatedPath = templatedPath(
+        TemplatedPath<ProductParameters> templatedPath = templatedPath(
                 "/product/{id}/brand",
                 newArrayList(pathParameter(className("int"), "id"))
         );
@@ -32,7 +33,7 @@ public class TemplatedPathTest {
 
     @Test
     public void renders_parameterless_path() {
-        TemplatedPath templatedPath = templatedPath(
+        TemplatedPath<ProductParameters> templatedPath = templatedPath(
                 "/product/",
                 Lists.<PathParameter>newArrayList()
         );
@@ -41,22 +42,21 @@ public class TemplatedPathTest {
     }
 
     @Test
-    @Ignore
     public void renders_parameterized_path_after_replacement() {
-        TemplatedPath templatedPath = templatedPath(
+        TemplatedPath<ProductParameters> templatedPath = templatedPath(
                 "/product/{id}",
                 newArrayList(pathParameter(className("int"), "id"))
         );
 
         assertThat(
                 templatedPath
-//                        .replace(ProductResourcePathParameters.ID, "42")
+                        .replace(ProductParameters.ID, "42")
                         .value()
         ).isEqualTo("/product/42");
     }
 
-    private TemplatedPath templatedPath(String path, Collection<PathParameter> parameters) {
-        return new TemplatedPath(path, parameters);
+    private TemplatedPath<ProductParameters> templatedPath(String path, Collection<PathParameter> parameters) {
+        return new TemplatedPath<>(path, parameters);
     }
 
     private PathParameter pathParameter(ClassName className, String name) {
@@ -65,5 +65,14 @@ public class TemplatedPathTest {
 
     private ClassName className(String type) {
         return ClassName.valueOf(type);
+    }
+}
+
+enum ProductParameters implements PathParameters {
+    ID;
+
+    @Override
+    public String placeholder() {
+        return "id";
     }
 }
