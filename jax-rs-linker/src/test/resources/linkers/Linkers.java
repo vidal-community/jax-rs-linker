@@ -7,6 +7,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 import com.vidal.oss.jax_rs_linker.parser.BrandResourceLinker;
+import com.vidal.oss.jax_rs_linker.parser.PersonResourceLinker;
 import com.vidal.oss.jax_rs_linker.parser.ProductResourceLinker;
 
 @WebListener
@@ -33,5 +34,9 @@ public class Linkers
 
     public static BrandResourceLinker brandResourceLinker() {
         return new BrandResourceLinker(contextPath);
+    }
+
+    public static PersonResourceLinker personResourceLinker() {
+        return new PersonResourceLinker(contextPath);
     }
 }

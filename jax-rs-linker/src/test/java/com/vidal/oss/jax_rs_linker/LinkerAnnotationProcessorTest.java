@@ -23,7 +23,8 @@ public class LinkerAnnotationProcessorTest {
             .that(ImmutableList.of(
                 forResource("Configuration.java"),
                 forResource("ProductResource.java"),
-                forResource("BrandResource.java")
+                forResource("BrandResource.java"),
+                forResource("PersonResource.java")
             ))
             .processedWith(processor)
 
@@ -34,6 +35,8 @@ public class LinkerAnnotationProcessorTest {
                     forResource("BrandResourceLinker.java"),
                     forResource("ProductResourcePathParameters.java"),
                     forResource("BrandResourcePathParameters.java"),
+                    forResource("PersonResourcePathParameters.java"),
+                    forResource("PersonResourcePathParameters.java"),
                     forResource("linkers/Linkers.java")
             );
     }

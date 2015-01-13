@@ -1,11 +1,14 @@
+package com.vidal.oss.jax_rs_linker.parser;
+
 import com.vidal.oss.jax_rs_linker.api.Self;
+import com.vidal.oss.jax_rs_linker.api.SubResource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
 @Path("/person")
-public class BrandResource {
+public class PersonResource {
 
     @Self
     @Path("/{id}")
@@ -14,7 +17,7 @@ public class BrandResource {
 
     }
 
-    @Self
+    @SubResource(PersonResource.class)
     @Path("/name/{firstName}")
     @GET
     public void getByFirstName(@PathParam("firstName") String firstName) {
