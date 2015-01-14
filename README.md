@@ -240,7 +240,7 @@ Each of these linker classes has been generated as well, defining the following 
 
 where `T` type parameter denotes either `*PathParameters` or `NoPathParameters`.
 
-Is any of the processed `@Self` and `@SubResource` methods include `@PathParam` parameters, the corresponding
+If any of the processed `@Self` and `@SubResource` methods include `@PathParam` parameters, the corresponding
 `PathParameters` will be generated in the same package as the processed resource.
 
 Finally, please note that `productResourceLinker.related(CompanyResource.class)` is *NOT* equivalent to
