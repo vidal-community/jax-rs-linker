@@ -54,6 +54,7 @@ public class LinkersWriter implements AutoCloseable {
                 .emitField("String", "contextPath", immutableEnumSet(PRIVATE, STATIC), "\"\"")
                 .emitEmptyLine()
                 .emitField("String", "applicationName", immutableEnumSet(PRIVATE, STATIC), StringLiteral.forValue(applicationName).literal())
+                .emitEmptyLine()
                 .emitAnnotation(Override.class)
                 .beginMethod("void", "contextInitialized", immutableEnumSet(PUBLIC), "ServletContextEvent", "sce")
                 .emitStatement("contextPath = ContextPaths.contextPath(sce.getServletContext(), applicationName)")
