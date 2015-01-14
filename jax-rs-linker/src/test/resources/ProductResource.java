@@ -1,7 +1,7 @@
-package com.vidal.oss.jax_rs_linker.parser;
+package fr.vidal.oss.jax_rs_linker.parser;
 
-import com.vidal.oss.jax_rs_linker.api.Self;
-import com.vidal.oss.jax_rs_linker.api.SubResource;
+import fr.vidal.oss.jax_rs_linker.api.Self;
+import fr.vidal.oss.jax_rs_linker.api.SubResource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

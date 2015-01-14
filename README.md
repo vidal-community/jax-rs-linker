@@ -36,15 +36,15 @@ Consider the following JAX-RS resources:
 
 ```java
 
-import com.vidal.oss.jax_rs_linker.Linkers;
-import com.vidal.oss.jax_rs_linker.api.Self;
-import com.vidal.oss.jax_rs_linker.api.SubResource;
+import fr.vidal.oss.jax_rs_linker.Linkers;
+import fr.vidal.oss.jax_rs_linker.api.Self;
+import fr.vidal.oss.jax_rs_linker.api.SubResource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import static com.vidal.oss.jax_rs_linker.api.PathArgument.argument;
+import static fr.vidal.oss.jax_rs_linker.api.PathArgument.argument;
 
 @Path("/product")
 public class ProductResource {
@@ -64,7 +64,7 @@ public class ProductResource {
 ```
 
 ```java
-import com.vidal.oss.jax_rs_linker.api.Self;
+import fr.vidal.oss.jax_rs_linker.api.Self;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -84,7 +84,7 @@ public class CompanyResource {
 JAX-RS is configured as follows:
 
 ```java
-import com.vidal.oss.jax_rs_linker.api.ExposedApplication;
+import fr.vidal.oss.jax_rs_linker.api.ExposedApplication;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -102,15 +102,15 @@ Now comes the challenge: how do you cleanly resolve links between your resources
 JAX-RS Linker, as you will see, does not require much more information. Just add the following to your resources:
 
 ```java
-import com.vidal.oss.jax_rs_linker.Linkers;
-import com.vidal.oss.jax_rs_linker.api.Self;
-import com.vidal.oss.jax_rs_linker.api.SubResource;
+import fr.vidal.oss.jax_rs_linker.Linkers;
+import fr.vidal.oss.jax_rs_linker.api.Self;
+import fr.vidal.oss.jax_rs_linker.api.SubResource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import static com.vidal.oss.jax_rs_linker.api.PathArgument.argument;
+import static fr.vidal.oss.jax_rs_linker.api.PathArgument.argument;
 
 @Path("/product")
 public class ProductResource {
@@ -132,7 +132,7 @@ public class ProductResource {
 ```
 
 ```java
-import com.vidal.oss.jax_rs_linker.api.Self;
+import fr.vidal.oss.jax_rs_linker.api.Self;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -158,7 +158,7 @@ To be fully aware of the context path, JAX-RS linker requires a last twist to yo
 existing application:
 
 ```java
-import com.vidal.oss.jax_rs_linker.api.ExposedApplication;
+import fr.vidal.oss.jax_rs_linker.api.ExposedApplication;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -176,15 +176,15 @@ Here a simplistic example of one use of the generated classes (don't do this for
 mapping, confine it to a clean and decoupled mapper instead).
 
 ```java
-import com.vidal.oss.jax_rs_linker.Linkers;
-import com.vidal.oss.jax_rs_linker.api.Self;
-import com.vidal.oss.jax_rs_linker.api.SubResource;
+import fr.vidal.oss.jax_rs_linker.Linkers;
+import fr.vidal.oss.jax_rs_linker.api.Self;
+import fr.vidal.oss.jax_rs_linker.api.SubResource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import static com.vidal.oss.jax_rs_linker.api.PathArgument.argument;
+import static fr.vidal.oss.jax_rs_linker.api.PathArgument.argument;
 
 @Path("/product")
 public class ProductResource {
@@ -225,7 +225,7 @@ Your imagination is the limit!
 ## Annotation processor
 
 When JAX-RS linker is added to the classpath, its annotation processor 
-(`com.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor`) is automatically registered as a processor candidate.
+(`fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor`) is automatically registered as a processor candidate.
 
 Following up the previous example, `Linkers` will be generated, exposing several methods, including:
 

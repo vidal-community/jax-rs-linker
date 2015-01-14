@@ -1,4 +1,4 @@
-import com.vidal.oss.jax_rs_linker.api.Self;
+import fr.vidal.oss.jax_rs_linker.api.Self;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

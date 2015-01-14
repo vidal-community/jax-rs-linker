@@ -1,9 +1,9 @@
-package com.vidal.oss.jax_rs_linker.parser;
+package fr.vidal.oss.jax_rs_linker.parser;
 
-import com.vidal.oss.jax_rs_linker.api.PathParameters;
+import fr.vidal.oss.jax_rs_linker.api.PathParameters;
 import javax.annotation.Generated;
 
-@Generated("com.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
+@Generated("fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
 public enum BrandResourcePathParameters
     implements PathParameters {
     ID("id");
