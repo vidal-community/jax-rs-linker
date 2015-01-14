@@ -23,7 +23,8 @@ public class LinkerAnnotationProcessorTest {
             .that(ImmutableList.of(
                 forResource("Configuration.java"),
                 forResource("ProductResource.java"),
-                forResource("BrandResource.java")
+                forResource("BrandResource.java"),
+                forResource("PersonResource.java")
             ))
             .processedWith(processor)
 
@@ -32,8 +33,28 @@ public class LinkerAnnotationProcessorTest {
             .generatesSources(
                     forResource("ProductResourceLinker.java"),
                     forResource("BrandResourceLinker.java"),
+                    forResource("ProductResourcePathParameters.java"),
+                    forResource("BrandResourcePathParameters.java"),
+                    forResource("PersonResourcePathParameters.java"),
+                    forResource("PersonResourcePathParameters.java"),
                     forResource("linkers/Linkers.java")
             );
+    }
+
+    @Test
+    public void generates_linker_without_path_parameters() throws Exception {
+        assert_().about(javaSources())
+                .that(ImmutableList.of(
+                        forResource("Configuration.java"),
+                        forResource("DevNullResource.java")
+                ))
+                .processedWith(processor)
+                .compilesWithoutError()
+                .and()
+                .generatesSources(
+                        forResource("DevNullResourceLinker.java")
+                );
+
     }
 
     @Test
@@ -61,7 +82,7 @@ public class LinkerAnnotationProcessorTest {
                         "\n  \tGiven method: <SelfObsessedResource#getMoreSelf>"
                 );
     }
-    
+
     @Test
     public void fails_to_generate_linkers_if_related_resource_has_too_many_self_annotations() {
         assert_().about(javaSources())
@@ -76,5 +97,4 @@ public class LinkerAnnotationProcessorTest {
                         "\n  \tGiven method: <SelfObsessedResource#getMoreSelf>"
                 );
     }
-
 }

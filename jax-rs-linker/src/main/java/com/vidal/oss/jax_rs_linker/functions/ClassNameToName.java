@@ -12,6 +12,6 @@ public enum ClassNameToName implements Function<ClassName, String> {
     @Nullable
     @Override
     public String apply(ClassName className) {
-        return className.getName();
+        return className.fullyQualifiedName();
     }
 }

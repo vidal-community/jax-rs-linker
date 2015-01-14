@@ -46,7 +46,7 @@ public class ElementParserTest {
         Mapping mapping = parser.parse(method).get();
 
         JavaLocation javaLocation = mapping.getJavaLocation();
-        assertThat(javaLocation.getClassName().getName())
+        assertThat(javaLocation.getClassName().fullyQualifiedName())
             .isEqualTo("com.vidal.oss.jax_rs_linker.parser.ProductResource");
         assertThat(javaLocation.getMethodName())
             .isEqualTo("productById");
