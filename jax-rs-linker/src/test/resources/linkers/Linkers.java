@@ -39,4 +39,8 @@ public class Linkers
     public static BrandResourceLinker brandResourceLinker() {
         return new BrandResourceLinker(contextPath);
     }
+
+    public static PersonResourceLinker personResourceLinker() {
+        return new PersonResourceLinker(contextPath);
+    }
 }
