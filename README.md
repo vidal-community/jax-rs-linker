@@ -110,8 +110,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import static fr.vidal.oss.jax_rs_linker.api.PathArgument.argument;
-
 @Path("/product")
 public class ProductResource {
 
@@ -206,16 +204,18 @@ public class ProductResource {
     @Path("/{id}/self")
     @GET
     public String getSelfLink(@PathParam("id") int productId) {
-        return Linkers.productResourceLinker().self().replace(argument("id", productId)).value();
+        return Linkers.productResourceLinker().self().replace(ProductResourcePathParameters.ID, String.valueOf(productId)).value();
     }
 
     @Path("/{id}/related-company")
     @GET
     public String getRelatedLink(@PathParam("id") int productId) {
-        return Linkers.productResourceLinker().related(CompanyResource.class).get().replace(argument("id", productId)).value();
+        return Linkers.productResourceLinker().related(CompanyResource.class).get().replace(ProductResourcePathParameters.ID, String.valueOf(productId)).value();
     }
 }
 ```
+
+Note you did not have to write nor import `ProductResourcePathParameters`, this class is generated in the same package as your resource.
 
 One more realistic usecase is building ATOM feed for instance, where self, related and alternate links must be
 computed to navigate through your graph of resources.
@@ -235,10 +235,15 @@ Following up the previous example, `Linkers` will be generated, exposing several
 
 Each of these linker classes has been generated as well, defining the following API:
 
- - `public TemplatedPath self() // gives access to the (possibly parameterized) self URI`
- - `public Optional<TemplatedPath> related(Class<?> resourceClass) // gives access to the specified related resource`
+ - `public TemplatedPath<T> self() // gives access to the (possibly parameterized) self URI`
+ - `public Optional<TemplatedPath<T>> related(Class<?> resourceClass) // gives access to the specified related resource`
 
-Please note that `productResourceLinker.related(CompanyResource.class)` is *NOT* equivalent to
+where `T` type parameter denotes either `*PathParameters` or `NoPathParameters`.
+
+Is any of the processed `@Self` and `@SubResource` methods include `@PathParam` parameters, the corresponding
+`PathParameters` will be generated in the same package as the processed resource.
+
+Finally, please note that `productResourceLinker.related(CompanyResource.class)` is *NOT* equivalent to
 `companyResourceLinker.related(ProductResource.class)`.
 
 In the first case, the following wrapped URI will be: `/api/product/{id}/company`.
