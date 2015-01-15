@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -10,7 +9,7 @@
 
     <groupId>fr.vidal.oss</groupId>
     <artifactId>jax-rs-linker-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1</version>
     <packaging>pom</packaging>
 
     <name>JAX-RS Linker: parent POM</name>
@@ -266,7 +265,8 @@
         <url>https://github.com/softwarevidal/jax-rs-linker</url>
         <connection>scm:git:git@github.com:softwarevidal/jax-rs-linker.git</connection>
         <developerConnection>scm:git:git@github.com:softwarevidal/jax-rs-linker.git</developerConnection>
-    </scm>
+      <tag>v0.1</tag>
+  </scm>
 
     <distributionManagement>
         <snapshotRepository>
