@@ -21,6 +21,6 @@ public class EntryByMethodNamePredicate implements Predicate<Map.Entry<? extends
 
     @Override
     public boolean apply(@Nullable Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> input) {
-        return input.getKey().getSimpleName().contentEquals("value");
+        return input.getKey().getSimpleName().contentEquals(name);
     }
 }
