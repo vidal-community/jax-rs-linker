@@ -55,8 +55,8 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
             .transform(ClassToName.INSTANCE)
             .toSet();
 
+    private final Multimap<ClassName, Mapping> elements = LinkedHashMultimap.create();
     private ElementParser elementParser;
-    private Multimap<ClassName, Mapping> elements = LinkedHashMultimap.create();
     private String applicationName = "";
     private boolean entryPointGenerated;
 
