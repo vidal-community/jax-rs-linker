@@ -3,7 +3,7 @@
 ## Build status
 
 [![Build Status](https://travis-ci.org/softwarevidal/jax-rs-linker.png)](https://travis-ci.org/softwarevidal/jax-rs-linker)
-[![Coverage Status](https://coveralls.io/repos/softwarevidal/jax-rs-linker/badge.png)](https://coveralls.io/r/softwarevidal/jax-rs-linker)
+[![Coverage Status](https://coveralls.io/repos/softwarevidal/jax-rs-linker/badge.svg?branch=master)](https://coveralls.io/r/softwarevidal/jax-rs-linker?branch=master)
 
 ## Scope
 
