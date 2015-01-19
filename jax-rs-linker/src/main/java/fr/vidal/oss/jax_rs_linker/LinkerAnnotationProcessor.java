@@ -16,6 +16,7 @@ import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 import fr.vidal.oss.jax_rs_linker.parser.ElementParser;
 import fr.vidal.oss.jax_rs_linker.predicates.OptionalPredicates;
+import fr.vidal.oss.jax_rs_linker.writer.DotFileWriter;
 import fr.vidal.oss.jax_rs_linker.writer.LinkerWriter;
 import fr.vidal.oss.jax_rs_linker.writer.LinkersWriter;
 import fr.vidal.oss.jax_rs_linker.writer.PathParamsEnumWriter;
@@ -29,6 +30,7 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.Set;
 
@@ -42,6 +44,7 @@ import static java.lang.String.format;
 import static javax.lang.model.SourceVersion.latest;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.tools.Diagnostic.Kind.ERROR;
+import static javax.tools.StandardLocation.CLASS_OUTPUT;
 
 
 @AutoService(Processor.class)
@@ -49,6 +52,8 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     public static final String GENERATED_CLASSNAME_SUFFIX = "Linker";
     public static final String GENERATED_ENUMNAME_SUFFIX = "PathParameters";
+    public static final String GRAPH_OPTION = "graph";
+
     private static final Set<String> SUPPORTED_ANNOTATIONS =
         FluentIterable
             .from(Lists.<Class<?>>newArrayList(Self.class, SubResource.class, ExposedApplication.class))
@@ -66,7 +71,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedOptions() {
-        return ImmutableSet.of();
+        return ImmutableSet.of(GRAPH_OPTION);
     }
 
     @Override
@@ -120,6 +125,11 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
             throw propagate(ioe);
         }
 
+        if (roundEnv.processingOver() && processingEnv.getOptions().get(GRAPH_OPTION) != null) {
+            try (DotFileWriter writer = new DotFileWriter(resourceWriter("resources.dot"))) {
+                writer.write(elements);
+            }
+        }
         return false;
     }
 
@@ -206,6 +216,14 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     private JavaWriter javaWriter(JavaFileObject sourceFile) throws IOException {
         return new JavaWriter(new BufferedWriter(sourceFile.openWriter()));
+    }
+
+    private Writer resourceWriter(String fileName) {
+        try {
+            return processingEnv.getFiler().createResource(CLASS_OUTPUT, "", fileName).openWriter();
+        } catch (IOException e) {
+            throw propagate(e);
+        }
     }
 
 }
