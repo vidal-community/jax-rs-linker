@@ -42,6 +42,6 @@ public class ProductResource {
     @Path("/{id}/related-company")
     @GET
     public String getRelatedLink(@PathParam("id") int productId) {
-        return productResourceLinker().related(CompanyResource.class).get().replace(ProductResourcePathParameters.ID, String.valueOf(productId)).value();
+        return productResourceLinker().relatedCompanyResource().replace(ProductResourcePathParameters.ID, String.valueOf(productId)).value();
     }
 }

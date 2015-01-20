@@ -1,11 +1,9 @@
 package fr.vidal.oss.jax_rs_linker.it;
 
-import com.google.common.base.Optional;
 import fr.vidal.oss.jax_rs_linker.model.TemplatedPath;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 
 public class LinkerTest {
 
@@ -21,19 +19,17 @@ public class LinkerTest {
 
     @Test
     public void should_return_sub_resource_link_for_brand() throws Exception {
-        Optional<TemplatedPath<ProductResourcePathParameters>> brandLink = productLinker.related(BrandResource.class);
-        assertThat(brandLink).isPresent();
+        TemplatedPath<ProductResourcePathParameters> brandLink = productLinker.relatedBrandResource();
 
-        String result = brandLink.get().replace(ProductResourcePathParameters.ID, "product-id").value();
+        String result = brandLink.replace(ProductResourcePathParameters.ID, "product-id").value();
         assertThat(result).isEqualTo("/product/product-id/brand");
     }
 
     @Test
     public void should_return_sub_resource_link_for_company() throws Exception {
-        Optional<TemplatedPath<ProductResourcePathParameters>> companyLink = productLinker.related(CompanyResource.class);
-        assertThat(companyLink).isPresent();
+        TemplatedPath<ProductResourcePathParameters> companyLink = productLinker.relatedCompanyResource();
 
-        String result = companyLink.get().replace(ProductResourcePathParameters.ID, "product-id").value();
+        String result = companyLink.replace(ProductResourcePathParameters.ID, "product-id").value();
         assertThat(result).isEqualTo("/product/product-id/company");
     }
 }

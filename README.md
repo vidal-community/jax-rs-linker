@@ -152,7 +152,7 @@ As you may have already guessed, `@Self` denotes the canonical path of the resou
 (therefore: exactly 1 per resource allowed), whereas `@SubResource` denotes paths to other
 related resources.
 
-To be fully aware of the context path, JAX-RS linker requires a last twist to your
+To be fully aware of the context path, JAX-RS linker requires a last tweak to your
 existing application:
 
 ```java
@@ -214,7 +214,7 @@ public class ProductResource {
     @Path("/{id}/related-company")
     @GET
     public String getRelatedLink(@PathParam("id") int productId) {
-        return Linkers.productResourceLinker().related(CompanyResource.class).get().replace(ProductResourcePathParameters.ID, String.valueOf(productId)).value();
+        return Linkers.productResourceLinker().relatedCompanyResource().replace(ProductResourcePathParameters.ID, String.valueOf(productId)).value();
     }
 }
 ```
@@ -240,15 +240,16 @@ Following up the previous example, `Linkers` will be generated, exposing several
 Each of these linker classes has been generated as well, defining the following API:
 
  - `public TemplatedPath<T> self() // gives access to the (possibly parameterized) self URI`
- - `public Optional<TemplatedPath<T>> related(Class<?> resourceClass) // gives access to the specified related resource`
+ - `public TemplatedPath<T> relatedXxxResource() // gives access to the specified related resource defined by XxxResource class`
 
 where `T` type parameter denotes either `*PathParameters` or `NoPathParameters`.
 
 If any of the processed `@Self` and `@SubResource` methods include `@PathParam` parameters, the corresponding
 `PathParameters` will be generated in the same package as the processed resource.
 
-Finally, please note that `productResourceLinker.related(CompanyResource.class)` is *NOT* equivalent to
-`companyResourceLinker.related(ProductResource.class)`.
+Finally, please note that `productResourceLinker.relatedCompanyResource()` is *NOT* equivalent to
+`companyResourceLinker.relatedProductResource()`.
 
 In the first case, the following wrapped URI will be: `/api/product/{id}/company`.
-In the second case, nothing will be returned as there is no link from CompanyResource to ProductResource.
+In the second case, it will not compile at all as there is no link from CompanyResource to ProductResource.
+

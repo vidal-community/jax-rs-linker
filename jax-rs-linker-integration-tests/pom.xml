@@ -129,11 +129,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-guava</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.squareup.okhttp</groupId>
             <artifactId>okhttp</artifactId>
             <scope>test</scope>

@@ -84,11 +84,6 @@
                         <relocation>
                             <pattern>com.google</pattern>
                             <shadedPattern>hidden.com.google</shadedPattern>
-                            <excludes>
-                                <exclude>com.google.common.base.Optional</exclude>
-                                <exclude>com.google.common.base.Present</exclude>
-                                <exclude>com.google.common.base.Absent</exclude>
-                            </excludes>
                         </relocation>
                     </relocations>
                     <minimizeJar>true</minimizeJar>

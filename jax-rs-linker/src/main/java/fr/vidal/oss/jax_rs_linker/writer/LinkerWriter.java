@@ -45,12 +45,11 @@ public class LinkerWriter implements AutoCloseable {
         javaWriter.setIndent("\t");
         JavaWriter writer = javaWriter
             .emitPackage(generatedClass.packageName())
-            .emitImports(Optional.class, Generated.class, Arrays.class, HashMap.class, Map.class, ApiPath.class, ClassName.class, PathParameter.class, TemplatedPath.class, ClassToName.class, NoPathParameters.class)
+            .emitImports(Generated.class, Arrays.class, ApiPath.class, ClassName.class, PathParameter.class, TemplatedPath.class, NoPathParameters.class)
             .emitEmptyLine()
             .emitAnnotation(Generated.class, LinkerAnnotationProcessor.processorQualifiedName())
             .beginType(generatedClass.fullyQualifiedName(), "class", EnumSet.of(Modifier.PUBLIC))
             .emitEmptyLine()
-            .emitField("Map<ClassName, ApiPath>", "relatedMappings", immutableEnumSet(Modifier.PRIVATE, Modifier.FINAL), "new HashMap<>()")
             .emitField("String", "contextPath", immutableEnumSet(Modifier.PRIVATE, Modifier.FINAL))
             .emitEmptyLine()
             .beginConstructor(immutableEnumSet(Modifier.PUBLIC))
@@ -60,42 +59,35 @@ public class LinkerWriter implements AutoCloseable {
             .beginConstructor(immutableEnumSet(Modifier.PUBLIC), "String", "contextPath")
             .emitStatement("this.contextPath = contextPath");
 
+        Optional<Mapping> selfMapping = FluentIterable.from(mappings)
+                .firstMatch(new Predicate<Mapping>() {
+                    @Override
+                    public boolean apply(@Nullable Mapping input) {
+                        return input.getApi().getApiLink().getApiLinkType() == ApiLinkType.SELF;
+                    }
+                });
+
+        ApiPath selfApiPath = selfMapping.get().getApi().getApiPath();
+        String parameterizedTemplatedPath = parameterizedTemplatedPath(selfMapping.get().getApi().getApiPath(), generatedClass.className());
+        writer = writer.endConstructor()
+                .emitEmptyLine()
+                .beginMethod(parameterizedTemplatedPath, "self", immutableEnumSet(Modifier.PUBLIC))
+                .emitStatement("return new %s(contextPath + %s, Arrays.<PathParameter>asList(%s))", parameterizedTemplatedPath, StringLiteral.forValue(selfApiPath.getPath()).literal(), parameters(selfApiPath.getPathParameters()))
+                .endMethod()
+                .emitEmptyLine();
+
         for (Mapping mapping : linked(mappings)) {
             Api api = mapping.getApi();
             ClassName target = api.getApiLink().getTarget().get();
-            String statementTemplate = "relatedMappings.put(%nClassName.valueOf(%s),%nnew ApiPath(%s, Arrays.<PathParameter>asList(%s)))";
-            ApiPath apiPath = api.getApiPath();
-            writer = writer.emitStatement(
-                statementTemplate,
-                StringLiteral.forValue(target.fullyQualifiedName()).literal(),
-                StringLiteral.forValue(apiPath.getPath()).literal(),
-                parameters(apiPath.getPathParameters())
-            );
+            writer = writer.beginMethod(parameterizedTemplatedPath, format("related%s", target.className()), immutableEnumSet(Modifier.PUBLIC))
+                    .emitStatement("ApiPath path = new ApiPath(%s, Arrays.<PathParameter>asList(%s))",
+                            StringLiteral.forValue(api.getApiPath().getPath()).literal(),
+                            parameters(api.getApiPath().getPathParameters()))
+                    .emitStatement("return new %s(contextPath + path.getPath(), path.getPathParameters())", parameterizedTemplatedPath)
+                    .endMethod()
+                    .emitEmptyLine();
         }
-        Optional<Mapping> mapping = FluentIterable.from(mappings)
-            .firstMatch(new Predicate<Mapping>() {
-                @Override
-                public boolean apply(@Nullable Mapping input) {
-                    return input.getApi().getApiLink().getApiLinkType() == ApiLinkType.SELF;
-                }
-            });
-
-        ApiPath apiPath = mapping.get().getApi().getApiPath();
-        String parameterizedTemplatedPath = parameterizedTemplatedPath(apiPath, generatedClass.className());
-        writer.endConstructor()
-            .emitEmptyLine()
-            .beginMethod(parameterizedTemplatedPath, "self", immutableEnumSet(Modifier.PUBLIC))
-            .emitStatement("return new %s(contextPath + %s, Arrays.<PathParameter>asList(%s))", parameterizedTemplatedPath, StringLiteral.forValue(apiPath.getPath()).literal(), parameters(apiPath.getPathParameters()))
-            .endMethod()
-            .emitEmptyLine()
-            .beginMethod(format("Optional<%s>", parameterizedTemplatedPath), "related", immutableEnumSet(Modifier.PUBLIC), "Class<?>", "resourceClass")
-            .emitStatement("ApiPath path = relatedMappings.get(ClassName.valueOf(ClassToName.INSTANCE.apply(resourceClass)))")
-            .beginControlFlow("if (path == null)")
-            .emitStatement("return Optional.<%s>absent()", parameterizedTemplatedPath)
-            .endControlFlow()
-            .emitStatement("return Optional.of(new %s(contextPath + path.getPath(), path.getPathParameters()))", parameterizedTemplatedPath)
-            .endMethod()
-            .endType();
+        writer.endType();
 
     }
 
