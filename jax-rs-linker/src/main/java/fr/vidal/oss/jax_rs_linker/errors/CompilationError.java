@@ -30,6 +30,10 @@ public enum CompilationError {
     ONE_APPLICATION_ONLY(
         "\n\tThere should be exactly one @ExposedApplication-annotated Jersey Application."
     ),
+    INCONSISTENT_APPLICATION_MAPPING(
+        "\n\tIf the Application is annotated with @ApplicationPath, its @ExposedApplication annotation should not define any name." +
+        "\n\tGiven application class: <%s>"
+    ),
     NO_APPLICATION_FOUND(
         "\n\tThere should be exactly one @ExposedApplication-annotated Jersey Application: none found."
     );

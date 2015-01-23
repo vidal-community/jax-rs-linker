@@ -11,7 +11,9 @@ import fr.vidal.oss.jax_rs_linker.api.Self;
 import fr.vidal.oss.jax_rs_linker.api.SubResource;
 import fr.vidal.oss.jax_rs_linker.errors.CompilationError;
 import fr.vidal.oss.jax_rs_linker.functions.ClassToName;
+import fr.vidal.oss.jax_rs_linker.functions.MappingToClassName;
 import fr.vidal.oss.jax_rs_linker.functions.OptionalFunctions;
+import fr.vidal.oss.jax_rs_linker.functions.TypeElementToElement;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 import fr.vidal.oss.jax_rs_linker.parser.ElementParser;
@@ -20,14 +22,13 @@ import fr.vidal.oss.jax_rs_linker.writer.DotFileWriter;
 import fr.vidal.oss.jax_rs_linker.writer.LinkerWriter;
 import fr.vidal.oss.jax_rs_linker.writer.LinkersWriter;
 import fr.vidal.oss.jax_rs_linker.writer.PathParamsEnumWriter;
-import fr.vidal.oss.jax_rs_linker.functions.MappingToClassName;
-import fr.vidal.oss.jax_rs_linker.functions.TypeElementToElement;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
+import javax.ws.rs.ApplicationPath;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -37,6 +38,7 @@ import java.util.Set;
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.base.Throwables.propagate;
+import static fr.vidal.oss.jax_rs_linker.errors.CompilationError.INCONSISTENT_APPLICATION_MAPPING;
 import static fr.vidal.oss.jax_rs_linker.functions.JavaxElementToMappings.intoOptionalMapping;
 import static fr.vidal.oss.jax_rs_linker.functions.MappingToPathParameters.TO_PATH_PARAMETERS;
 import static fr.vidal.oss.jax_rs_linker.predicates.ElementHasKind.byKind;
@@ -64,6 +66,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     private ElementParser elementParser;
     private String applicationName = "";
     private boolean entryPointGenerated;
+    private Messager messager;
 
     public static ImmutableMap<String, String> processorQualifiedName() {
         return ImmutableMap.of("value", format("%s", StringLiteral.forValue(LinkerAnnotationProcessor.class.getName()).literal()));
@@ -87,7 +90,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     @Override
     public void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        Messager messager = processingEnv.getMessager();
+        messager = processingEnv.getMessager();
         elementParser = new ElementParser(
             messager,
             processingEnv.getTypeUtils()
@@ -98,11 +101,10 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations,
                            RoundEnvironment roundEnv) {
 
-        Optional<? extends TypeElement> maybeExposedApplication = parseExposedApplication(annotations);
+        Optional<? extends TypeElement> maybeExposedApplication = extractExposedApplication(annotations);
         if (maybeExposedApplication.isPresent()) {
             Optional<String> name = parseApplicationName(roundEnv);
             if (!name.isPresent()) {
-                processingEnv.getMessager().printMessage(ERROR, CompilationError.ONE_APPLICATION_ONLY.text());
                 return false;
             }
             this.applicationName = name.get();
@@ -147,13 +149,30 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     private Optional<String> parseApplicationName(RoundEnvironment roundEnv) {
         Set<? extends Element> applications = roundEnv.getElementsAnnotatedWith(ExposedApplication.class);
         if (applications.size() != 1) {
+            messager.printMessage(ERROR, CompilationError.ONE_APPLICATION_ONLY.text());
             return absent();
         }
         Element application = applications.iterator().next();
-        return Optional.of(application.getAnnotation(ExposedApplication.class).servletName());
+        return applicationName((TypeElement) application);
     }
 
-    private Optional<? extends TypeElement> parseExposedApplication(Set<? extends TypeElement> annotations) {
+    private Optional<String> applicationName(TypeElement application) {
+        ApplicationPath applicationPath = application.getAnnotation(ApplicationPath.class);
+        String servletName = application.getAnnotation(ExposedApplication.class).servletName();
+        String applicationName = String.valueOf(application.getQualifiedName());
+
+        if (!(applicationPath != null ^ !servletName.isEmpty())) {
+            messager.printMessage(ERROR, INCONSISTENT_APPLICATION_MAPPING.format(applicationName), application);
+            return absent();
+        }
+
+        if (applicationPath != null) {
+            return Optional.of(applicationName);
+        }
+        return Optional.of(servletName);
+    }
+
+    private Optional<? extends TypeElement> extractExposedApplication(Set<? extends TypeElement> annotations) {
         return FluentIterable.from(annotations)
                 .firstMatch(new Predicate<TypeElement>() {
                     @Override
@@ -175,7 +194,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     private void generateLinkersSource() throws IOException {
         if (applicationName.isEmpty()) {
-            processingEnv.getMessager().printMessage(ERROR, CompilationError.NO_APPLICATION_FOUND.text());
+            messager.printMessage(ERROR, CompilationError.NO_APPLICATION_FOUND.text());
             return;
         }
 
