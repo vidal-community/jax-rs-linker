@@ -5,5 +5,5 @@ import java.lang.annotation.Documented;
 @Documented
 public @interface ExposedApplication {
 
-    public String name();
+    public String servletName();
 }
