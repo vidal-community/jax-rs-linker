@@ -150,7 +150,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
             return absent();
         }
         Element application = applications.iterator().next();
-        return Optional.of(application.getAnnotation(ExposedApplication.class).name());
+        return Optional.of(application.getAnnotation(ExposedApplication.class).servletName());
     }
 
     private Optional<? extends TypeElement> parseExposedApplication(Set<? extends TypeElement> annotations) {
