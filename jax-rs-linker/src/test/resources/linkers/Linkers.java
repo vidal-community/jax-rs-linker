@@ -17,7 +17,7 @@ public class Linkers
 
     private static String contextPath = "";
 
-    private static String applicationName = "fr.vidal.oss.jax_rs_linker.it.jersey.Configuration";
+    private static String applicationName = "fr.vidal.oss.jax_rs_linker.it.Configuration";
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {

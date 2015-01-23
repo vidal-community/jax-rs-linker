@@ -5,6 +5,8 @@ import com.google.testing.compile.CompilationRule;
 import org.junit.Rule;
 import org.junit.Test;
 
+import javax.tools.JavaFileObject;
+
 import static com.google.common.truth.Truth.assert_;
 import static com.google.testing.compile.JavaFileObjects.forResource;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
@@ -96,5 +98,20 @@ public class LinkerAnnotationProcessorTest {
                         "\n  \tThe enclosing class already defined one @Self-annotated method. Only one method should be annotated so." +
                         "\n  \tGiven method: <SelfObsessedResource#getMoreSelf>"
                 );
+    }
+
+    @Test
+    public void fails_to_compile_ambiguous_configuration_class() {
+        JavaFileObject configuration = forResource("Misconfiguration.java");
+
+        assert_().about(javaSource())
+            .that(configuration)
+            .processedWith(processor)
+            .failsToCompile()
+            .withErrorContaining(
+                "\n  \tEither annotate your configuration class with @ApplicationPath or provide a servletName to @ExposedApplication (not both)." +
+                "\n  \tGiven class: <Misconfiguration>"
+            )
+            .in(configuration);
     }
 }

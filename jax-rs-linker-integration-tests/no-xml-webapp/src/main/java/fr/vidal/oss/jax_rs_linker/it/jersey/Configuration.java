@@ -6,6 +6,6 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 @ApplicationPath("rest")
-@ExposedApplication(servletName = "fr.vidal.oss.jax_rs_linker.it.jersey.Configuration")
+@ExposedApplication
 public class Configuration extends Application {
 }
