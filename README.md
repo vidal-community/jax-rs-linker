@@ -162,11 +162,7 @@ import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
 @ApplicationPath("api")
-@ExposedApplication(name = "com.acme.Configuration")
-/* 
- * name refers to the current class (if @ApplicationPath-annotated)
- * or the mapped servlet name
- */
+@ExposedApplication
 public class Configuration extends Application {
 }
 ```
