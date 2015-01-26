@@ -26,6 +26,7 @@ import fr.vidal.oss.jax_rs_linker.writer.PathParamsEnumWriter;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import javax.ws.rs.ApplicationPath;
@@ -39,6 +40,7 @@ import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.base.Throwables.propagate;
 import static fr.vidal.oss.jax_rs_linker.errors.CompilationError.INCONSISTENT_APPLICATION_MAPPING;
+import static fr.vidal.oss.jax_rs_linker.errors.CompilationError.NO_APPLICATION_SERVLET_NAME;
 import static fr.vidal.oss.jax_rs_linker.functions.JavaxElementToMappings.intoOptionalMapping;
 import static fr.vidal.oss.jax_rs_linker.functions.MappingToPathParameters.TO_PATH_PARAMETERS;
 import static fr.vidal.oss.jax_rs_linker.predicates.ElementHasKind.byKind;
@@ -152,15 +154,21 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
             messager.printMessage(ERROR, CompilationError.ONE_APPLICATION_ONLY.text());
             return absent();
         }
-        Element application = applications.iterator().next();
-        return applicationName((TypeElement) application);
+        return applicationName(applications.iterator().next());
     }
 
-    private Optional<String> applicationName(TypeElement application) {
-        ApplicationPath applicationPath = application.getAnnotation(ApplicationPath.class);
+    private Optional<String> applicationName(Element application) {
         String servletName = application.getAnnotation(ExposedApplication.class).servletName();
-        String applicationName = String.valueOf(application.getQualifiedName());
+        if (application instanceof PackageElement) {
+            if (servletName.isEmpty()) {
+                messager.printMessage(ERROR, NO_APPLICATION_SERVLET_NAME.format(application), application);
+                return absent();
+            }
+            return Optional.of(servletName);
+        }
 
+        ApplicationPath applicationPath = application.getAnnotation(ApplicationPath.class);
+        String applicationName = String.valueOf(((TypeElement) application).getQualifiedName());
         if (!(applicationPath != null ^ !servletName.isEmpty())) {
             messager.printMessage(ERROR, INCONSISTENT_APPLICATION_MAPPING.format(applicationName), application);
             return absent();

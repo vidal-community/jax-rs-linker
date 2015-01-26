@@ -114,4 +114,35 @@ public class LinkerAnnotationProcessorTest {
             )
             .in(configuration);
     }
+
+    @Test
+    public void generate_linkers_with_exposed_application_on_package() {
+        assert_().about(javaSources())
+            .that(ImmutableList.of(
+                forResource("package-info.java"),
+                forResource("BrandResource.java")
+            ))
+            .processedWith(processor)
+            .compilesWithoutError()
+            .and()
+            .generatesSources(
+                forResource("BrandResourceLinker.java"),
+                forResource("linkers/LinkersPackageInfo.java")
+            );
+    }
+
+    @Test
+    public void fails_to_compile_without_jaxrs_configuration_and_servletName() {
+        JavaFileObject configuration = forResource("mispackage/package-info.java");
+
+        assert_().about(javaSource())
+            .that(configuration)
+            .processedWith(processor)
+            .failsToCompile()
+            .withErrorContaining(
+                "\n  \t@ExposedApplication servletName must not be empty when used on a package." +
+                "\n  \tGiven package: <mispackage>"
+            )
+            .in(configuration);
+    }
 }
