@@ -109,8 +109,8 @@ public class LinkerAnnotationProcessorTest {
             .processedWith(processor)
             .failsToCompile()
             .withErrorContaining(
-                "\n  \tIf the Application is annotated with @ApplicationPath, its @ExposedApplication annotation should not define any name." +
-                "\n  \tGiven application class: <Misconfiguration>"
+                "\n  \tEither annotate your configuration class with @ApplicationPath or provide a servletName to @ExposedApplication (not both)." +
+                "\n  \tGiven class: <Misconfiguration>"
             )
             .in(configuration);
     }
