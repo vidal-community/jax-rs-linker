@@ -107,5 +107,6 @@
     <modules>
         <module>no-xml-webapp</module>
         <module>xml-webapp</module>
+        <module>no-configuration-webapp</module>
     </modules>
 </project>

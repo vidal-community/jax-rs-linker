@@ -36,6 +36,10 @@ public enum CompilationError {
     ),
     NO_APPLICATION_FOUND(
         "\n\tThere should be exactly one @ExposedApplication-annotated Jersey Application: none found."
+    ),
+    NO_APPLICATION_SERVLET_NAME(
+        "\n\t@ExposedApplication servletName must not be empty when used on a package." +
+        "\n\tGiven package: <%s>"
     );
 
     private final String errorMessage;

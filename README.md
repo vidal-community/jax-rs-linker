@@ -7,7 +7,7 @@
 
 ## Scope
 
-JAX-RS linker aims at providing, at compile-time, the catalog of links 
+JAX-RS linker aims at providing, at compile-time, the catalog of links
 between resources, thus removing the need of JAX-RS runtime injection
 of objects such as [UriInfo](http://docs.oracle.com/javaee/6/api/javax/ws/rs/core/UriInfo.html).
 
@@ -94,7 +94,10 @@ public class Configuration extends Application {
 }
 ```
 
-Those are the basic building blocks of your hypermedia API.
+Those are the basic building blocks of your hypermedia API
+(note that `web.xml`-based applications are also supported, as described in
+the [detailed documentation](https://github.com/softwarevidal/jax-rs-linker/wiki)).
+
 Now comes the challenge: how do you cleanly resolve links between your resources?
 
 #### Enriching your resources
@@ -224,7 +227,7 @@ Your imagination is the limit!
 
 ## Annotation processor
 
-When JAX-RS linker is added to the classpath, its annotation processor 
+When JAX-RS linker is added to the classpath, its annotation processor
 (`fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor`) is automatically registered as a processor candidate.
 
 Following up the previous example, `Linkers` will be generated, exposing several methods, including:
