@@ -3,7 +3,12 @@ package fr.vidal.oss.jax_rs_linker;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.*;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.squareup.javawriter.JavaWriter;
 import com.squareup.javawriter.StringLiteral;
 import fr.vidal.oss.jax_rs_linker.api.ExposedApplication;
@@ -18,18 +23,21 @@ import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 import fr.vidal.oss.jax_rs_linker.parser.ElementParser;
 import fr.vidal.oss.jax_rs_linker.predicates.OptionalPredicates;
+import fr.vidal.oss.jax_rs_linker.visitor.ApplicationNameVisitor;
 import fr.vidal.oss.jax_rs_linker.writer.DotFileWriter;
 import fr.vidal.oss.jax_rs_linker.writer.LinkerWriter;
 import fr.vidal.oss.jax_rs_linker.writer.LinkersWriter;
 import fr.vidal.oss.jax_rs_linker.writer.PathParamsEnumWriter;
 
-import javax.annotation.processing.*;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.Processor;
+import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
-import javax.ws.rs.ApplicationPath;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -39,8 +47,6 @@ import java.util.Set;
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.base.Throwables.propagate;
-import static fr.vidal.oss.jax_rs_linker.errors.CompilationError.INCONSISTENT_APPLICATION_MAPPING;
-import static fr.vidal.oss.jax_rs_linker.errors.CompilationError.NO_APPLICATION_SERVLET_NAME;
 import static fr.vidal.oss.jax_rs_linker.functions.JavaxElementToMappings.intoOptionalMapping;
 import static fr.vidal.oss.jax_rs_linker.functions.MappingToPathParameters.TO_PATH_PARAMETERS;
 import static fr.vidal.oss.jax_rs_linker.predicates.ElementHasKind.byKind;
@@ -154,30 +160,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
             messager.printMessage(ERROR, CompilationError.ONE_APPLICATION_ONLY.text());
             return absent();
         }
-        return applicationName(applications.iterator().next());
-    }
-
-    private Optional<String> applicationName(Element application) {
-        String servletName = application.getAnnotation(ExposedApplication.class).servletName();
-        if (application instanceof PackageElement) {
-            if (servletName.isEmpty()) {
-                messager.printMessage(ERROR, NO_APPLICATION_SERVLET_NAME.format(application), application);
-                return absent();
-            }
-            return Optional.of(servletName);
-        }
-
-        ApplicationPath applicationPath = application.getAnnotation(ApplicationPath.class);
-        String applicationName = String.valueOf(((TypeElement) application).getQualifiedName());
-        if (!(applicationPath != null ^ !servletName.isEmpty())) {
-            messager.printMessage(ERROR, INCONSISTENT_APPLICATION_MAPPING.format(applicationName), application);
-            return absent();
-        }
-
-        if (applicationPath != null) {
-            return Optional.of(applicationName);
-        }
-        return Optional.of(servletName);
+        return new ApplicationNameVisitor(messager).visit(applications.iterator().next());
     }
 
     private Optional<? extends TypeElement> extractExposedApplication(Set<? extends TypeElement> annotations) {
