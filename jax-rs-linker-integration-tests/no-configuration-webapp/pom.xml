@@ -10,7 +10,7 @@
     <artifactId>no-configuration-webapp</artifactId>
     <packaging>war</packaging>
 
-    <name>JAX RS Linker: webapp without JAXRS Configuration</name>
+    <name>JAX-RS Linker: webapp without JAX-RS Configuration</name>
 
     <build>
         <plugins>
