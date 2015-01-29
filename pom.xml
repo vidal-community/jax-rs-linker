@@ -9,7 +9,7 @@
 
     <groupId>fr.vidal.oss</groupId>
     <artifactId>jax-rs-linker-parent</artifactId>
-    <version>0.2</version>
+    <version>0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>JAX-RS Linker: parent POM</name>
@@ -259,7 +259,7 @@
         <url>https://github.com/softwarevidal/jax-rs-linker</url>
         <connection>scm:git:git@github.com:softwarevidal/jax-rs-linker.git</connection>
         <developerConnection>scm:git:git@github.com:softwarevidal/jax-rs-linker.git</developerConnection>
-      <tag>v0.2</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <distributionManagement>
