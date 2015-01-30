@@ -3,21 +3,14 @@ package fr.vidal.oss.jax_rs_linker.parser;
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import fr.vidal.oss.jax_rs_linker.api.Self;
+import fr.vidal.oss.jax_rs_linker.api.SubResource;
 import fr.vidal.oss.jax_rs_linker.errors.CompilationError;
 import fr.vidal.oss.jax_rs_linker.functions.EntryToStringValueFunction;
-import fr.vidal.oss.jax_rs_linker.model.Api;
-import fr.vidal.oss.jax_rs_linker.model.ApiLink;
-import fr.vidal.oss.jax_rs_linker.model.ApiLinkType;
-import fr.vidal.oss.jax_rs_linker.model.ApiPath;
-import fr.vidal.oss.jax_rs_linker.model.ClassName;
-import fr.vidal.oss.jax_rs_linker.model.HttpVerb;
-import fr.vidal.oss.jax_rs_linker.model.JavaLocation;
-import fr.vidal.oss.jax_rs_linker.model.Mapping;
+import fr.vidal.oss.jax_rs_linker.model.*;
+import fr.vidal.oss.jax_rs_linker.predicates.AnnotationMirrorByNamePredicate;
 import fr.vidal.oss.jax_rs_linker.predicates.ElementHasAnnotation;
 import fr.vidal.oss.jax_rs_linker.predicates.EntryByMethodNamePredicate;
 import fr.vidal.oss.jax_rs_linker.predicates.UnparseableValuePredicate;
-import fr.vidal.oss.jax_rs_linker.api.SubResource;
-import fr.vidal.oss.jax_rs_linker.predicates.AnnotationMirrorByNamePredicate;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
@@ -29,8 +22,8 @@ import javax.lang.model.util.Types;
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Predicates.not;
-import static javax.tools.Diagnostic.Kind.ERROR;
 import static fr.vidal.oss.jax_rs_linker.functions.AnnotationMirrorToMethodValueEntryFunction.TO_METHOD_VALUE_ENTRIES;
+import static javax.tools.Diagnostic.Kind.ERROR;
 
 public class ElementParser {
 

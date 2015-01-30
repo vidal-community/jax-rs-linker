@@ -2,12 +2,7 @@ package fr.vidal.oss.jax_rs_linker.parser;
 
 import com.google.common.base.Optional;
 import com.google.testing.compile.CompilationRule;
-import fr.vidal.oss.jax_rs_linker.model.Api;
-import fr.vidal.oss.jax_rs_linker.model.ApiLinkType;
-import fr.vidal.oss.jax_rs_linker.model.ClassName;
-import fr.vidal.oss.jax_rs_linker.model.JavaLocation;
-import fr.vidal.oss.jax_rs_linker.model.Mapping;
-import fr.vidal.oss.jax_rs_linker.model.PathParameter;
+import fr.vidal.oss.jax_rs_linker.model.*;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

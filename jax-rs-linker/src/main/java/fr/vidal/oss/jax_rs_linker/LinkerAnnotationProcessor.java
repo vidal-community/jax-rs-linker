@@ -3,44 +3,25 @@ package fr.vidal.oss.jax_rs_linker;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import com.squareup.javawriter.JavaWriter;
-import com.squareup.javawriter.StringLiteral;
+import com.google.common.collect.*;
 import fr.vidal.oss.jax_rs_linker.api.ExposedApplication;
 import fr.vidal.oss.jax_rs_linker.api.Self;
 import fr.vidal.oss.jax_rs_linker.api.SubResource;
 import fr.vidal.oss.jax_rs_linker.errors.CompilationError;
 import fr.vidal.oss.jax_rs_linker.functions.ClassToName;
-import fr.vidal.oss.jax_rs_linker.functions.MappingToClassName;
 import fr.vidal.oss.jax_rs_linker.functions.OptionalFunctions;
-import fr.vidal.oss.jax_rs_linker.functions.TypeElementToElement;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 import fr.vidal.oss.jax_rs_linker.parser.ElementParser;
 import fr.vidal.oss.jax_rs_linker.predicates.OptionalPredicates;
 import fr.vidal.oss.jax_rs_linker.visitor.ApplicationNameVisitor;
-import fr.vidal.oss.jax_rs_linker.writer.DotFileWriter;
-import fr.vidal.oss.jax_rs_linker.writer.LinkerWriter;
-import fr.vidal.oss.jax_rs_linker.writer.LinkersWriter;
-import fr.vidal.oss.jax_rs_linker.writer.PathParamsEnumWriter;
+import fr.vidal.oss.jax_rs_linker.writer.*;
 
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.Messager;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.Processor;
-import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.tools.JavaFileObject;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.Collection;
 import java.util.Set;
 
@@ -48,13 +29,13 @@ import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.base.Throwables.propagate;
 import static fr.vidal.oss.jax_rs_linker.functions.JavaxElementToMappings.intoOptionalMapping;
+import static fr.vidal.oss.jax_rs_linker.functions.MappingToClassName.INTO_CLASS_NAME;
 import static fr.vidal.oss.jax_rs_linker.functions.MappingToPathParameters.TO_PATH_PARAMETERS;
+import static fr.vidal.oss.jax_rs_linker.functions.TypeElementToElement.intoElement;
 import static fr.vidal.oss.jax_rs_linker.predicates.ElementHasKind.byKind;
-import static java.lang.String.format;
 import static javax.lang.model.SourceVersion.latest;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.tools.Diagnostic.Kind.ERROR;
-import static javax.tools.StandardLocation.CLASS_OUTPUT;
 
 
 @AutoService(Processor.class)
@@ -75,10 +56,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     private String applicationName = "";
     private boolean entryPointGenerated;
     private Messager messager;
-
-    public static ImmutableMap<String, String> processorQualifiedName() {
-        return ImmutableMap.of("value", format("%s", StringLiteral.forValue(LinkerAnnotationProcessor.class.getName()).literal()));
-    }
+    private ResourceFileWriters resourceFiles;
 
     @Override
     public Set<String> getSupportedOptions() {
@@ -99,6 +77,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     public void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
         messager = processingEnv.getMessager();
+        resourceFiles = new ResourceFileWriters(processingEnv.getFiler());
         elementParser = new ElementParser(
             messager,
             processingEnv.getTypeUtils()
@@ -120,27 +99,35 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
         Multimap<ClassName, Mapping> roundElements =
             FluentIterable.from(annotations)
-                .transformAndConcat(TypeElementToElement.intoElement(roundEnv))
+                .transformAndConcat(intoElement(roundEnv))
                 .filter(byKind(METHOD))
                 .transform(intoOptionalMapping(elementParser))
                 .filter(OptionalPredicates.<Mapping>byPresence())
                 .transform(OptionalFunctions.<Mapping>intoUnwrapped())
                 .filter(notNull())
-                .index(MappingToClassName.INTO_CLASS_NAME);
+                .index(INTO_CLASS_NAME);
 
+        tryGenerateSources(annotations, roundEnv, roundElements);
+        tryExportGraph(roundEnv);
+
+        return false;
+    }
+
+    private void tryGenerateSources(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv, Multimap<ClassName, Mapping> roundElements) {
         try {
             generateSources(annotations, roundEnv, roundElements);
         }
         catch (IOException ioe) {
             throw propagate(ioe);
         }
+    }
 
+    private void tryExportGraph(RoundEnvironment roundEnv) {
         if (roundEnv.processingOver() && processingEnv.getOptions().get(GRAPH_OPTION) != null) {
-            try (DotFileWriter writer = new DotFileWriter(resourceWriter("resources.dot"))) {
+            try (DotFileWriter writer = new DotFileWriter(resourceFiles.writer("resources.dot"))) {
                 writer.write(elements);
             }
         }
-        return false;
     }
 
     private void generateSources(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv, Multimap<ClassName, Mapping> roundElements) throws IOException {
@@ -190,10 +177,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
         }
 
         ClassName linkers = ClassName.valueOf("fr.vidal.oss.jax_rs_linker.Linkers");
-        JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(linkers.fullyQualifiedName());
-        try (LinkersWriter writer = new LinkersWriter(javaWriter(sourceFile))) {
-            writer.write(linkers, elements.keySet(), applicationName);
-        }
+        new LinkersWriter(processingEnv.getFiler()).write(linkers, elements.keySet(), applicationName);
     }
 
     private void generateLinkerSources(Multimap<ClassName, Mapping> elements) throws IOException {
@@ -205,11 +189,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     private void generateLinkerClasses(ClassName className, Collection<Mapping> mappings) throws IOException {
         ClassName generatedClass = className.append(GENERATED_CLASSNAME_SUFFIX);
-        String generatedClassName = generatedClass.fullyQualifiedName();
-        JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(generatedClassName);
-        try (LinkerWriter writer = new LinkerWriter(javaWriter(sourceFile))) {
-            writer.write(generatedClass, mappings);
-        }
+        new LinkerWriter(processingEnv.getFiler()).write(generatedClass, mappings);
     }
 
     private void generatePathParamEnums(ClassName className, Collection<Mapping> mappings) throws IOException {
@@ -217,23 +197,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
             return;
         }
         ClassName generatedEnum = className.append(GENERATED_ENUMNAME_SUFFIX);
-        String generatedEnumName = generatedEnum.fullyQualifiedName();
-        JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(generatedEnumName);
-        try (PathParamsEnumWriter writer = new PathParamsEnumWriter(javaWriter(sourceFile))) {
-            writer.write(generatedEnum, mappings);
-        }
-    }
-
-    private JavaWriter javaWriter(JavaFileObject sourceFile) throws IOException {
-        return new JavaWriter(new BufferedWriter(sourceFile.openWriter()));
-    }
-
-    private Writer resourceWriter(String fileName) {
-        try {
-            return processingEnv.getFiler().createResource(CLASS_OUTPUT, "", fileName).openWriter();
-        } catch (IOException e) {
-            throw propagate(e);
-        }
+        new PathParamsEnumWriter(processingEnv.getFiler()).write(generatedEnum, mappings);
     }
 
 }

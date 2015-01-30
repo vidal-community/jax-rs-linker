@@ -2,9 +2,9 @@ package fr.vidal.oss.jax_rs_linker.parser;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
-import fr.vidal.oss.jax_rs_linker.predicates.ElementHasAnnotation;
 import fr.vidal.oss.jax_rs_linker.functions.VariableElementToPathParameter;
 import fr.vidal.oss.jax_rs_linker.model.PathParameter;
+import fr.vidal.oss.jax_rs_linker.predicates.ElementHasAnnotation;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;

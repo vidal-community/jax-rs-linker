@@ -29,7 +29,6 @@ public class LinkerAnnotationProcessorTest {
                 forResource("PersonResource.java")
             ))
             .processedWith(processor)
-
             .compilesWithoutError()
             .and()
             .generatesSources(

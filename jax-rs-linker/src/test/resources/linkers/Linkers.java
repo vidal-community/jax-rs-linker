@@ -1,20 +1,20 @@
 
 package fr.vidal.oss.jax_rs_linker;
 
+import fr.vidal.oss.jax_rs_linker.parser.BrandResourceLinker;
+import fr.vidal.oss.jax_rs_linker.parser.PersonResourceLinker;
+import fr.vidal.oss.jax_rs_linker.parser.ProductResourceLinker;
 import fr.vidal.oss.jax_rs_linker.servlet.ContextPaths;
+import java.lang.Override;
+import java.lang.String;
 import javax.annotation.Generated;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-import fr.vidal.oss.jax_rs_linker.parser.BrandResourceLinker;
-import fr.vidal.oss.jax_rs_linker.parser.PersonResourceLinker;
-import fr.vidal.oss.jax_rs_linker.parser.ProductResourceLinker;
 
 @WebListener
 @Generated("fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
-public class Linkers
-        implements ServletContextListener {
-
+public final class Linkers implements ServletContextListener {
     private static String contextPath = "";
 
     private static String applicationName = "fr.vidal.oss.jax_rs_linker.it.Configuration";

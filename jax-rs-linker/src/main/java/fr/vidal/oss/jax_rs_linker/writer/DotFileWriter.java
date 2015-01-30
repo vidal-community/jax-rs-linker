@@ -30,21 +30,6 @@ public class DotFileWriter implements AutoCloseable {
         }
     }
 
-    private Iterable<String> graph(Multimap<ClassName, Mapping> elements) {
-        return ImmutableList.<String>builder()
-                .add("digraph resources {")
-                .addAll(mappings(elements))
-                .add("}")
-                .build();
-    }
-
-    private Iterable<String> mappings(Multimap<ClassName, Mapping> elements) {
-        return FluentIterable.from(elements.entries())
-                .transform(TO_DOT_STATEMENT)
-                .filter(notNull())
-                .toList();
-    }
-
     @Override
     public void close() {
         try {
@@ -53,4 +38,20 @@ public class DotFileWriter implements AutoCloseable {
             throw propagate(e);
         }
     }
+
+    private Iterable<String> graph(Multimap<ClassName, Mapping> elements) {
+        return ImmutableList.<String>builder()
+            .add("digraph resources {")
+            .addAll(mappings(elements))
+            .add("}")
+            .build();
+    }
+
+    private Iterable<String> mappings(Multimap<ClassName, Mapping> elements) {
+        return FluentIterable.from(elements.entries())
+            .transform(TO_DOT_STATEMENT)
+            .filter(notNull())
+            .toList();
+    }
+
 }

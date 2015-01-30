@@ -1,8 +1,6 @@
 import fr.vidal.oss.jax_rs_linker.api.Self;
 import fr.vidal.oss.jax_rs_linker.api.SubResource;
 
-import fr.vidal.oss.jax_rs_linker.parser.SelfObsessedResource;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;

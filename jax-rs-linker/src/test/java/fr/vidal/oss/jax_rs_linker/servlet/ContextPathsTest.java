@@ -4,7 +4,6 @@ import org.junit.Test;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
-
 import java.util.List;
 
 import static java.util.Arrays.asList;
