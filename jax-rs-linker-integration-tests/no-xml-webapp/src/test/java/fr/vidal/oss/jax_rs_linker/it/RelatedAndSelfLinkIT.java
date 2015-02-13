@@ -13,7 +13,6 @@ public class RelatedAndSelfLinkIT {
 
     @Test
     public void self_link_with_context_path_and_servlet_name() throws Exception {
-
         Response response = request("product/1/self");
 
         assertThat(response.body().string())
@@ -22,7 +21,6 @@ public class RelatedAndSelfLinkIT {
 
     @Test
     public void related_link_with_context_path_and_servlet_name() throws Exception {
-
         Response response = request("product/1/related-company");
 
         assertThat(response.body().string())
