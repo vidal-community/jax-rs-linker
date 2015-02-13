@@ -2,12 +2,12 @@
 
 ## Source formatting
 
-Please make sure [editorconfig](http://editorconfig.org/) is 
+Please make sure [editorconfig](http://editorconfig.org/) is
 properly configured with your text editor/IDE.
 
 ## Commit format
 
-Commits shoud shortly describe in English the change and justify 
+Commits should shortly describe in English the change and justify
 why it has been done the way it has been done.
 
 ### Format: regex-style
@@ -33,7 +33,7 @@ Paragraph(s) explaining the changes)*
 ```
 Issue#321 Add /imd/lppr/code/{code}
 
-It is currently impossible to serve /imd/lppr/{code} as LPPR codes 
+It is currently impossible to serve /imd/lppr/{code} as LPPR codes
 and IDs are impossible to distinguish from each other, thus leading
 to a fatal ambiguity in resource resolution on Jersey slide.
 ```
@@ -49,7 +49,7 @@ I am back from the future with Java sources.
 
 `Issue#489. I should not use any separator after the issue reference`
 ```
-I should always preprend the detailed changes
+I should always prepend the detailed changes
 with an empty line.
 ```
 ```
