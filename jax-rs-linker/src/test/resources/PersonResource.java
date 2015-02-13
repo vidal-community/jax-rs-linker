@@ -18,7 +18,7 @@ public class PersonResource {
     }
 
     @SubResource(PersonResource.class)
-    @Path("/name/{firstName}")
+    @Path("/name/{firstName:.*}")
     @GET
     public void getByFirstName(@PathParam("firstName") String firstName) {
 

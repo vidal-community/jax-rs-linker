@@ -6,13 +6,15 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.Collection;
 
+import static fr.vidal.oss.jax_rs_linker.parser.ApiPaths.sanitize;
+
 public class ApiPath {
 
     private final String path;
     private final Collection<PathParameter> pathParameters;
 
     public ApiPath(String path, Collection<PathParameter> pathParameters) {
-        this.path = path;
+        this.path = sanitize(path);
         this.pathParameters = pathParameters;
     }
 
@@ -48,4 +50,5 @@ public class ApiPath {
         }
         return String.format("%s (%s)", path, Joiner.on(",").join(pathParameters));
     }
+
 }
