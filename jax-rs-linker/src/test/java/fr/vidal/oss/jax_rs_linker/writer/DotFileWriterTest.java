@@ -42,8 +42,8 @@ public class DotFileWriterTest {
                         new Api(
                                 HttpVerb.GET,
                                 SUB_RESOURCE(new SubResourceTarget(ClassName.valueOf("com.acme.Bar"), "")),
-                                new ApiPath("/foo/{id}/bar", Lists.<PathParameter>newArrayList())
-                        )
+                                new ApiPath("/foo/{id}/bar", Lists.<PathParameter>newArrayList()),
+                                null)
                 )
         );
         return multimap;

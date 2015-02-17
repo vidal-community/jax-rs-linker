@@ -6,9 +6,9 @@ import com.google.common.collect.FluentIterable;
 import com.squareup.javapoet.*;
 import fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor;
 import fr.vidal.oss.jax_rs_linker.api.NoPathParameters;
+import fr.vidal.oss.jax_rs_linker.api.NoQueryParameters;
 import fr.vidal.oss.jax_rs_linker.model.*;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
-import fr.vidal.oss.jax_rs_linker.predicates.MappingByApiLinkTargetPredicate;
 
 import javax.annotation.Generated;
 import javax.annotation.Nullable;
@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static com.squareup.javapoet.ClassName.bestGuess;
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
 import static fr.vidal.oss.jax_rs_linker.predicates.MappingByApiLinkTargetPredicate.BY_API_LINK_TARGET_PRESENCE;
 import static java.lang.String.format;
@@ -40,13 +41,17 @@ public class LinkerWriter {
                 }
             });
 
-        ApiPath selfApiPath = selfMapping.get().getApi().getApiPath();
+        final Api api = selfMapping.get().getApi();
+        final ApiPath selfApiPath = api.getApiPath();
+        final ApiQuery selfApiQuery = api.getApiQuery();
 
-        ClassName typeParameter = templatedPathTypeParameter(selfApiPath, generatedClass.fullyQualifiedName());
+        ClassName pathTypeParameter = templatedPathTypeParameter(selfApiPath, generatedClass.fullyQualifiedName());
+        ClassName queryTypeParameter = templatedQueryTypeParameter(selfApiQuery, generatedClass.fullyQualifiedName());
         TypeName templatedPathClass =
             ParameterizedTypeName.get(
-                com.squareup.javapoet.ClassName.get(TemplatedPath.class),
-                com.squareup.javapoet.ClassName.bestGuess(typeParameter.fullyQualifiedName())
+                com.squareup.javapoet.ClassName.get(TemplatedUrl.class),
+                bestGuess(pathTypeParameter.fullyQualifiedName()),
+                bestGuess(queryTypeParameter.fullyQualifiedName())
             );
 
         TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(generatedClass.className())
@@ -69,22 +74,25 @@ public class LinkerWriter {
                 linkerMethod(
                     "self",
                     selfApiPath,
-                    templatedPathClass
+                    templatedPathClass,
+                    selfApiQuery
                 )
             );
 
 
         for (Mapping mapping : linked(mappings)) {
-            Api api = mapping.getApi();
+            Api mappingApi = mapping.getApi();
             typeBuilder.addMethod(
                 linkerMethod(
-                    format("related%s", api.getApiLink().getQualifiedTarget().get()),
-                    api.getApiPath(),
-                    templatedPathClass
+                    format("related%s", mappingApi.getApiLink().getQualifiedTarget().get()),
+                    mappingApi.getApiPath(),
+                    templatedPathClass,
+                    mappingApi.getApiQuery()
                 )
             );
         }
         typeBuilder = typeBuilder.addMethod(pathParameterMethod());
+        typeBuilder = typeBuilder.addMethod(queryParameterMethod());
         JavaFile.builder(generatedClass.packageName(), typeBuilder.build())
             .indent("\t")
             .build()
@@ -92,17 +100,20 @@ public class LinkerWriter {
 
     }
 
-    private MethodSpec linkerMethod(String methodName, ApiPath apiPath, TypeName returnType) {
+    private MethodSpec linkerMethod(String methodName, ApiPath apiPath, TypeName returnType, ApiQuery apiQuery) {
         return MethodSpec.methodBuilder(methodName)
             .addModifiers(PUBLIC, FINAL)
             .returns(returnType)
             .addStatement(
-                "return new $T(contextPath + $S, $T.<$T>asList($L))",
+                "return new $T(contextPath + $S, $T.<$T>asList($L), $T.<$T>asList($L))",
                 returnType,
                 apiPath.getPath(),
                 Arrays.class,
                 PathParameter.class,
-                parametersAsList(apiPath.getPathParameters())
+                pathParametersAsList(apiPath.getPathParameters()),
+                Arrays.class,
+                QueryParameter.class,
+                queryParametersAsList(apiQuery.getQueryParameters())
             )
             .build();
     }
@@ -114,13 +125,20 @@ public class LinkerWriter {
         return ClassName.valueOf(generatedClass.replace("Linker", "PathParameters"));
     }
 
+    private ClassName templatedQueryTypeParameter(ApiQuery apiQuery, String generatedClass) {
+        if (apiQuery.getQueryParameters().isEmpty()) {
+            return ClassName.valueOf(NoQueryParameters.class.getName());
+        }
+        return ClassName.valueOf(generatedClass.replace("Linker", "QueryParameters"));
+    }
+
     private Iterable<Mapping> linked(Collection<Mapping> mappings) {
         return FluentIterable.from(mappings)
             .filter(BY_API_LINK_TARGET_PRESENCE)
             .toList();
     }
 
-    private String parametersAsList(Collection<PathParameter> pathParameters) {
+    private String pathParametersAsList(Collection<PathParameter> pathParameters) {
         StringBuilder builder = new StringBuilder();
         for (Iterator<PathParameter> iterator = pathParameters.iterator(); iterator.hasNext(); ) {
             PathParameter parameter = iterator.next();
@@ -128,6 +146,24 @@ public class LinkerWriter {
             builder.append(String.format(
                 "pathParameter(\"%s\", \"%s\")%s",
                 parameter.getType(),
+                parameter.getName(),
+                separator
+            ));
+        }
+
+        return builder.toString();
+    }
+
+
+    private String queryParametersAsList(Collection<QueryParameter> queryParameters) {
+        StringBuilder builder = new StringBuilder();
+        Iterator<QueryParameter> iterator = queryParameters.iterator();
+        while(iterator.hasNext()) {
+            QueryParameter parameter = iterator.next();
+            String separator = iterator.hasNext() ? "," : "";
+            builder.append(String.format(
+                "queryParameter(\"%s\", \"%s\")%s",
+                parameter.getClassName(),
                 parameter.getName(),
                 separator
             ));
@@ -154,5 +190,22 @@ public class LinkerWriter {
             .build();
     }
 
+    private MethodSpec queryParameterMethod() {
+        return MethodSpec.methodBuilder("queryParameter")
+            .returns(QueryParameter.class)
+            .addModifiers(PRIVATE, STATIC)
+            .addParameter(
+                ParameterSpec.builder(String.class, "type", FINAL).build())
+            .addParameter(
+                ParameterSpec.builder(String.class, "name", FINAL).build())
+            .addStatement(
+                "return new $T($T.valueOf($L), $L)",
+                QueryParameter.class,
+                ClassName.class,
+                "type",
+                "name"
+            )
+            .build();
+    }
 
 }

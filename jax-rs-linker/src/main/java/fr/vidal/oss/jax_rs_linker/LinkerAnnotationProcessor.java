@@ -24,6 +24,7 @@ import static com.google.common.base.Throwables.propagate;
 import static fr.vidal.oss.jax_rs_linker.functions.JavaxElementToMappings.intoOptionalMapping;
 import static fr.vidal.oss.jax_rs_linker.functions.MappingToClassName.INTO_CLASS_NAME;
 import static fr.vidal.oss.jax_rs_linker.functions.MappingToPathParameters.TO_PATH_PARAMETERS;
+import static fr.vidal.oss.jax_rs_linker.functions.MappingToQueryParameters.TO_QUERY_PARAMETERS;
 import static fr.vidal.oss.jax_rs_linker.functions.TypeElementToElement.intoElement;
 import static fr.vidal.oss.jax_rs_linker.predicates.ElementHasKind.byKind;
 import static javax.lang.model.SourceVersion.latest;
@@ -34,7 +35,8 @@ import static javax.lang.model.element.ElementKind.METHOD;
 public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     public static final String GENERATED_CLASSNAME_SUFFIX = "Linker";
-    public static final String GENERATED_ENUMNAME_SUFFIX = "PathParameters";
+    public static final String GENERATED_PATHPARAMETERS_ENUMNAME_SUFFIX = "PathParameters";
+    public static final String GENERATED_QUERYPARAMETERS_ENUMNAME_SUFFIX = "QueryParameters";
     public static final String GRAPH_OPTION = "graph";
 
     private static final Set<String> SUPPORTED_ANNOTATIONS =
@@ -98,8 +100,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     private void tryGenerateSources(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv, Multimap<ClassName, Mapping> roundElements) {
         try {
             generateSources(annotations, roundEnv, roundElements);
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             throw propagate(ioe);
         }
     }
@@ -116,8 +117,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
         if (mustGenerateLinkersSource(roundEnv, annotations, elements)) {
             generateLinkersSource();
             entryPointGenerated = true;
-        }
-        else {
+        } else {
             elements.putAll(roundElements);
             generateLinkerSources(roundElements);
         }
@@ -142,6 +142,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
         for (ClassName className : elements.keySet()) {
             generateLinkerClasses(className, elements.get(className));
             generatePathParamEnums(className, elements.get(className));
+            generateQueryParamEnums(className, elements.get(className));
         }
     }
 
@@ -154,8 +155,15 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
         if (FluentIterable.from(mappings).transformAndConcat(TO_PATH_PARAMETERS).isEmpty()) {
             return;
         }
-        ClassName generatedEnum = className.append(GENERATED_ENUMNAME_SUFFIX);
+        ClassName generatedEnum = className.append(GENERATED_PATHPARAMETERS_ENUMNAME_SUFFIX);
         new PathParamsEnumWriter(processingEnv.getFiler()).write(generatedEnum, mappings);
     }
 
+    private void generateQueryParamEnums(ClassName className, Collection<Mapping> mappings) throws IOException {
+        if (FluentIterable.from(mappings).transformAndConcat(TO_QUERY_PARAMETERS).isEmpty()) {
+            return;
+        }
+        ClassName generatedEnum = className.append(GENERATED_QUERYPARAMETERS_ENUMNAME_SUFFIX);
+        new QueryParamsEnumWriter(processingEnv.getFiler()).write(generatedEnum, mappings);
+    }
 }

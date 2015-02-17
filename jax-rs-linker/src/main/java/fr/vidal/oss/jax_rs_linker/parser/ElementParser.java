@@ -9,19 +9,21 @@ import fr.vidal.oss.jax_rs_linker.model.*;
 import fr.vidal.oss.jax_rs_linker.predicates.ElementHasAnnotation;
 
 import javax.annotation.processing.Messager;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.lang.model.util.Types;
+import javax.ws.rs.QueryParam;
+import java.util.Collection;
 
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Predicates.not;
+import static com.google.common.collect.Lists.newArrayList;
 import static fr.vidal.oss.jax_rs_linker.functions.AnnotationMirrorToMethodValueEntryFunction.TO_METHOD_VALUE_ENTRIES;
 import static fr.vidal.oss.jax_rs_linker.functions.EntriesToStringValueFunction.TO_STRING_VALUE;
+import static fr.vidal.oss.jax_rs_linker.functions.VariableElementToQueryParameter.INTO_QUERY_PARAMETER;
 import static fr.vidal.oss.jax_rs_linker.predicates.AnnotationMirrorByNamePredicate.byName;
 import static fr.vidal.oss.jax_rs_linker.predicates.UnparseableValuePredicate.IS_UNPARSEABLE;
+
 import static javax.tools.Diagnostic.Kind.ERROR;
 
 public class ElementParser {
@@ -101,7 +103,8 @@ public class ElementParser {
                 api(
                         link,
                         httpVerb,
-                        apiPath(methodElement, path)
+                        apiPath(methodElement, path),
+                        apiQuery(methodElement.getParameters())
                 )
         );
     }
@@ -129,19 +132,30 @@ public class ElementParser {
         );
     }
 
-    private Api api(ApiLink link, HttpVerb httpVerb, ApiPath apiPath) {
+    private Api api(ApiLink link, HttpVerb httpVerb, ApiPath apiPath, ApiQuery apiQuery) {
         return new Api(
                 httpVerb,
                 link,
-                apiPath
-        );
+                apiPath,
+                apiQuery);
     }
 
     private ApiPath apiPath(ExecutableElement methodElement, String path) {
         return new ApiPath(
                 path,
-                pathVisitor.visitParameters(methodElement)
+                pathVisitor.visitPathParameters(methodElement)
         );
+    }
+
+    private ApiQuery apiQuery(Collection<? extends VariableElement> parameters) {
+        Collection<QueryParameter> queryParameters = newArrayList();
+        for (VariableElement variableElement : parameters) {
+            final QueryParam annotation = variableElement.getAnnotation(QueryParam.class);
+            if (annotation != null) {
+                queryParameters.add(INTO_QUERY_PARAMETER.apply(variableElement));
+            }
+        }
+        return new ApiQuery(queryParameters);
     }
 
     private ClassName className(ExecutableElement element) {
@@ -158,10 +172,9 @@ public class ElementParser {
         TypeElement enclosingClass = (TypeElement) element.getEnclosingElement();
 
         return String.format(
-                "%s#%s",
-                enclosingClass.getQualifiedName(),
-                element.getSimpleName()
+            "%s#%s",
+            enclosingClass.getQualifiedName(),
+            element.getSimpleName()
         );
     }
-
 }
