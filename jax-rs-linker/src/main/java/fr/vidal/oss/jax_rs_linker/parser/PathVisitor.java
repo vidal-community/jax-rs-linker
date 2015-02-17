@@ -41,7 +41,7 @@ class PathVisitor {
         return fromNullable(aggregatedPath);
     }
 
-    public Collection<PathParameter> visitParameters(ExecutableElement element) {
+    public Collection<PathParameter> visitPathParameters(ExecutableElement element) {
         return FluentIterable.from(element.getParameters())
             .filter(ElementHasAnnotation.BY_ANNOTATION(PathParam.class))
             .transform(VariableElementToPathParameter.INTO_PATH_PARAMETER)

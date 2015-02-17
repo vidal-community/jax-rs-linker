@@ -7,11 +7,13 @@ public class Api {
     private final HttpVerb httpVerb;
     private final ApiLink apiLink;
     private final ApiPath apiPath;
+    private final ApiQuery apiQuery;
 
-    public Api(HttpVerb httpVerb, ApiLink apiLink, ApiPath apiPath) {
+    public Api(HttpVerb httpVerb, ApiLink apiLink, ApiPath apiPath, ApiQuery apiQuery) {
         this.httpVerb = httpVerb;
         this.apiLink = apiLink;
         this.apiPath = apiPath;
+        this.apiQuery = apiQuery;
     }
 
     public HttpVerb getHttpVerb() {
@@ -24,6 +26,10 @@ public class Api {
 
     public ApiPath getApiPath() {
         return apiPath;
+    }
+
+    public ApiQuery getApiQuery() {
+        return apiQuery;
     }
 
     @Override
@@ -40,11 +46,13 @@ public class Api {
             return false;
         }
         final Api other = (Api) obj;
-        return Objects.equal(this.httpVerb, other.httpVerb) && Objects.equal(this.apiPath, other.apiPath);
+        return Objects.equal(this.httpVerb, other.httpVerb)
+                && Objects.equal(this.apiPath, other.apiPath)
+                && Objects.equal(this.apiQuery, other.apiQuery);
     }
 
     @Override
     public String toString() {
-        return String.format("%s %s", httpVerb, apiPath);
+        return String.format("%s %s %s", httpVerb, apiPath, apiQuery);
     }
 }

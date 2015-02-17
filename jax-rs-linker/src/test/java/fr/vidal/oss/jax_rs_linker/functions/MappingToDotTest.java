@@ -28,8 +28,8 @@ public class MappingToDotTest {
                 new Api(
                         HttpVerb.GET,
                         ApiLink.SUB_RESOURCE(new SubResourceTarget(ClassName.valueOf("com.acme.Foo"), "")),
-                        new ApiPath("/{id}", Lists.<PathParameter>newArrayList())
-                )
+                        new ApiPath("/{id}", Lists.<PathParameter>newArrayList()),
+                        null)
         ));
 
         assertThat(TO_DOT_STATEMENT.apply(entry))
@@ -45,11 +45,10 @@ public class MappingToDotTest {
                 new Api(
                         HttpVerb.GET,
                         ApiLink.SELF(),
-                        new ApiPath("/{id}", Lists.<PathParameter>newArrayList())
-                )
+                        new ApiPath("/{id}", Lists.<PathParameter>newArrayList()),
+                        null)
         ));
 
         assertThat(TO_DOT_STATEMENT.apply(entry)).isNull();
     }
-
 }

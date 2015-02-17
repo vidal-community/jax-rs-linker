@@ -39,6 +39,7 @@ public class LinkerAnnotationProcessorTest {
                     forResource("BrandResourcePathParameters.java"),
                     forResource("PersonResourcePathParameters.java"),
                     forResource("PersonResourcePathParameters.java"),
+                    forResource("PersonResourceQueryParameters.java"),
                     forResource("linkers/Linkers.java")
             );
     }

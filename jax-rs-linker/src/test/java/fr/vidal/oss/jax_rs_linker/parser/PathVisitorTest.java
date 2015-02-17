@@ -92,7 +92,7 @@ public class PathVisitorTest {
             "hello"
         );
 
-        assertThat(visitor.visitParameters(method)).isEmpty();
+        assertThat(visitor.visitPathParameters(method)).isEmpty();
     }
 
     @Test
@@ -102,7 +102,7 @@ public class PathVisitorTest {
             "world"
         );
 
-        assertThat(visitor.visitParameters(method)).containsExactly(
+        assertThat(visitor.visitPathParameters(method)).containsExactly(
             new PathParameter(ClassName.valueOf("int"), "id")
         );
     }
@@ -114,7 +114,7 @@ public class PathVisitorTest {
             "monde"
         );
 
-        assertThat(visitor.visitParameters(method)).containsExactly(
+        assertThat(visitor.visitPathParameters(method)).containsExactly(
             new PathParameter(ClassName.valueOf("java.lang.String"), "super"),
             new PathParameter(ClassName.valueOf("int[]"), "params"),
             new PathParameter(ClassName.valueOf("java.lang.Number"), "everywhere")
