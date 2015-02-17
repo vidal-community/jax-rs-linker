@@ -15,7 +15,7 @@ import javax.servlet.annotation.WebListener;
 public final class Linkers implements ServletContextListener {
     private static String contextPath = "";
 
-    private static String applicationName = "my-super-application";
+    private static String applicationName = ApplicationName.get();
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {

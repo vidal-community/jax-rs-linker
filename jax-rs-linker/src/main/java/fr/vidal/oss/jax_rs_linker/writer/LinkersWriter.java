@@ -14,6 +14,7 @@ import java.beans.Introspector;
 import java.io.IOException;
 import java.util.Set;
 
+import static com.squareup.javapoet.ClassName.get;
 import static javax.lang.model.element.Modifier.*;
 
 public class LinkersWriter {
@@ -24,7 +25,7 @@ public class LinkersWriter {
         this.filer = filer;
     }
 
-    public void write(ClassName linkers, Set<ClassName> classes, String applicationName) throws IOException {
+    public void write(ClassName linkers, Set<ClassName> classes) throws IOException {
         TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(linkers.className())
             .addModifiers(PUBLIC, FINAL)
             .addSuperinterface(ServletContextListener.class)
@@ -37,7 +38,7 @@ public class LinkersWriter {
                 .initializer("\"\"")
                 .build())
             .addField(FieldSpec.builder(String.class, "applicationName", PRIVATE, STATIC)
-                .initializer("$S", applicationName)
+                .initializer("$T.get()", get("fr.vidal.oss.jax_rs_linker", "ApplicationName"))
                 .build())
             .addMethod(MethodSpec.methodBuilder("contextInitialized")
                 .addModifiers(PUBLIC)

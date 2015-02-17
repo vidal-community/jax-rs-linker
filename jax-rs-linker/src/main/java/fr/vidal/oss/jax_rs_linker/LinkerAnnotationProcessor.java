@@ -1,31 +1,24 @@
 package fr.vidal.oss.jax_rs_linker;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.*;
-import fr.vidal.oss.jax_rs_linker.api.ExposedApplication;
 import fr.vidal.oss.jax_rs_linker.api.Self;
 import fr.vidal.oss.jax_rs_linker.api.SubResource;
-import fr.vidal.oss.jax_rs_linker.errors.CompilationError;
 import fr.vidal.oss.jax_rs_linker.functions.ClassToName;
 import fr.vidal.oss.jax_rs_linker.functions.OptionalFunctions;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 import fr.vidal.oss.jax_rs_linker.parser.ElementParser;
 import fr.vidal.oss.jax_rs_linker.predicates.OptionalPredicates;
-import fr.vidal.oss.jax_rs_linker.visitor.ApplicationNameVisitor;
 import fr.vidal.oss.jax_rs_linker.writer.*;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Set;
 
-import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.base.Throwables.propagate;
 import static fr.vidal.oss.jax_rs_linker.functions.JavaxElementToMappings.intoOptionalMapping;
@@ -35,7 +28,6 @@ import static fr.vidal.oss.jax_rs_linker.functions.TypeElementToElement.intoElem
 import static fr.vidal.oss.jax_rs_linker.predicates.ElementHasKind.byKind;
 import static javax.lang.model.SourceVersion.latest;
 import static javax.lang.model.element.ElementKind.METHOD;
-import static javax.tools.Diagnostic.Kind.ERROR;
 
 
 @AutoService(Processor.class)
@@ -47,13 +39,12 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     private static final Set<String> SUPPORTED_ANNOTATIONS =
         FluentIterable
-            .from(Lists.<Class<?>>newArrayList(Self.class, SubResource.class, ExposedApplication.class))
+            .from(Lists.<Class<?>>newArrayList(Self.class, SubResource.class))
             .transform(ClassToName.INSTANCE)
             .toSet();
 
     private final Multimap<ClassName, Mapping> elements = LinkedHashMultimap.create();
     private ElementParser elementParser;
-    private String applicationName = "";
     private boolean entryPointGenerated;
     private Messager messager;
     private ResourceFileWriters resourceFiles;
@@ -87,15 +78,6 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations,
                            RoundEnvironment roundEnv) {
-
-        Optional<? extends TypeElement> maybeExposedApplication = extractExposedApplication(annotations);
-        if (maybeExposedApplication.isPresent()) {
-            Optional<String> name = parseApplicationName(roundEnv);
-            if (!name.isPresent()) {
-                return false;
-            }
-            this.applicationName = name.get();
-        }
 
         Multimap<ClassName, Mapping> roundElements =
             FluentIterable.from(annotations)
@@ -141,25 +123,6 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
         }
     }
 
-    private Optional<String> parseApplicationName(RoundEnvironment roundEnv) {
-        Set<? extends Element> applications = roundEnv.getElementsAnnotatedWith(ExposedApplication.class);
-        if (applications.size() != 1) {
-            messager.printMessage(ERROR, CompilationError.ONE_APPLICATION_ONLY.text());
-            return absent();
-        }
-        return new ApplicationNameVisitor(messager).visit(applications.iterator().next());
-    }
-
-    private Optional<? extends TypeElement> extractExposedApplication(Set<? extends TypeElement> annotations) {
-        return FluentIterable.from(annotations)
-                .firstMatch(new Predicate<TypeElement>() {
-                    @Override
-                    public boolean apply(TypeElement typeElement) {
-                        return typeElement.getQualifiedName().contentEquals(ExposedApplication.class.getCanonicalName());
-                    }
-                });
-    }
-
     private boolean mustGenerateLinkersSource(RoundEnvironment roundEnv,
                                               Set<? extends TypeElement> roundElements,
                                               Multimap<ClassName, Mapping> processedElements) {
@@ -171,13 +134,8 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     }
 
     private void generateLinkersSource() throws IOException {
-        if (applicationName.isEmpty()) {
-            messager.printMessage(ERROR, CompilationError.NO_APPLICATION_FOUND.text());
-            return;
-        }
-
         ClassName linkers = ClassName.valueOf("fr.vidal.oss.jax_rs_linker.Linkers");
-        new LinkersWriter(processingEnv.getFiler()).write(linkers, elements.keySet(), applicationName);
+        new LinkersWriter(processingEnv.getFiler()).write(linkers, elements.keySet());
     }
 
     private void generateLinkerSources(Multimap<ClassName, Mapping> elements) throws IOException {

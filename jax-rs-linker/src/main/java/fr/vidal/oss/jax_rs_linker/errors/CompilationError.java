@@ -34,9 +34,6 @@ public enum CompilationError {
         "\n\tEither annotate your configuration class with @ApplicationPath or provide a servletName to @ExposedApplication (not both)." +
         "\n\tGiven class: <%s>"
     ),
-    NO_APPLICATION_FOUND(
-        "\n\tThere should be exactly one @ExposedApplication-annotated Jersey Application: none found."
-    ),
     NO_APPLICATION_SERVLET_NAME(
         "\n\t@ExposedApplication servletName must not be empty when used on a package." +
         "\n\tGiven package: <%s>"

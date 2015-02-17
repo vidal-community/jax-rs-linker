@@ -17,7 +17,7 @@ import javax.servlet.annotation.WebListener;
 public final class Linkers implements ServletContextListener {
     private static String contextPath = "";
 
-    private static String applicationName = "fr.vidal.oss.jax_rs_linker.it.Configuration";
+    private static String applicationName = ApplicationName.get();
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
