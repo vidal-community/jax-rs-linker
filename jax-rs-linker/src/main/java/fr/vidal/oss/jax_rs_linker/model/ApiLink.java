@@ -3,22 +3,24 @@ package fr.vidal.oss.jax_rs_linker.model;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 
+import static java.util.Locale.ENGLISH;
+
 public class ApiLink {
 
     private final ApiLinkType apiLinkType;
-    private final Optional<ClassName> target;
+    private final Optional<SubResourceTarget> target;
 
-    private ApiLink(ApiLinkType apiLinkType, Optional<ClassName> target) {
+    private ApiLink(ApiLinkType apiLinkType, Optional<SubResourceTarget> target) {
         this.apiLinkType = apiLinkType;
         this.target = target;
     }
 
     public static ApiLink SELF() {
-        return new ApiLink(ApiLinkType.SELF, Optional.<ClassName>absent());
+        return new ApiLink(ApiLinkType.SELF, Optional.<SubResourceTarget>absent());
     }
 
-    public static ApiLink SUB_RESOURCE(ClassName className) {
-        return new ApiLink(ApiLinkType.SUB_RESOURCE, Optional.of(className));
+    public static ApiLink SUB_RESOURCE(SubResourceTarget target) {
+        return new ApiLink(ApiLinkType.SUB_RESOURCE, Optional.of(target));
     }
 
     public ApiLinkType getApiLinkType() {
@@ -26,7 +28,18 @@ public class ApiLink {
     }
 
     public Optional<ClassName> getTarget() {
-        return target;
+        if (!target.isPresent()) {
+            return Optional.absent();
+        }
+        return Optional.of(target.get().getClassName());
+    }
+
+    public Optional<String> getQualifiedTarget() {
+        if (!target.isPresent()) {
+            return Optional.absent();
+        }
+        SubResourceTarget subResourceTarget = target.get();
+        return Optional.of(format(subResourceTarget));
     }
 
     @Override
@@ -44,5 +57,16 @@ public class ApiLink {
         }
         final ApiLink other = (ApiLink) obj;
         return Objects.equal(this.apiLinkType, other.apiLinkType) && Objects.equal(this.target, other.target);
+    }
+
+    private String format(SubResourceTarget subResourceTarget) {
+        return subResourceTarget.getClassName().className() + suffix(subResourceTarget.getQualifier());
+    }
+
+    private String suffix(String qualifier) {
+        if (qualifier.isEmpty()) {
+            return "";
+        }
+        return qualifier.substring(0,1).toUpperCase(ENGLISH) + qualifier.substring(1);
     }
 }

@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import static com.squareup.javapoet.MethodSpec.constructorBuilder;
+import static fr.vidal.oss.jax_rs_linker.predicates.MappingByApiLinkTargetPredicate.BY_API_LINK_TARGET_PRESENCE;
 import static java.lang.String.format;
 import static javax.lang.model.element.Modifier.*;
 
@@ -77,7 +78,7 @@ public class LinkerWriter {
             Api api = mapping.getApi();
             typeBuilder.addMethod(
                 linkerMethod(
-                    format("related%s", api.getApiLink().getTarget().get().className()),
+                    format("related%s", api.getApiLink().getQualifiedTarget().get()),
                     api.getApiPath(),
                     templatedPathClass
                 )
@@ -115,7 +116,7 @@ public class LinkerWriter {
 
     private Iterable<Mapping> linked(Collection<Mapping> mappings) {
         return FluentIterable.from(mappings)
-            .filter(MappingByApiLinkTargetPredicate.BY_API_LINK_TARGET_PRESENCE)
+            .filter(BY_API_LINK_TARGET_PRESENCE)
             .toList();
     }
 

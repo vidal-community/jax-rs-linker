@@ -19,6 +19,22 @@ public class BrandIT {
                 .isEqualTo("/it-tests/rest/brand/23");
     }
 
+    @Test
+    public void related_link_by_code_with_context_path_and_servlet_name() throws Exception {
+        Response response = request("brand/ABC");
+
+        assertThat(response.body().string())
+                .isEqualTo("/it-tests/rest/brand/ABC");
+    }
+
+    @Test
+    public void related_qualified_link_by_zip_with_context_path_and_servlet_name() throws Exception {
+        Response response = request("brand/dmz");
+
+        assertThat(response.body().string())
+                .isEqualTo("/it-tests/rest/brand/dmz");
+    }
+
     private static Response request(String resource) throws IOException {
         OkHttpClient client = new OkHttpClient();
 

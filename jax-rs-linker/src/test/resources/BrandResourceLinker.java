@@ -24,6 +24,14 @@ public final class BrandResourceLinker {
         return new TemplatedPath<BrandResourcePathParameters>(contextPath + "/brand/{id}", Arrays.<PathParameter>asList(pathParameter("int", "id")));
     }
 
+    public final TemplatedPath<BrandResourcePathParameters> relatedBrandResource() {
+        return new TemplatedPath<BrandResourcePathParameters>(contextPath + "/brand/{code}", Arrays.<PathParameter>asList(pathParameter("int", "code")));
+    }
+
+    public final TemplatedPath<BrandResourcePathParameters> relatedBrandResourceZip() {
+        return new TemplatedPath<BrandResourcePathParameters>(contextPath + "/brand/{zip}", Arrays.<PathParameter>asList(pathParameter("int", "zip")));
+    }
+
     private static PathParameter pathParameter(final String type, final String name) {
         return new PathParameter(ClassName.valueOf(type), name);
     }

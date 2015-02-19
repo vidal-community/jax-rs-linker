@@ -8,7 +8,11 @@ import javax.annotation.Generated;
 
 @Generated("fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
 public enum BrandResourcePathParameters implements PathParameters {
-    ID("id");
+    CODE("code"),
+
+    ID("id"),
+
+    ZIP("zip");
 
     private final String placeholder;
 

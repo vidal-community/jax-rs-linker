@@ -27,7 +27,7 @@ public class MappingToDotTest {
                 new JavaLocation(bar, "dealWithIt"),
                 new Api(
                         HttpVerb.GET,
-                        ApiLink.SUB_RESOURCE(ClassName.valueOf("com.acme.Foo")),
+                        ApiLink.SUB_RESOURCE(new SubResourceTarget(ClassName.valueOf("com.acme.Foo"), "")),
                         new ApiPath("/{id}", Lists.<PathParameter>newArrayList())
                 )
         ));
@@ -51,4 +51,5 @@ public class MappingToDotTest {
 
         assertThat(TO_DOT_STATEMENT.apply(entry)).isNull();
     }
+
 }

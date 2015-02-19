@@ -41,7 +41,7 @@ public class DotFileWriterTest {
                         new JavaLocation(ClassName.valueOf("com.acme.Foo"), "doIt"),
                         new Api(
                                 HttpVerb.GET,
-                                SUB_RESOURCE(ClassName.valueOf("com.acme.Bar")),
+                                SUB_RESOURCE(new SubResourceTarget(ClassName.valueOf("com.acme.Bar"), "")),
                                 new ApiPath("/foo/{id}/bar", Lists.<PathParameter>newArrayList())
                         )
                 )

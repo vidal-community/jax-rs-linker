@@ -5,12 +5,8 @@ import com.google.common.collect.FluentIterable;
 import fr.vidal.oss.jax_rs_linker.api.Self;
 import fr.vidal.oss.jax_rs_linker.api.SubResource;
 import fr.vidal.oss.jax_rs_linker.errors.CompilationError;
-import fr.vidal.oss.jax_rs_linker.functions.EntryToStringValueFunction;
 import fr.vidal.oss.jax_rs_linker.model.*;
-import fr.vidal.oss.jax_rs_linker.predicates.AnnotationMirrorByNamePredicate;
 import fr.vidal.oss.jax_rs_linker.predicates.ElementHasAnnotation;
-import fr.vidal.oss.jax_rs_linker.predicates.EntryByMethodNamePredicate;
-import fr.vidal.oss.jax_rs_linker.predicates.UnparseableValuePredicate;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
@@ -23,6 +19,9 @@ import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Predicates.not;
 import static fr.vidal.oss.jax_rs_linker.functions.AnnotationMirrorToMethodValueEntryFunction.TO_METHOD_VALUE_ENTRIES;
+import static fr.vidal.oss.jax_rs_linker.functions.EntriesToStringValueFunction.TO_STRING_VALUE;
+import static fr.vidal.oss.jax_rs_linker.predicates.AnnotationMirrorByNamePredicate.byName;
+import static fr.vidal.oss.jax_rs_linker.predicates.UnparseableValuePredicate.IS_UNPARSEABLE;
 import static javax.tools.Diagnostic.Kind.ERROR;
 
 public class ElementParser {
@@ -81,21 +80,19 @@ public class ElementParser {
         if (withSelf) {
             return Optional.of(ApiLink.SELF());
         }
-        Optional<String> location = relatedResourceName(methodElement);
+        Optional<SubResourceTarget> location = relatedResourceName(methodElement);
         if (!location.isPresent()) {
             return absent();
         }
-        ClassName className = ClassName.valueOf(location.get());
-        return Optional.of(ApiLink.SUB_RESOURCE(className));
+        return Optional.of(ApiLink.SUB_RESOURCE(location.get()));
     }
 
-    private Optional<String> relatedResourceName(ExecutableElement methodElement) {
+    private Optional<SubResourceTarget> relatedResourceName(ExecutableElement methodElement) {
         return FluentIterable.from(methodElement.getAnnotationMirrors())
-                .filter(AnnotationMirrorByNamePredicate.byName("SubResource"))
-                .transformAndConcat(TO_METHOD_VALUE_ENTRIES)
-                .filter(EntryByMethodNamePredicate.byMethodName("value"))
-                .transform(EntryToStringValueFunction.TO_STRING_VALUE)
-                .firstMatch(not(UnparseableValuePredicate.IS_UNPARSEABLE));
+                .filter(byName("SubResource"))
+                .transform(TO_METHOD_VALUE_ENTRIES)
+                .transform(TO_STRING_VALUE)
+                .firstMatch(not(IS_UNPARSEABLE));
     }
 
     private Mapping mapping(ExecutableElement methodElement, ApiLink link, HttpVerb httpVerb, String path) {
