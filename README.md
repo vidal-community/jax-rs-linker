@@ -8,7 +8,7 @@
 ## Scope
 
 JAX-RS linker aims at providing, at compile-time, the catalog of links
-between resources, thus removing the need of JAX-RS runtime injection
+between resources, thus reducing the need of JAX-RS runtime injection
 of objects such as [UriInfo](http://docs.oracle.com/javaee/6/api/javax/ws/rs/core/UriInfo.html).
 
 ## Model
@@ -225,30 +225,4 @@ computed to navigate through your graph of resources.
 
 Your imagination is the limit!
 
-## Annotation processor
-
-When JAX-RS linker is added to the classpath, its annotation processor
-(`fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor`) is automatically registered as a processor candidate.
-
-Following up the previous example, `Linkers` will be generated, exposing several methods, including:
-
-  - `public static ProductResourceLinker productResourceLinker()`
-  - `public static CompanyResourceLinker companyResourceLinker()`
-
-
-Each of these linker classes has been generated as well, defining the following API:
-
- - `public TemplatedPath<T> self() // gives access to the (possibly parameterized) self URI`
- - `public TemplatedPath<T> relatedXxxResource() // gives access to the specified related resource defined by XxxResource class`
-
-where `T` type parameter denotes either `*PathParameters` or `NoPathParameters`.
-
-If any of the processed `@Self` and `@SubResource` methods include `@PathParam` parameters, the corresponding
-`PathParameters` will be generated in the same package as the processed resource.
-
-Finally, please note that `productResourceLinker.relatedCompanyResource()` is *NOT* equivalent to
-`companyResourceLinker.relatedProductResource()`.
-
-In the first case, the following wrapped URI will be: `/api/product/{id}/company`.
-In the second case, it will not compile at all as there is no link from CompanyResource to ProductResource.
 
