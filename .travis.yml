@@ -9,6 +9,5 @@ branches:
     - /.*wip.*/i
 script: "mvn -T4 clean package"
 after_success:
-after_success:
-  - echo "<settings><servers><server><id>ossrh</id><username>\${env.OSSRH_USER}</username><password>\${env.OSSRH_PASS}</password></server></servers></settings>" > ~/settings.xml
-  - mvn clean deploy jacoco:report coveralls:report --settings ~/settings.xml
+- mvn clean test jacoco:report coveralls:report 
+- "[ ${TRAVIS_PULL_REQUEST} = 'false' ] && [ ${TRAVIS_BRANCH} = 'master' ] && mvn clean deploy -DskipTests --settings ./deploy-settings.xml"
