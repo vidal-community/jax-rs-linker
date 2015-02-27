@@ -1,6 +1,7 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -12,6 +13,7 @@ import fr.vidal.oss.jax_rs_linker.predicates.PathParameterPredicate;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.not;
@@ -41,6 +43,7 @@ public class TemplatedUrl<T extends PathParameters, U extends QueryParameters> {
 
     public TemplatedUrl<T,U> replace(T parameter, String value) {
         checkState(!pathParameters.isEmpty(), "No more path parameters to replace");
+        validateParamValue(parameter.regex(), value);
 
         return new TemplatedUrl<>(
             path.replace(placeholder(parameter.placeholder()), value),
@@ -59,6 +62,14 @@ public class TemplatedUrl<T extends PathParameters, U extends QueryParameters> {
     public String value() {
         checkState(pathParameters.isEmpty(), format("Parameters to replace: %s", parameterNames()));
         return path + TO_QUERY_STRING.apply(queryParameters);
+    }
+
+    private void validateParamValue(Optional<Pattern> regex, String value) {
+        if (regex.isPresent()) {
+            if (!regex.get().matcher(value).matches()) {
+                throw new IllegalArgumentException(String.format("The given value doesn't match the parameter regex: %s", regex.get()));
+            }
+        }
     }
 
     private String parameterNames() {

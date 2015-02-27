@@ -1,5 +1,6 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import fr.vidal.oss.jax_rs_linker.api.NoQueryParameters;
 import fr.vidal.oss.jax_rs_linker.api.PathParameters;
@@ -8,6 +9,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,12 +69,16 @@ public class TemplatedUrlTest {
     }
 }
 
-enum ProductParameters implements PathParameters
-{
+enum ProductParameters implements PathParameters {
     ID;
 
     @Override
     public String placeholder() {
         return "id";
+    }
+
+    @Override
+    public Optional<Pattern> regex() {
+        return Optional.absent();
     }
 }

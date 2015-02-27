@@ -1,18 +1,37 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
-import com.google.common.base.Objects;
+import com.google.common.base.*;
 
+import java.util.regex.Pattern;
+
+import static com.google.common.base.Optional.absent;
+import static com.google.common.base.Optional.fromNullable;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 
 public class PathParameter {
 
     private final ClassName type;
     private final String name;
+    private final Optional<Pattern> regex;
 
     public PathParameter(ClassName type, String name) {
+        this(type, name, Optional.<Pattern>absent());
+    }
+
+    public PathParameter(ClassName type, String name, String regex) {
         this.type = type;
         this.name = name;
+        this.regex = Optional.of(Pattern.compile(regex));
     }
+
+    private PathParameter(ClassName type, String name, Optional<Pattern> regex) {
+        this.type = type;
+        this.name = name;
+        this.regex = regex;
+    }
+
+
 
     public ClassName getType() {
         return type;
@@ -21,6 +40,11 @@ public class PathParameter {
     public String getName() {
         return name;
     }
+
+    public Optional<Pattern> getRegex() {
+        return regex;
+    }
+
 
     @Override
     public int hashCode() {

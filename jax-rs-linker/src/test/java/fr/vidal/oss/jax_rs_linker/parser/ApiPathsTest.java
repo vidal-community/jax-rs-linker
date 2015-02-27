@@ -1,7 +1,18 @@
 package fr.vidal.oss.jax_rs_linker.parser;
 
+import com.google.common.base.Optional;
+import fr.vidal.oss.jax_rs_linker.model.ClassName;
+import fr.vidal.oss.jax_rs_linker.model.PathParameter;
+import org.assertj.core.api.iterable.Extractor;
 import org.junit.Test;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Pattern;
+
+import static com.google.common.collect.Sets.newHashSet;
+import static fr.vidal.oss.jax_rs_linker.parser.ApiPaths.decorate;
 import static fr.vidal.oss.jax_rs_linker.parser.ApiPaths.sanitize;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,5 +52,71 @@ public class ApiPathsTest {
     public void keeps_regexless_parameterized_paths_untouched() {
         assertThat(sanitize("/api/boring/{parameterized}/path"))
             .isEqualTo("/api/boring/{parameterized}/path");
+    }
+
+    @Test
+    public void adds_regex_to_path_parameters() {
+        Set<PathParameter> pathParameters = newHashSet(new PathParameter(ClassName.valueOf(String.class.getName()), "param"));
+        Collection<PathParameter> result = decorate(pathParameters, "/api/boring/{param:([a-zA-Z0-9])+}");
+
+        assertThat(result).extracting(patternToOptionalOfString())
+                .containsExactly(Optional.of("([a-zA-Z0-9])+"));
+    }
+
+    @Test
+    public void adds_correct_regex_to_multiple_path_parameters() {
+        Set<PathParameter> pathParameters = newHashSet(
+                new PathParameter(ClassName.valueOf(String.class.getName()), "param"),
+                new PathParameter(ClassName.valueOf(String.class.getName()), "other")
+        );
+        Collection<PathParameter> result = decorate(pathParameters,
+                "/api/boring/{param:([a-zA-Z0-9])+}/{other:[1-9]}");
+
+        assertThat(result).extracting(patternToOptionalOfString())
+                .contains(Optional.of("([a-zA-Z0-9])+"), Optional.of("[1-9]"));
+    }
+
+    @Test
+    public void keeps_regexless_path_parameters_untouched() {
+        Set<PathParameter> pathParameters = newHashSet(new PathParameter(ClassName.valueOf(String.class.getName()), "param"));
+        Collection<PathParameter> result = decorate(pathParameters, "/api/boring/{param}");
+
+        assertThat(result).extracting(patternToOptionalOfString()).containsExactly(Optional.<String>absent());
+    }
+
+    @Test
+    public void keeps_regexless_multiple_path_parameters_untouched() {
+        Set<PathParameter> pathParameters = newHashSet(
+                new PathParameter(ClassName.valueOf(String.class.getName()), "param"),
+                new PathParameter(ClassName.valueOf(String.class.getName()), "other")
+        );
+        Collection<PathParameter> result = decorate(pathParameters, "/api/boring/{param}/{other}");
+
+        assertThat(result).extracting(patternToOptionalOfString())
+                .containsExactly(Optional.<String>absent(), Optional.<String>absent());
+    }
+
+    @Test
+    public void adds_regex_to_corresponding_path_parameter_and_keeps_regexless_path_parameter_untouched() {
+        Set<PathParameter> pathParameters = newHashSet(
+                new PathParameter(ClassName.valueOf(String.class.getName()), "param"),
+                new PathParameter(ClassName.valueOf(String.class.getName()), "other"),
+                new PathParameter(ClassName.valueOf(String.class.getName()), "last")
+        );
+        Collection<PathParameter> result = decorate(pathParameters, "/api/boring/{param}/{other:[1-9]}/{last}");
+
+        assertThat(result).extracting(patternToOptionalOfString())
+                .contains(Optional.<String>absent(), Optional.of("[1-9]"), Optional.<String>absent());
+    }
+
+    private Extractor<PathParameter, Optional<String>> patternToOptionalOfString() {
+        return new Extractor<PathParameter, Optional<String>>() {
+            @Override
+            public Optional<String> extract(PathParameter pathParameter) {
+                return pathParameter.getRegex().isPresent()?
+                        Optional.of(pathParameter.getRegex().get().pattern()):
+                        Optional.<String>absent();
+            }
+        };
     }
 }
