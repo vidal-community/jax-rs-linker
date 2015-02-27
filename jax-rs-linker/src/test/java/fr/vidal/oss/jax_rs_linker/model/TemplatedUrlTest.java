@@ -1,5 +1,6 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import fr.vidal.oss.jax_rs_linker.api.NoQueryParameters;
 import fr.vidal.oss.jax_rs_linker.api.PathParameters;
@@ -67,12 +68,16 @@ public class TemplatedUrlTest {
     }
 }
 
-enum ProductParameters implements PathParameters
-{
+enum ProductParameters implements PathParameters {
     ID;
 
     @Override
     public String placeholder() {
         return "id";
+    }
+
+    @Override
+    public Optional<String> regex() {
+        return Optional.absent();
     }
 }

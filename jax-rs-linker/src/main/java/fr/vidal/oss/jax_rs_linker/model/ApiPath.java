@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.Collection;
 
+import static fr.vidal.oss.jax_rs_linker.parser.ApiPaths.decorate;
 import static fr.vidal.oss.jax_rs_linker.parser.ApiPaths.sanitize;
 
 public class ApiPath {
@@ -15,7 +16,7 @@ public class ApiPath {
 
     public ApiPath(String path, Collection<PathParameter> pathParameters) {
         this.path = sanitize(path);
-        this.pathParameters = pathParameters;
+        this.pathParameters = decorate(pathParameters, path);
     }
 
     public String getPath() {
