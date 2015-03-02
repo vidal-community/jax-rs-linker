@@ -14,7 +14,7 @@ public class PersonResource {
     @Self
     @Path("/{id}")
     @GET
-    public void getById(@PathParam("id") int id, @QueryParam("alive") boolean alive) {
+    public void getById(@PathParam("id") int id, @QueryParam("alive-flag") boolean alive) {
 
     }
 

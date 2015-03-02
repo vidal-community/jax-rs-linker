@@ -6,7 +6,7 @@ import javax.annotation.Generated;
 
 @Generated("fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
 public enum PersonResourceQueryParameters implements QueryParameters {
-    ALIVE("alive");
+    ALIVE_FLAG("alive-flag");
 
     private final String value;
 
