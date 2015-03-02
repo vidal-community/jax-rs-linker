@@ -23,7 +23,7 @@ public class ApiQueryTest {
 
     @Test
     public void toString_should_return_a_valid_string_representation() {
-        Collection<QueryParameter> queryParameters = newArrayList(new QueryParameter(ClassName.valueOf("fr.vidal.oss.Foo"),"Foo"),new QueryParameter(ClassName.valueOf("fr.vidal.oss.Bar"),"Bar") );
+        Collection<QueryParameter> queryParameters = newArrayList(new QueryParameter("Foo"),new QueryParameter("Bar") );
         ApiQuery apiQuery = new ApiQuery(queryParameters);
 
         assertThat(apiQuery.toString()).isEqualTo("ApiQuery{queryParameters=[FooBar]}");

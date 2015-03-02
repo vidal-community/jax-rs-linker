@@ -30,7 +30,7 @@ public final class DevNullResourceLinker {
         return new PathParameter(ClassName.valueOf(type), name);
     }
 
-    private static QueryParameter queryParameter(final String type, final String name) {
-        return new QueryParameter(ClassName.valueOf(type), name);
+    private static QueryParameter queryParameter(final String name) {
+        return new QueryParameter(name);
     }
 }

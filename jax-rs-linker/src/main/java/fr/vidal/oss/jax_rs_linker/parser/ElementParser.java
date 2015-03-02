@@ -11,6 +11,7 @@ import fr.vidal.oss.jax_rs_linker.predicates.ElementHasAnnotation;
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.*;
 import javax.lang.model.util.Types;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.QueryParam;
 import java.util.Collection;
 
@@ -20,10 +21,9 @@ import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Lists.newArrayList;
 import static fr.vidal.oss.jax_rs_linker.functions.AnnotationMirrorToMethodValueEntryFunction.TO_METHOD_VALUE_ENTRIES;
 import static fr.vidal.oss.jax_rs_linker.functions.EntriesToStringValueFunction.TO_STRING_VALUE;
-import static fr.vidal.oss.jax_rs_linker.functions.VariableElementToQueryParameter.INTO_QUERY_PARAMETER;
+import static fr.vidal.oss.jax_rs_linker.functions.ElementToQueryParameter.INTO_QUERY_PARAMETER;
 import static fr.vidal.oss.jax_rs_linker.predicates.AnnotationMirrorByNamePredicate.byName;
 import static fr.vidal.oss.jax_rs_linker.predicates.UnparseableValuePredicate.IS_UNPARSEABLE;
-
 import static javax.tools.Diagnostic.Kind.ERROR;
 
 public class ElementParser {
@@ -32,11 +32,13 @@ public class ElementParser {
     private final PathVisitor pathVisitor;
     private final ClassWorkLoad workLoad;
     private final HttpVerbVisitor httpVerbVisitor;
+    private final Types typeUtils;
 
     public ElementParser(Messager messager,
                          Types typeUtils) {
 
         this.messager = messager;
+        this.typeUtils = typeUtils;
         this.pathVisitor = new PathVisitor(typeUtils);
         this.workLoad = ClassWorkLoad.init();
         this.httpVerbVisitor = new HttpVerbVisitor();
@@ -91,21 +93,21 @@ public class ElementParser {
 
     private Optional<SubResourceTarget> relatedResourceName(ExecutableElement methodElement) {
         return FluentIterable.from(methodElement.getAnnotationMirrors())
-                .filter(byName("SubResource"))
-                .transform(TO_METHOD_VALUE_ENTRIES)
-                .transform(TO_STRING_VALUE)
-                .firstMatch(not(IS_UNPARSEABLE));
+            .filter(byName("SubResource"))
+            .transform(TO_METHOD_VALUE_ENTRIES)
+            .transform(TO_STRING_VALUE)
+            .firstMatch(not(IS_UNPARSEABLE));
     }
 
     private Mapping mapping(ExecutableElement methodElement, ApiLink link, HttpVerb httpVerb, String path) {
         return new Mapping(
-                javaLocation(methodElement),
-                api(
-                        link,
-                        httpVerb,
-                        apiPath(methodElement, path),
-                        apiQuery(methodElement.getParameters())
-                )
+            javaLocation(methodElement),
+            api(
+                link,
+                httpVerb,
+                apiPath(methodElement, path),
+                apiQuery(methodElement.getParameters())
+            )
         );
     }
 
@@ -127,32 +129,40 @@ public class ElementParser {
 
     private JavaLocation javaLocation(ExecutableElement methodElement) {
         return new JavaLocation(
-                className(methodElement),
-                methodElement.getSimpleName().toString()
+            className(methodElement),
+            methodElement.getSimpleName().toString()
         );
     }
 
     private Api api(ApiLink link, HttpVerb httpVerb, ApiPath apiPath, ApiQuery apiQuery) {
         return new Api(
-                httpVerb,
-                link,
-                apiPath,
-                apiQuery);
+            httpVerb,
+            link,
+            apiPath,
+            apiQuery);
     }
 
     private ApiPath apiPath(ExecutableElement methodElement, String path) {
         return new ApiPath(
-                path,
-                pathVisitor.visitPathParameters(methodElement)
+            path,
+            pathVisitor.visitPathParameters(methodElement)
         );
     }
 
     private ApiQuery apiQuery(Collection<? extends VariableElement> parameters) {
-        Collection<QueryParameter> queryParameters = newArrayList();
+        final Collection<QueryParameter> queryParameters = newArrayList();
         for (VariableElement variableElement : parameters) {
             final QueryParam annotation = variableElement.getAnnotation(QueryParam.class);
             if (annotation != null) {
                 queryParameters.add(INTO_QUERY_PARAMETER.apply(variableElement));
+            }
+            BeanParam beanParam = variableElement.getAnnotation(BeanParam.class);
+            if (beanParam != null) {
+                Element beanParamTargetClass = typeUtils.asElement(variableElement.asType());
+                ElementVisitor<Void, Void> queryParamElementVisitor = new QueryParamElementVisitor(queryParameters, typeUtils);
+                for (Element element : beanParamTargetClass.getEnclosedElements()) {
+                    queryParamElementVisitor.visit(element);
+                }
             }
         }
         return new ApiQuery(queryParameters);
@@ -177,4 +187,5 @@ public class ElementParser {
             element.getSimpleName()
         );
     }
+
 }
