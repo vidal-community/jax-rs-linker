@@ -35,7 +35,7 @@ public final class ApiPaths {
             @Nullable
             @Override
             public PathParameter apply(PathParameter pathParameter) {
-                if(parametersRegex.containsKey(pathParameter.getName())) {
+                if (parametersRegex.containsKey(pathParameter.getName())) {
                     return new PathParameter(pathParameter.getType(),
                             pathParameter.getName(),
                             parametersRegex.get(pathParameter.getName())
@@ -54,15 +54,11 @@ public final class ApiPaths {
             String pathParam = st.nextToken();
             if (pathParam.contains("{")) {
                 int colonPosition = pathParam.indexOf(':');
-                String name;
-                String regex = null;
                 if (colonPosition != -1) {
-                    name = pathParam.substring(1, colonPosition).trim();
-                    regex = pathParam.substring(colonPosition + 1, pathParam.length() - 1).trim();
-                } else {
-                    name = pathParam.substring(1, pathParam.length() - 1).trim();
+                    String name = pathParam.substring(1, colonPosition).trim();
+                    String regex = pathParam.substring(colonPosition + 1, pathParam.length() - 1).trim();
+                    parameterAndRegex.put(name, regex);
                 }
-                parameterAndRegex.put(name, regex);
             }
 
         }

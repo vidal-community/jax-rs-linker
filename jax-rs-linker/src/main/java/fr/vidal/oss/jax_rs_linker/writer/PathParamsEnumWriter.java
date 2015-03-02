@@ -9,13 +9,13 @@ import fr.vidal.oss.jax_rs_linker.functions.MappingToPathParameters;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 import fr.vidal.oss.jax_rs_linker.model.PathParameter;
-import fr.vidal.oss.jax_rs_linker.model.TemplatedPath;
 
 import javax.annotation.Generated;
 import javax.annotation.processing.Filer;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.regex.Pattern;
 
 import static javax.lang.model.element.Modifier.*;
 
@@ -42,7 +42,7 @@ public class PathParamsEnumWriter {
         TypeName optionalOfString =
                 ParameterizedTypeName.get(
                         com.squareup.javapoet.ClassName.get(Optional.class),
-                        com.squareup.javapoet.ClassName.bestGuess(ClassName.valueOf("String").className())
+                        com.squareup.javapoet.ClassName.get(Pattern.class)
                 );
 
         typeBuilder.addField(String.class, "placeholder", PRIVATE, FINAL)
@@ -77,16 +77,18 @@ public class PathParamsEnumWriter {
 
     private void writeEnumeration(Collection<Mapping> mappings, TypeSpec.Builder typeBuilder) throws IOException {
         for (PathParameter parameter : enumConstants(mappings)) {
-            if(parameter.getRegex().isPresent()) {
+            Optional<Pattern> regex = parameter.getRegex();
+            String name = parameter.getName();
+            if (regex.isPresent()) {
                 typeBuilder.addEnumConstant(
-                        EnumConstants.constantName(parameter.getName()),
-                        TypeSpec.anonymousClassBuilder("$S, Optional.<String>of($S)", parameter.getName(), parameter.getRegex().get())
+                        EnumConstants.constantName(name),
+                        TypeSpec.anonymousClassBuilder("$S, Optional.<Pattern>of(Pattern.compile($S))", name, regex.get())
                                 .build()
                 );
             } else {
                 typeBuilder.addEnumConstant(
-                        EnumConstants.constantName(parameter.getName()),
-                        TypeSpec.anonymousClassBuilder("$S, Optional.<String>absent()", parameter.getName())
+                        EnumConstants.constantName(name),
+                        TypeSpec.anonymousClassBuilder("$S, Optional.<Pattern>absent()", name)
                                 .build()
                 );
             }

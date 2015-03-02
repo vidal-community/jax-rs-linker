@@ -5,18 +5,19 @@ import com.google.common.base.Optional;
 import fr.vidal.oss.jax_rs_linker.api.PathParameters;
 import java.lang.Override;
 import java.lang.String;
+import java.util.regex.Pattern;
 import javax.annotation.Generated;
 
 @Generated("fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
 public enum PersonResourcePathParameters implements PathParameters {
-    FIRST_NAME("firstName", Optional.<String>of(".*")),
+    FIRST_NAME("firstName", Optional.<Pattern>of(Pattern.compile(".*"))),
 
-    ID("id", Optional.<String>absent());
+    ID("id", Optional.<Pattern>absent());
 
     private final String placeholder;
-    private final Optional<String> regex;
+    private final Optional<Pattern> regex;
 
-    PersonResourcePathParameters(String placeholder, Optional<String> regex) {
+    PersonResourcePathParameters(String placeholder, Optional<Pattern> regex) {
         this.placeholder = placeholder;
         this.regex = regex;
     }
@@ -27,7 +28,7 @@ public enum PersonResourcePathParameters implements PathParameters {
     }
 
     @Override
-    public final Optional<String> regex() {
+    public final Optional<Pattern> regex() {
         return this.regex;
     }
 }

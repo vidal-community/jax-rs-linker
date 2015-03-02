@@ -5,21 +5,22 @@ import com.google.common.base.Optional;
 import fr.vidal.oss.jax_rs_linker.api.PathParameters;
 import java.lang.Override;
 import java.lang.String;
+import java.util.regex.Pattern;
 import javax.annotation.Generated;
 
 @Generated("fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
 public enum BrandResourcePathParameters implements PathParameters {
-    CODE("code", Optional.<String>absent()),
+    CODE("code", Optional.<Pattern>absent()),
 
-    ID("id", Optional.<String>absent()),
+    ID("id", Optional.<Pattern>absent()),
 
-    ZIP("zip", Optional.<String>absent());
+    ZIP("zip", Optional.<Pattern>absent());
 
     private final String placeholder;
 
-    private final Optional<String> regex;
+    private final Optional<Pattern> regex;
 
-    BrandResourcePathParameters(String placeholder, Optional<String> regex) {
+    BrandResourcePathParameters(String placeholder, Optional<Pattern> regex) {
         this.placeholder = placeholder;
         this.regex = regex;
     }
@@ -30,7 +31,7 @@ public enum BrandResourcePathParameters implements PathParameters {
     }
 
     @Override
-    public final Optional<String> regex() {
+    public final Optional<Pattern> regex() {
         return this.regex;
     }
 }

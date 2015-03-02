@@ -64,11 +64,10 @@ public class TemplatedUrl<T extends PathParameters, U extends QueryParameters> {
         return path + TO_QUERY_STRING.apply(queryParameters);
     }
 
-    private void validateParamValue(Optional<String> regex, String value) {
-        if(regex.isPresent()) {
-            Pattern pattern = Pattern.compile(regex.get());
-            if(!pattern.matcher(value).matches()) {
-                throw new IllegalArgumentException(String.format("The given value doesn't match the parameter's regex: %s", regex.get()));
+    private void validateParamValue(Optional<Pattern> regex, String value) {
+        if (regex.isPresent()) {
+            if (!regex.get().matcher(value).matches()) {
+                throw new IllegalArgumentException(String.format("The given value doesn't match the parameter regex: %s", regex.get()));
             }
         }
     }

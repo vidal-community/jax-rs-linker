@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,7 +78,7 @@ enum ProductParameters implements PathParameters {
     }
 
     @Override
-    public Optional<String> regex() {
+    public Optional<Pattern> regex() {
         return Optional.absent();
     }
 }
