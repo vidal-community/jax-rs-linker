@@ -158,7 +158,6 @@ public class ElementParser {
             if (annotation != null) {
                 queryParameters.add(INTO_QUERY_PARAMETER.apply(variableElement));
             }
-            // handle bean params :
             BeanParam beanParam = variableElement.getAnnotation(BeanParam.class);
             if (beanParam != null) {
                 Element beanParamTargetClass = typeUtils.asElement(variableElement.asType());
