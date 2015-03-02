@@ -6,6 +6,9 @@ import static com.google.common.base.CaseFormat.UPPER_UNDERSCORE;
 public class EnumConstants {
 
     public static String constantName(String name) {
-        return UPPER_CAMEL.to(UPPER_UNDERSCORE, name);
+        return UPPER_CAMEL
+            .to(UPPER_UNDERSCORE, name)
+            .replace(' ', '_')
+            .replace('-', '_');
     }
 }
