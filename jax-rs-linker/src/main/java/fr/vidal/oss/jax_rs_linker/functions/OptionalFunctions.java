@@ -7,6 +7,9 @@ import javax.annotation.Nullable;
 
 public class OptionalFunctions {
 
+    private OptionalFunctions() {
+    }
+
     public static <T> Function<Optional<T>, T> intoUnwrapped() {
         return new Function<Optional<T>, T>() {
             @Nullable

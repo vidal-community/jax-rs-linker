@@ -7,6 +7,7 @@ public class JavaLocation {
     private final ClassName className;
     private final String methodName;
 
+
     public JavaLocation(ClassName className, String methodName) {
         this.className = className;
         this.methodName = methodName;
@@ -19,6 +20,7 @@ public class JavaLocation {
     public String getMethodName() {
         return methodName;
     }
+
 
     @Override
     public int hashCode() {
@@ -34,7 +36,8 @@ public class JavaLocation {
             return false;
         }
         final JavaLocation other = (JavaLocation) obj;
-        return Objects.equal(this.className, other.className) && Objects.equal(this.methodName, other.methodName);
+        return Objects.equal(this.className, other.className)
+                && Objects.equal(this.methodName, other.methodName);
     }
 
     @Override

@@ -12,11 +12,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BrandIT {
 
     @Test
-    public void self_link_with_context_path_and_servlet_name() throws Exception {
-        Response response = request("brand/23");
+    public void self_link_with_context_path_query_parameter_and_servlet_name() throws Exception {
+        Response response = request("brand/23?view=FULL");
 
         assertThat(response.body().string())
-                .isEqualTo("/it-tests/rest/brand/23");
+                .isEqualTo("/it-tests/rest/brand/23?view=FULL");
     }
 
     @Test

@@ -1,9 +1,11 @@
 
 package fr.vidal.oss.jax_rs_linker.parser;
 
+import fr.vidal.oss.jax_rs_linker.api.NoQueryParameters;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.PathParameter;
-import fr.vidal.oss.jax_rs_linker.model.TemplatedPath;
+import fr.vidal.oss.jax_rs_linker.model.QueryParameter;
+import fr.vidal.oss.jax_rs_linker.model.TemplatedUrl;
 import java.lang.String;
 import java.util.Arrays;
 import javax.annotation.Generated;
@@ -20,19 +22,23 @@ public final class BrandResourceLinker {
         this.contextPath = contextPath;
     }
 
-    public final TemplatedPath<BrandResourcePathParameters> self() {
-        return new TemplatedPath<BrandResourcePathParameters>(contextPath + "/brand/{id}", Arrays.<PathParameter>asList(pathParameter("int", "id")));
+    public final TemplatedUrl<BrandResourcePathParameters, NoQueryParameters> self() {
+        return new TemplatedUrl<BrandResourcePathParameters, NoQueryParameters>(contextPath + "/brand/{id}", Arrays.<PathParameter>asList(pathParameter("int", "id")), Arrays.<QueryParameter>asList());
     }
 
-    public final TemplatedPath<BrandResourcePathParameters> relatedBrandResource() {
-        return new TemplatedPath<BrandResourcePathParameters>(contextPath + "/brand/{code}", Arrays.<PathParameter>asList(pathParameter("int", "code")));
+    public final TemplatedUrl<BrandResourcePathParameters, NoQueryParameters> relatedBrandResource() {
+        return new TemplatedUrl<BrandResourcePathParameters, NoQueryParameters>(contextPath + "/brand/{code}", Arrays.<PathParameter>asList(pathParameter("int", "code")), Arrays.<QueryParameter>asList());
     }
 
-    public final TemplatedPath<BrandResourcePathParameters> relatedBrandResourceZip() {
-        return new TemplatedPath<BrandResourcePathParameters>(contextPath + "/brand/{zip}", Arrays.<PathParameter>asList(pathParameter("int", "zip")));
+    public final TemplatedUrl<BrandResourcePathParameters, NoQueryParameters> relatedBrandResourceZip() {
+        return new TemplatedUrl<BrandResourcePathParameters, NoQueryParameters>(contextPath + "/brand/{zip}", Arrays.<PathParameter>asList(pathParameter("int", "zip")), Arrays.<QueryParameter>asList());
     }
 
     private static PathParameter pathParameter(final String type, final String name) {
         return new PathParameter(ClassName.valueOf(type), name);
+    }
+
+    private static QueryParameter queryParameter(final String type, final String name) {
+        return new QueryParameter(ClassName.valueOf(type), name);
     }
 }

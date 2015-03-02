@@ -1,10 +1,10 @@
 package fr.vidal.oss.jax_rs_linker.api;
 
-public enum NoPathParameters implements PathParameters {
+public enum NoQueryParameters implements QueryParameters {
     ;
 
     @Override
-    public String placeholder() {
+    public String value() {
         throw new UnsupportedOperationException();
     }
 }
