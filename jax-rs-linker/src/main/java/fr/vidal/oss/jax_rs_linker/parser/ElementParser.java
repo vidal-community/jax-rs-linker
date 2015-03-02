@@ -23,7 +23,7 @@ import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.Lists.newArrayList;
 import static fr.vidal.oss.jax_rs_linker.functions.AnnotationMirrorToMethodValueEntryFunction.TO_METHOD_VALUE_ENTRIES;
 import static fr.vidal.oss.jax_rs_linker.functions.EntriesToStringValueFunction.TO_STRING_VALUE;
-import static fr.vidal.oss.jax_rs_linker.functions.VariableElementToQueryParameter.INTO_QUERY_PARAMETER;
+import static fr.vidal.oss.jax_rs_linker.functions.ElementToQueryParameter.INTO_QUERY_PARAMETER;
 import static fr.vidal.oss.jax_rs_linker.predicates.AnnotationMirrorByNamePredicate.byName;
 import static fr.vidal.oss.jax_rs_linker.predicates.UnparseableValuePredicate.IS_UNPARSEABLE;
 import static javax.tools.Diagnostic.Kind.ERROR;
@@ -161,10 +161,24 @@ public class ElementParser {
             BeanParam beanParam = variableElement.getAnnotation(BeanParam.class);
             if (beanParam != null) {
                 Element beanParamTargetClass = typeUtils.asElement(variableElement.asType());
-                List<ExecutableElement> ctors = ElementFilter.constructorsIn(beanParamTargetClass.getEnclosedElements());
-                for (ExecutableElement ctor : ctors) {
+                List<? extends Element> enclosedElements = beanParamTargetClass.getEnclosedElements();
+                for (ExecutableElement ctor : ElementFilter.constructorsIn(enclosedElements)) {
                     for (VariableElement ctorParameter : ctor.getParameters()) {
                         queryParameters.add(INTO_QUERY_PARAMETER.apply(ctorParameter));
+                    }
+                }
+
+                for (VariableElement field : ElementFilter.fieldsIn(enclosedElements)) {
+                    QueryParam queryParam = field.getAnnotation(QueryParam.class);
+                    if (queryParam != null) {
+                        queryParameters.add(INTO_QUERY_PARAMETER.apply(field));
+                    }
+                }
+
+                for (ExecutableElement method : ElementFilter.methodsIn(enclosedElements)) {
+                    QueryParam queryParam = method.getAnnotation(QueryParam.class);
+                    if (queryParam != null) {
+                        queryParameters.add(INTO_QUERY_PARAMETER.apply(method));
                     }
                 }
             }
