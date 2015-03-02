@@ -161,8 +161,9 @@ public class ElementParser {
             // handle bean params :
             BeanParam beanParam = variableElement.getAnnotation(BeanParam.class);
             if (beanParam != null) {
-                List<ExecutableElement> constructorsIn = ElementFilter.constructorsIn(typeUtils.asElement(variableElement.asType()).getEnclosedElements());
-                for (ExecutableElement ctor : constructorsIn) {
+                Element beanParamTargetClass = typeUtils.asElement(variableElement.asType());
+                List<ExecutableElement> ctors = ElementFilter.constructorsIn(beanParamTargetClass.getEnclosedElements());
+                for (ExecutableElement ctor : ctors) {
                     for (VariableElement ctorParameter : ctor.getParameters()) {
                         queryParameters.add(INTO_QUERY_PARAMETER.apply(ctorParameter));
                     }
