@@ -23,13 +23,13 @@ public class ApiQueryTest {
     }
 
     @Test
-    public void equals_should_return_false_in_case_of_null_comparision() {
+    public void equals_should_return_true_in_case_of_null_comparision_with_empty_list() {
         Collection<QueryParameter> queryParameters = newArrayList();
 
         ApiQuery  apiQuery = new ApiQuery(queryParameters);
         ApiQuery apiQuery1 = new ApiQuery(null);
 
-        assertThat(apiQuery).isNotEqualTo(apiQuery1);
+        assertThat(apiQuery).isEqualTo(apiQuery1);
     }
 
     @Test

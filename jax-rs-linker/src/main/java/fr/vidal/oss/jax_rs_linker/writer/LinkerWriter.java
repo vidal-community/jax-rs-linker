@@ -157,7 +157,8 @@ public class LinkerWriter {
 
     private String queryParametersAsList(Collection<QueryParameter> queryParameters) {
         StringBuilder builder = new StringBuilder();
-        for (Iterator<QueryParameter> iterator = queryParameters.iterator(); iterator.hasNext(); ) {
+        Iterator<QueryParameter> iterator = queryParameters.iterator();
+        while(iterator.hasNext()) {
             QueryParameter parameter = iterator.next();
             String separator = iterator.hasNext() ? "," : "";
             builder.append(String.format(

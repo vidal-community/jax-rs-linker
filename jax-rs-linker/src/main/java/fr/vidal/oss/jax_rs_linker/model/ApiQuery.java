@@ -1,7 +1,10 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
+
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Objects;
 
 public class ApiQuery {
 
@@ -9,7 +12,7 @@ public class ApiQuery {
 
 
     public ApiQuery(Collection<QueryParameter> queryParameters) {
-        this.queryParameters = queryParameters;
+        this.queryParameters = MoreObjects.firstNonNull(queryParameters, ImmutableList.<QueryParameter>of());
     }
 
     public Collection<QueryParameter> getQueryParameters() {
@@ -17,32 +20,29 @@ public class ApiQuery {
     }
 
 
-
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ApiQuery)) return false;
-
-        ApiQuery apiQuery = (ApiQuery) o;
-
-        if (queryParameters != null ? !queryParameters.equals(apiQuery.queryParameters) : apiQuery.queryParameters != null)
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
-
-        return true;
+        }
+        final ApiQuery other = (ApiQuery) obj;
+        return Objects.equals(this.queryParameters, other.queryParameters);
     }
 
     @Override
     public int hashCode() {
-        return queryParameters != null ? queryParameters.hashCode() : 0;
+        return Objects.hash(queryParameters);
     }
 
     @Override
     public String toString() {
         final StringBuilder stringBuilder = new StringBuilder("ApiQuery{")
             .append("queryParameters=[");
-        Iterator<QueryParameter> iterator = queryParameters.iterator();
-        while(iterator.hasNext()){
-            stringBuilder.append(iterator.next().getName());
+        for (QueryParameter queryParameter : queryParameters) {
+            stringBuilder.append(queryParameter.getName());
         }
         stringBuilder.append("]").append("}");
         return stringBuilder.toString();
