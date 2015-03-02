@@ -1,6 +1,5 @@
 package fr.vidal.oss.jax_rs_linker.writer;
 
-
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

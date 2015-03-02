@@ -34,10 +34,10 @@ public class LinkerAnnotationProcessorTest {
             .and()
             .generatesSources(
                     forResource("ProductResourceLinker.java"),
+                    forResource("PersonResourceLinker.java"),
                     forResource("BrandResourceLinker.java"),
                     forResource("ProductResourcePathParameters.java"),
                     forResource("BrandResourcePathParameters.java"),
-                    forResource("PersonResourcePathParameters.java"),
                     forResource("PersonResourcePathParameters.java"),
                     forResource("PersonResourceQueryParameters.java"),
                     forResource("linkers/Linkers.java")

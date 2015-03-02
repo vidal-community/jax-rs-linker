@@ -10,9 +10,12 @@ import fr.vidal.oss.jax_rs_linker.predicates.ElementHasAnnotation;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.*;
+import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Types;
+import javax.ws.rs.BeanParam;
 import javax.ws.rs.QueryParam;
 import java.util.Collection;
+import java.util.List;
 
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -23,7 +26,6 @@ import static fr.vidal.oss.jax_rs_linker.functions.EntriesToStringValueFunction.
 import static fr.vidal.oss.jax_rs_linker.functions.VariableElementToQueryParameter.INTO_QUERY_PARAMETER;
 import static fr.vidal.oss.jax_rs_linker.predicates.AnnotationMirrorByNamePredicate.byName;
 import static fr.vidal.oss.jax_rs_linker.predicates.UnparseableValuePredicate.IS_UNPARSEABLE;
-
 import static javax.tools.Diagnostic.Kind.ERROR;
 
 public class ElementParser {
@@ -32,11 +34,13 @@ public class ElementParser {
     private final PathVisitor pathVisitor;
     private final ClassWorkLoad workLoad;
     private final HttpVerbVisitor httpVerbVisitor;
+    private final Types typeUtils;
 
     public ElementParser(Messager messager,
                          Types typeUtils) {
 
         this.messager = messager;
+        this.typeUtils = typeUtils;
         this.pathVisitor = new PathVisitor(typeUtils);
         this.workLoad = ClassWorkLoad.init();
         this.httpVerbVisitor = new HttpVerbVisitor();
@@ -91,21 +95,21 @@ public class ElementParser {
 
     private Optional<SubResourceTarget> relatedResourceName(ExecutableElement methodElement) {
         return FluentIterable.from(methodElement.getAnnotationMirrors())
-                .filter(byName("SubResource"))
-                .transform(TO_METHOD_VALUE_ENTRIES)
-                .transform(TO_STRING_VALUE)
-                .firstMatch(not(IS_UNPARSEABLE));
+            .filter(byName("SubResource"))
+            .transform(TO_METHOD_VALUE_ENTRIES)
+            .transform(TO_STRING_VALUE)
+            .firstMatch(not(IS_UNPARSEABLE));
     }
 
     private Mapping mapping(ExecutableElement methodElement, ApiLink link, HttpVerb httpVerb, String path) {
         return new Mapping(
-                javaLocation(methodElement),
-                api(
-                        link,
-                        httpVerb,
-                        apiPath(methodElement, path),
-                        apiQuery(methodElement.getParameters())
-                )
+            javaLocation(methodElement),
+            api(
+                link,
+                httpVerb,
+                apiPath(methodElement, path),
+                apiQuery(methodElement.getParameters())
+            )
         );
     }
 
@@ -127,23 +131,23 @@ public class ElementParser {
 
     private JavaLocation javaLocation(ExecutableElement methodElement) {
         return new JavaLocation(
-                className(methodElement),
-                methodElement.getSimpleName().toString()
+            className(methodElement),
+            methodElement.getSimpleName().toString()
         );
     }
 
     private Api api(ApiLink link, HttpVerb httpVerb, ApiPath apiPath, ApiQuery apiQuery) {
         return new Api(
-                httpVerb,
-                link,
-                apiPath,
-                apiQuery);
+            httpVerb,
+            link,
+            apiPath,
+            apiQuery);
     }
 
     private ApiPath apiPath(ExecutableElement methodElement, String path) {
         return new ApiPath(
-                path,
-                pathVisitor.visitPathParameters(methodElement)
+            path,
+            pathVisitor.visitPathParameters(methodElement)
         );
     }
 
@@ -153,6 +157,16 @@ public class ElementParser {
             final QueryParam annotation = variableElement.getAnnotation(QueryParam.class);
             if (annotation != null) {
                 queryParameters.add(INTO_QUERY_PARAMETER.apply(variableElement));
+            }
+            // handle bean params :
+            BeanParam beanParam = variableElement.getAnnotation(BeanParam.class);
+            if (beanParam != null) {
+                List<ExecutableElement> constructorsIn = ElementFilter.constructorsIn(typeUtils.asElement(variableElement.asType()).getEnclosedElements());
+                for (ExecutableElement ctor : constructorsIn) {
+                    for (VariableElement ctorParameter : ctor.getParameters()) {
+                        queryParameters.add(INTO_QUERY_PARAMETER.apply(ctorParameter));
+                    }
+                }
             }
         }
         return new ApiQuery(queryParameters);

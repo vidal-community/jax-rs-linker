@@ -1,26 +1,38 @@
-
 package fr.vidal.oss.jax_rs_linker.parser;
 
-import fr.vidal.oss.jax_rs_linker.model.*;
-
+import fr.vidal.oss.jax_rs_linker.model.ClassName;
+import fr.vidal.oss.jax_rs_linker.model.PathParameter;
+import fr.vidal.oss.jax_rs_linker.model.QueryParameter;
+import fr.vidal.oss.jax_rs_linker.model.TemplatedUrl;
+import java.lang.String;
 import java.util.Arrays;
 import javax.annotation.Generated;
 
 @Generated("fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
-public class PersonResourceLinker {
-
+public final class PersonResourceLinker {
     private final String contextPath;
 
     public PersonResourceLinker() {
         this("");
     }
 
-    public PersonResourceLinker(String contextPath) {
+    public PersonResourceLinker(final String contextPath) {
         this.contextPath = contextPath;
     }
 
-    public TemplatedUrl<QueryParameter> self() {
-        return new TemplatedUrl<QueryParameter>(contextPath, Arrays.<QueryParameter>asList(new PathParameter(ClassName.valueOf("int"), "id")), queryParameters);
+    public final TemplatedUrl<PersonResourcePathParameters, PersonResourceQueryParameters> self() {
+        return new TemplatedUrl<PersonResourcePathParameters, PersonResourceQueryParameters>(contextPath + "/person/{id}", Arrays.<PathParameter>asList(pathParameter("int", "id")), Arrays.<QueryParameter>asList(queryParameter("alive-flag")));
     }
 
+    public final TemplatedUrl<PersonResourcePathParameters, PersonResourceQueryParameters> relatedPersonResource() {
+        return new TemplatedUrl<PersonResourcePathParameters, PersonResourceQueryParameters>(contextPath + "/person/name/{firstName}", Arrays.<PathParameter>asList(pathParameter("java.lang.String", "firstName")), Arrays.<QueryParameter>asList());
+    }
+
+    private static PathParameter pathParameter(final String type, final String name) {
+        return new PathParameter(ClassName.valueOf(type), name);
+    }
+
+    private static QueryParameter queryParameter(final String name) {
+        return new QueryParameter(name);
+    }
 }

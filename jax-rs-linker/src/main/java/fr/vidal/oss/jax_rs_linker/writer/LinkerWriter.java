@@ -158,12 +158,11 @@ public class LinkerWriter {
     private String queryParametersAsList(Collection<QueryParameter> queryParameters) {
         StringBuilder builder = new StringBuilder();
         Iterator<QueryParameter> iterator = queryParameters.iterator();
-        while(iterator.hasNext()) {
+        while (iterator.hasNext()) {
             QueryParameter parameter = iterator.next();
             String separator = iterator.hasNext() ? "," : "";
             builder.append(String.format(
-                "queryParameter(\"%s\", \"%s\")%s",
-                parameter.getClassName(),
+                "queryParameter(\"%s\")%s",
                 parameter.getName(),
                 separator
             ));
@@ -195,14 +194,10 @@ public class LinkerWriter {
             .returns(QueryParameter.class)
             .addModifiers(PRIVATE, STATIC)
             .addParameter(
-                ParameterSpec.builder(String.class, "type", FINAL).build())
-            .addParameter(
                 ParameterSpec.builder(String.class, "name", FINAL).build())
             .addStatement(
-                "return new $T($T.valueOf($L), $L)",
+                "return new $T($L)",
                 QueryParameter.class,
-                ClassName.class,
-                "type",
                 "name"
             )
             .build();

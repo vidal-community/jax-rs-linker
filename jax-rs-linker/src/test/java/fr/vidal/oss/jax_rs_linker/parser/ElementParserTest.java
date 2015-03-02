@@ -58,6 +58,34 @@ public class ElementParserTest {
     }
 
     @Test
+    public void parses_method_to_mapping_representation_with_bean_param() {
+        ExecutableElement method = methodElements.of(
+            "fr.vidal.oss.jax_rs_linker.parser.ProductResource",
+            "productById"
+        );
+
+        Mapping mapping = parser.parse(method).get();
+
+        JavaLocation javaLocation = mapping.getJavaLocation();
+        assertThat(javaLocation.getClassName().fullyQualifiedName())
+            .isEqualTo("fr.vidal.oss.jax_rs_linker.parser.ProductResource");
+        assertThat(javaLocation.getMethodName())
+            .isEqualTo("productById");
+
+        Api api = mapping.getApi();
+        assertThat(api.getApiPath().getPath())
+            .isEqualTo("/api/product/{id}");
+        assertThat(api.getApiPath().getPathParameters())
+            .containsExactly(new PathParameter(ClassName.valueOf("int"), "id"));
+        assertThat(api.getApiQuery().getQueryParameters())
+            .hasSize(2)
+            .containsExactly(
+                new QueryParameter("start-page"),
+                new QueryParameter("page-size")
+            );
+    }
+
+    @Test
     public void fails_to_parse_because_of_absence_of_path() {
         ExecutableElement method = methodElements.of(
             "fr.vidal.oss.jax_rs_linker.parser.UnparseableResource",
