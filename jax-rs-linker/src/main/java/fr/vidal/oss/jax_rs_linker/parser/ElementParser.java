@@ -10,14 +10,10 @@ import fr.vidal.oss.jax_rs_linker.predicates.ElementHasAnnotation;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.*;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Types;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.QueryParam;
 import java.util.Collection;
-import java.util.List;
 
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -154,7 +150,7 @@ public class ElementParser {
     }
 
     private ApiQuery apiQuery(Collection<? extends VariableElement> parameters) {
-        Collection<QueryParameter> queryParameters = newArrayList();
+        final Collection<QueryParameter> queryParameters = newArrayList();
         for (VariableElement variableElement : parameters) {
             final QueryParam annotation = variableElement.getAnnotation(QueryParam.class);
             if (annotation != null) {
@@ -163,34 +159,13 @@ public class ElementParser {
             BeanParam beanParam = variableElement.getAnnotation(BeanParam.class);
             if (beanParam != null) {
                 Element beanParamTargetClass = typeUtils.asElement(variableElement.asType());
-                List<? extends Element> enclosedElements = beanParamTargetClass.getEnclosedElements();
-                for (ExecutableElement ctor : ElementFilter.constructorsIn(enclosedElements)) {
-                    for (VariableElement ctorParameter : ctor.getParameters()) {
-                        addToQueryParametersIfApplicable(queryParameters, ctorParameter);
-                    }
-                }
-
-                for (VariableElement field : ElementFilter.fieldsIn(enclosedElements)) {
-                    addToQueryParametersIfApplicable(queryParameters, field);
-                }
-
-                for (ExecutableElement method : ElementFilter.methodsIn(enclosedElements)) {
-                    if (method.getSimpleName().toString().startsWith("set")
-                        && typeUtils.isSameType(method.getReturnType(),typeUtils.getNoType(TypeKind.VOID))) {
-                        addToQueryParametersIfApplicable(queryParameters, method);
-                    }
+                ElementVisitor<Void, Void> queryParamElementVisitor = new QueryParamElementVisitor(queryParameters, typeUtils);
+                for (Element element : beanParamTargetClass.getEnclosedElements()) {
+                    queryParamElementVisitor.visit(element);
                 }
             }
         }
         return new ApiQuery(queryParameters);
-    }
-
-    private void addToQueryParametersIfApplicable(Collection<QueryParameter> queryParameters,
-                                                  Element ctorParameter) {
-        QueryParam queryParam = ctorParameter.getAnnotation(QueryParam.class);
-        if (queryParam != null) {
-            queryParameters.add(INTO_QUERY_PARAMETER.apply(ctorParameter));
-        }
     }
 
     private ClassName className(ExecutableElement element) {
@@ -212,4 +187,5 @@ public class ElementParser {
             element.getSimpleName()
         );
     }
+
 }

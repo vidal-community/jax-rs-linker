@@ -80,9 +80,9 @@ public class ElementParserTest {
         assertThat(api.getApiQuery().getQueryParameters())
             .hasSize(4)
             .containsExactly(
+                new QueryParameter("is-applicable"),
                 new QueryParameter("start-page"),
                 new QueryParameter("page-size"),
-                new QueryParameter("is-applicable"),
                 new QueryParameter("haters-gonna-hate")
             );
     }
