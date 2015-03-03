@@ -35,11 +35,12 @@ class QueryParamElementVisitor extends SimpleElementVisitor7<Void, Void> {
 
     @Override
     public Void visitExecutable(ExecutableElement e, Void aVoid) {
-        if (e.getKind().equals(ElementKind.CONSTRUCTOR)) {
+        ElementKind manKind = e.getKind();
+        if (manKind.equals(ElementKind.CONSTRUCTOR)) {
             for (VariableElement ctorParameter : e.getParameters()) {
                 addToQueryParametersIfApplicable(queryParameters, ctorParameter);
             }
-        } else if (e.getKind().equals(ElementKind.METHOD) &&
+        } else if (manKind.equals(ElementKind.METHOD) &&
             e.getSimpleName().toString().startsWith("set")
             && typeUtils.isSameType(e.getReturnType(),typeUtils.getNoType(TypeKind.VOID))) {
             addToQueryParametersIfApplicable(queryParameters, e);
