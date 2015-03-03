@@ -10,6 +10,8 @@ import fr.vidal.oss.jax_rs_linker.predicates.ElementHasAnnotation;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.*;
+import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
 import javax.lang.model.util.Types;
 import javax.ws.rs.BeanParam;
@@ -173,7 +175,8 @@ public class ElementParser {
                 }
 
                 for (ExecutableElement method : ElementFilter.methodsIn(enclosedElements)) {
-                    if (method.getSimpleName().toString().startsWith("set")) {
+                    if (method.getSimpleName().toString().startsWith("set")
+                        && typeUtils.isSameType(method.getReturnType(),typeUtils.getNoType(TypeKind.VOID))) {
                         addToQueryParametersIfApplicable(queryParameters, method);
                     }
                 }

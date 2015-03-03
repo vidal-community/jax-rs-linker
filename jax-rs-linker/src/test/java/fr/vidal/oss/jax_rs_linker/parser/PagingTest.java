@@ -23,7 +23,11 @@ public class PagingTest {
 
     @QueryParam("haters-gonna-hate")
     public void setUselessParameter(String value) {
+    }
 
+    @QueryParam("non-void-method")
+    public String setNonVoidMethod(String value) {
+        return "";
     }
 
 }
