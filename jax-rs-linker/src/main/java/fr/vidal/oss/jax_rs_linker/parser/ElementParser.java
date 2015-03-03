@@ -164,26 +164,30 @@ public class ElementParser {
                 List<? extends Element> enclosedElements = beanParamTargetClass.getEnclosedElements();
                 for (ExecutableElement ctor : ElementFilter.constructorsIn(enclosedElements)) {
                     for (VariableElement ctorParameter : ctor.getParameters()) {
-                        queryParameters.add(INTO_QUERY_PARAMETER.apply(ctorParameter));
+                        addToQueryParametersIfApplicable(queryParameters, ctorParameter);
                     }
                 }
 
                 for (VariableElement field : ElementFilter.fieldsIn(enclosedElements)) {
-                    QueryParam queryParam = field.getAnnotation(QueryParam.class);
-                    if (queryParam != null) {
-                        queryParameters.add(INTO_QUERY_PARAMETER.apply(field));
-                    }
+                    addToQueryParametersIfApplicable(queryParameters, field);
                 }
 
                 for (ExecutableElement method : ElementFilter.methodsIn(enclosedElements)) {
-                    QueryParam queryParam = method.getAnnotation(QueryParam.class);
-                    if (queryParam != null) {
-                        queryParameters.add(INTO_QUERY_PARAMETER.apply(method));
+                    if (method.getSimpleName().toString().startsWith("set")) {
+                        addToQueryParametersIfApplicable(queryParameters, method);
                     }
                 }
             }
         }
         return new ApiQuery(queryParameters);
+    }
+
+    private void addToQueryParametersIfApplicable(Collection<QueryParameter> queryParameters,
+                                                  Element ctorParameter) {
+        QueryParam queryParam = ctorParameter.getAnnotation(QueryParam.class);
+        if (queryParam != null) {
+            queryParameters.add(INTO_QUERY_PARAMETER.apply(ctorParameter));
+        }
     }
 
     private ClassName className(ExecutableElement element) {

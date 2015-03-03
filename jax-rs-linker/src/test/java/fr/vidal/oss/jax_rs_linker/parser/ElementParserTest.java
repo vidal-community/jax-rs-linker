@@ -78,10 +78,12 @@ public class ElementParserTest {
         assertThat(api.getApiPath().getPathParameters())
             .containsExactly(new PathParameter(ClassName.valueOf("int"), "id"));
         assertThat(api.getApiQuery().getQueryParameters())
-            .hasSize(2)
+            .hasSize(4)
             .containsExactly(
                 new QueryParameter("start-page"),
-                new QueryParameter("page-size")
+                new QueryParameter("page-size"),
+                new QueryParameter("is-applicable"),
+                new QueryParameter("haters-gonna-hate")
             );
     }
 
