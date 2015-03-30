@@ -73,8 +73,7 @@ public class ElementParserTest {
             .isEqualTo("productById");
 
         Api api = mapping.getApi();
-        assertThat(api.getApiPath().getPath())
-            .isEqualTo("/api/product/{id}");
+        assertThat(api.getApiPath().getPath()).isEqualTo("/api/product/{id}");
         assertThat(api.getApiPath().getPathParameters())
             .containsExactly(new PathParameter(ClassName.valueOf("int"), "id"));
         assertThat(api.getApiQuery().getQueryParameters())

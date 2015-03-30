@@ -13,6 +13,7 @@ import javax.lang.model.element.*;
 import javax.lang.model.util.Types;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.QueryParam;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import static com.google.common.base.Optional.absent;
@@ -152,20 +153,24 @@ public class ElementParser {
     private ApiQuery apiQuery(Collection<? extends VariableElement> parameters) {
         final Collection<QueryParameter> queryParameters = newArrayList();
         for (VariableElement variableElement : parameters) {
-            final QueryParam annotation = variableElement.getAnnotation(QueryParam.class);
-            if (annotation != null) {
+            if (variableElement.getAnnotation(QueryParam.class) != null) {
                 queryParameters.add(INTO_QUERY_PARAMETER.apply(variableElement));
             }
-            BeanParam beanParam = variableElement.getAnnotation(BeanParam.class);
-            if (beanParam != null) {
-                Element beanParamTargetClass = typeUtils.asElement(variableElement.asType());
-                ElementVisitor<Void, Void> queryParamElementVisitor = new QueryParamElementVisitor(queryParameters, typeUtils);
-                for (Element element : beanParamTargetClass.getEnclosedElements()) {
-                    queryParamElementVisitor.visit(element);
-                }
+            if (variableElement.getAnnotation(BeanParam.class) != null) {
+                queryParameters.addAll(parseBeanParam(variableElement));
             }
         }
         return new ApiQuery(queryParameters);
+    }
+
+    private Collection<QueryParameter> parseBeanParam(VariableElement variableElement) {
+        Collection<QueryParameter> queryParameters = new ArrayList<>();
+        Element beanParamTargetClass = typeUtils.asElement(variableElement.asType());
+        ElementVisitor<Collection<QueryParameter>, Void> queryParamElementVisitor = new JaxRsParamElementVisitor(typeUtils);
+        for (Element element : beanParamTargetClass.getEnclosedElements()) {
+            queryParameters.addAll(queryParamElementVisitor.visit(element));
+        }
+        return queryParameters;
     }
 
     private ClassName className(ExecutableElement element) {
