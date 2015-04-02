@@ -1,23 +1,22 @@
 package fr.vidal.oss.jax_rs_linker.functions;
 
-import com.google.common.base.Function;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.PathParameter;
 
-import javax.annotation.Nullable;
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.Element;
 import javax.ws.rs.PathParam;
+import com.google.common.base.Function;
 
-public enum VariableElementToPathParameter implements Function<VariableElement, PathParameter> {
+public enum ElementToPathParameter implements Function<Element, PathParameter> {
 
-    INTO_PATH_PARAMETER;
+    ELEMENT_INTO_PATH_PARAMETER;
 
-    @Nullable
     @Override
-    public PathParameter apply(VariableElement input) {
+    public PathParameter apply(Element input) {
         return new PathParameter(
             ClassName.valueOf(input.asType().toString()),
             input.getAnnotation(PathParam.class).value()
         );
     }
+
 }

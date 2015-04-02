@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.regex.Pattern;
 
+import static fr.vidal.oss.jax_rs_linker.functions.MappingToPathParameters.TO_PATH_PARAMETERS;
 import static javax.lang.model.element.Modifier.*;
 
 public class PathParamsEnumWriter {
@@ -39,17 +40,17 @@ public class PathParamsEnumWriter {
 
         writeEnumeration(mappings, typeBuilder);
 
-        TypeName optionalOfString =
+        TypeName pattern =
                 ParameterizedTypeName.get(
                         com.squareup.javapoet.ClassName.get(Optional.class),
                         com.squareup.javapoet.ClassName.get(Pattern.class)
                 );
 
         typeBuilder.addField(String.class, "placeholder", PRIVATE, FINAL)
-                .addField(optionalOfString, "regex", PRIVATE, FINAL)
+                .addField(pattern, "regex", PRIVATE, FINAL)
                 .addMethod(MethodSpec.constructorBuilder()
                         .addParameter(String.class, "placeholder")
-                        .addParameter(optionalOfString, "regex")
+                        .addParameter(pattern, "regex")
                         .addCode("this.$L = $L;\n", "placeholder", "placeholder")
                         .addCode("this.$L = $L;\n", "regex", "regex")
                         .build())
@@ -62,7 +63,7 @@ public class PathParamsEnumWriter {
                 .addMethod(MethodSpec.methodBuilder("regex")
                         .addAnnotation(Override.class)
                         .addModifiers(PUBLIC, FINAL)
-                        .returns(optionalOfString)
+                        .returns(pattern)
                         .addCode("return this.$L;\n", "regex")
                         .build());
         ;
@@ -97,7 +98,7 @@ public class PathParamsEnumWriter {
 
     private Collection<PathParameter> enumConstants(Collection<Mapping> mappings) {
         return FluentIterable.from(mappings)
-                .transformAndConcat(MappingToPathParameters.TO_PATH_PARAMETERS)
+                .transformAndConcat(TO_PATH_PARAMETERS)
                 .toSortedSet(new Comparator<PathParameter>() {
                     @Override
                     public int compare(PathParameter firstParam, PathParameter secondParam) {

@@ -1,10 +1,10 @@
 package fr.vidal.oss.jax_rs_linker.parser;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
-import fr.vidal.oss.jax_rs_linker.functions.VariableElementToPathParameter;
-import fr.vidal.oss.jax_rs_linker.model.PathParameter;
-import fr.vidal.oss.jax_rs_linker.predicates.ElementHasAnnotation;
+import static com.google.common.base.Optional.absent;
+import static com.google.common.base.Optional.fromNullable;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.emptyToNull;
+import static java.lang.String.format;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -14,14 +14,7 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import java.util.Collection;
-
-import static com.google.common.base.Optional.absent;
-import static com.google.common.base.Optional.fromNullable;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.emptyToNull;
-import static java.lang.String.format;
+import com.google.common.base.Optional;
 
 class PathVisitor {
 
@@ -39,13 +32,6 @@ class PathVisitor {
             )
         );
         return fromNullable(aggregatedPath);
-    }
-
-    public Collection<PathParameter> visitPathParameters(ExecutableElement element) {
-        return FluentIterable.from(element.getParameters())
-            .filter(ElementHasAnnotation.BY_ANNOTATION(PathParam.class))
-            .transform(VariableElementToPathParameter.INTO_PATH_PARAMETER)
-            .toList();
     }
 
     private String aggregate(String acc, Element element) {

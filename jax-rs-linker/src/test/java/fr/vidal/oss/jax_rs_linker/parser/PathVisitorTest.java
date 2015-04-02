@@ -85,39 +85,4 @@ public class PathVisitorTest {
         assertThat(visitor.visitPath(method).get()).isEqualTo("super-path");
     }
 
-    @Test
-    public void detects_empty_path_parameters_when_no_argument_specified() {
-        ExecutableElement method = methodElements.of(
-            SimplePathClass.class.getName(),
-            "hello"
-        );
-
-        assertThat(visitor.visitPathParameters(method)).isEmpty();
-    }
-
-    @Test
-    public void detects_single_path_parameter() {
-        ExecutableElement method = methodElements.of(
-            SimplePathClass.class.getName(),
-            "world"
-        );
-
-        assertThat(visitor.visitPathParameters(method)).containsExactly(
-            new PathParameter(ClassName.valueOf("int"), "id")
-        );
-    }
-
-    @Test
-    public void detects_many_path_parameters() {
-        ExecutableElement method = methodElements.of(
-            SimplePathClass.class.getName(),
-            "monde"
-        );
-
-        assertThat(visitor.visitPathParameters(method)).containsExactly(
-            new PathParameter(ClassName.valueOf("java.lang.String"), "super"),
-            new PathParameter(ClassName.valueOf("int[]"), "params"),
-            new PathParameter(ClassName.valueOf("java.lang.Number"), "everywhere")
-        );
-    }
 }

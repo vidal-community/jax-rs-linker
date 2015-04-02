@@ -1,31 +1,45 @@
 package fr.vidal.oss.jax_rs_linker.parser;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
 import fr.vidal.oss.jax_rs_linker.api.Self;
 import fr.vidal.oss.jax_rs_linker.api.SubResource;
 import fr.vidal.oss.jax_rs_linker.errors.CompilationError;
-import fr.vidal.oss.jax_rs_linker.model.*;
-import fr.vidal.oss.jax_rs_linker.predicates.ElementHasAnnotation;
-
-import javax.annotation.processing.Messager;
-import javax.lang.model.element.*;
-import javax.lang.model.util.Types;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.QueryParam;
-import java.util.ArrayList;
-import java.util.Collection;
+import fr.vidal.oss.jax_rs_linker.model.Api;
+import fr.vidal.oss.jax_rs_linker.model.ApiLink;
+import fr.vidal.oss.jax_rs_linker.model.ApiLinkType;
+import fr.vidal.oss.jax_rs_linker.model.ApiPath;
+import fr.vidal.oss.jax_rs_linker.model.ApiQuery;
+import fr.vidal.oss.jax_rs_linker.model.ClassName;
+import fr.vidal.oss.jax_rs_linker.model.HttpVerb;
+import fr.vidal.oss.jax_rs_linker.model.JavaLocation;
+import fr.vidal.oss.jax_rs_linker.model.Mapping;
+import fr.vidal.oss.jax_rs_linker.model.PathParameter;
+import fr.vidal.oss.jax_rs_linker.model.QueryParameter;
+import fr.vidal.oss.jax_rs_linker.model.SubResourceTarget;
 
 import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Predicates.not;
-import static com.google.common.collect.Lists.newArrayList;
 import static fr.vidal.oss.jax_rs_linker.functions.AnnotationMirrorToMethodValueEntryFunction.TO_METHOD_VALUE_ENTRIES;
+import static fr.vidal.oss.jax_rs_linker.functions.ElementToPathParameter.ELEMENT_INTO_PATH_PARAMETER;
+import static fr.vidal.oss.jax_rs_linker.functions.ElementToQueryParameter.ELEMENT_INTO_QUERY_PARAMETER;
 import static fr.vidal.oss.jax_rs_linker.functions.EntriesToStringValueFunction.TO_STRING_VALUE;
-import static fr.vidal.oss.jax_rs_linker.functions.ElementToQueryParameter.INTO_QUERY_PARAMETER;
+import static fr.vidal.oss.jax_rs_linker.functions.SetterToPathParameter.SETTER_TO_PATH_PARAMETER;
+import static fr.vidal.oss.jax_rs_linker.functions.SetterToQueryParameter.SETTER_TO_QUERY_PARAMETER;
 import static fr.vidal.oss.jax_rs_linker.predicates.AnnotationMirrorByNamePredicate.byName;
+import static fr.vidal.oss.jax_rs_linker.predicates.ElementHasAnnotation.BY_ANNOTATION;
 import static fr.vidal.oss.jax_rs_linker.predicates.UnparseableValuePredicate.IS_UNPARSEABLE;
 import static javax.tools.Diagnostic.Kind.ERROR;
+
+import javax.annotation.processing.Messager;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Types;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
 
 public class ElementParser {
 
@@ -33,16 +47,33 @@ public class ElementParser {
     private final PathVisitor pathVisitor;
     private final ClassWorkLoad workLoad;
     private final HttpVerbVisitor httpVerbVisitor;
-    private final Types typeUtils;
+
+    private final ParameterVisitor<QueryParameter> queryParameterVisitor;
+    private final ParameterVisitor<PathParameter> pathParameterVisitor;
 
     public ElementParser(Messager messager,
                          Types typeUtils) {
 
         this.messager = messager;
-        this.typeUtils = typeUtils;
         this.pathVisitor = new PathVisitor(typeUtils);
         this.workLoad = ClassWorkLoad.init();
         this.httpVerbVisitor = new HttpVerbVisitor();
+        this.queryParameterVisitor = new ParameterVisitor<>(
+            typeUtils,
+            new AnnotatedElementMapping<>(
+                QueryParam.class,
+                ELEMENT_INTO_QUERY_PARAMETER,
+                SETTER_TO_QUERY_PARAMETER
+            )
+        );
+        this.pathParameterVisitor = new ParameterVisitor<>(
+            typeUtils,
+            new AnnotatedElementMapping<>(
+                PathParam.class,
+                ELEMENT_INTO_PATH_PARAMETER,
+                SETTER_TO_PATH_PARAMETER
+            )
+        );
     }
 
     public Optional<Mapping> parse(Element element) {
@@ -61,8 +92,8 @@ public class ElementParser {
             return compilationError(method, CompilationError.NO_HTTP_ANNOTATION_FOUND.format(qualified(method)));
         }
 
-        boolean withSelf = ElementHasAnnotation.BY_ANNOTATION(Self.class).apply(method);
-        boolean withSubResource = ElementHasAnnotation.BY_ANNOTATION(SubResource.class).apply(method);
+        boolean withSelf = BY_ANNOTATION(Self.class).apply(method);
+        boolean withSubResource = BY_ANNOTATION(SubResource.class).apply(method);
         if (!(withSelf ^ withSubResource)) {
             return compilationError(method, CompilationError.ANNOTATION_MISUSE.format(qualified(method)));
         }
@@ -71,8 +102,8 @@ public class ElementParser {
         if (!link.isPresent()) {
             return compilationError(method, CompilationError.MISSING_ANNOTATIONS.format(qualified(method)));
         }
-        Mapping mapping = mapping(method, link.get(), maybeHttpVerb.get(), maybePath.get());
 
+        Mapping mapping = mapping(method, link.get(), maybeHttpVerb.get(), maybePath.get());
         Optional<CompilationError> maybeError = trackMandatoryParsing(link.get(), mapping);
         if (maybeError.isPresent()) {
             return compilationError(method, CompilationError.TOO_MANY_SELF.format(qualified(method)));
@@ -107,7 +138,7 @@ public class ElementParser {
                 link,
                 httpVerb,
                 apiPath(methodElement, path),
-                apiQuery(methodElement.getParameters())
+                apiQuery(methodElement)
             )
         );
     }
@@ -135,42 +166,16 @@ public class ElementParser {
         );
     }
 
-    private Api api(ApiLink link, HttpVerb httpVerb, ApiPath apiPath, ApiQuery apiQuery) {
-        return new Api(
-            httpVerb,
-            link,
-            apiPath,
-            apiQuery);
-    }
-
     private ApiPath apiPath(ExecutableElement methodElement, String path) {
-        return new ApiPath(
-            path,
-            pathVisitor.visitPathParameters(methodElement)
-        );
+        return new ApiPath(path, pathParameterVisitor.visit(methodElement));
     }
 
-    private ApiQuery apiQuery(Collection<? extends VariableElement> parameters) {
-        final Collection<QueryParameter> queryParameters = newArrayList();
-        for (VariableElement variableElement : parameters) {
-            if (variableElement.getAnnotation(QueryParam.class) != null) {
-                queryParameters.add(INTO_QUERY_PARAMETER.apply(variableElement));
-            }
-            if (variableElement.getAnnotation(BeanParam.class) != null) {
-                queryParameters.addAll(parseBeanParam(variableElement));
-            }
-        }
-        return new ApiQuery(queryParameters);
+    private ApiQuery apiQuery(ExecutableElement methodElement) {
+        return new ApiQuery(queryParameterVisitor.visit(methodElement));
     }
 
-    private Collection<QueryParameter> parseBeanParam(VariableElement variableElement) {
-        Collection<QueryParameter> queryParameters = new ArrayList<>();
-        Element beanParamTargetClass = typeUtils.asElement(variableElement.asType());
-        ElementVisitor<Collection<QueryParameter>, Void> queryParamElementVisitor = new JaxRsParamElementVisitor(typeUtils);
-        for (Element element : beanParamTargetClass.getEnclosedElements()) {
-            queryParameters.addAll(queryParamElementVisitor.visit(element));
-        }
-        return queryParameters;
+    private Api api(ApiLink link, HttpVerb httpVerb, ApiPath apiPath, ApiQuery apiQuery) {
+        return new Api(httpVerb, link, apiPath, apiQuery);
     }
 
     private ClassName className(ExecutableElement element) {

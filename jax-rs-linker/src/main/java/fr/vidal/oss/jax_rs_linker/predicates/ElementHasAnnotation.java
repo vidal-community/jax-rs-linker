@@ -1,13 +1,12 @@
 package fr.vidal.oss.jax_rs_linker.predicates;
 
-import com.google.common.base.Predicate;
-
-import javax.lang.model.element.Element;
-import java.lang.annotation.Annotation;
-
 import static com.google.common.base.Preconditions.checkArgument;
 
-public class ElementHasAnnotation<T extends Element> implements Predicate<T> {
+import java.lang.annotation.Annotation;
+import javax.lang.model.element.Element;
+import com.google.common.base.Predicate;
+
+public class ElementHasAnnotation implements Predicate<Element> {
 
     private final Class<? extends Annotation> annotationType;
 
@@ -15,13 +14,13 @@ public class ElementHasAnnotation<T extends Element> implements Predicate<T> {
         this.annotationType = annotationType;
     }
 
-    public static <T extends Element> Predicate<T> BY_ANNOTATION(Class<? extends Annotation> annotationType) {
+    public static Predicate<Element> BY_ANNOTATION(Class<? extends Annotation> annotationType) {
         checkArgument(annotationType != null);
-        return new ElementHasAnnotation<>(annotationType);
+        return new ElementHasAnnotation(annotationType);
     }
 
     @Override
-    public boolean apply(T input) {
+    public boolean apply(Element input) {
         return input.getAnnotation(annotationType) != null;
     }
 }

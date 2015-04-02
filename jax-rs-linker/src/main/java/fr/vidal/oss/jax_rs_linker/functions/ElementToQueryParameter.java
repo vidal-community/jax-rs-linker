@@ -10,7 +10,7 @@ import javax.ws.rs.QueryParam;
 
 public enum ElementToQueryParameter implements Function<Element, QueryParameter> {
 
-    INTO_QUERY_PARAMETER;
+    ELEMENT_INTO_QUERY_PARAMETER;
 
     @Nullable
     @Override
