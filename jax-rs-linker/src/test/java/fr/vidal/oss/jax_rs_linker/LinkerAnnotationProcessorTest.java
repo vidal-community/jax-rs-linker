@@ -1,16 +1,15 @@
 package fr.vidal.oss.jax_rs_linker;
 
-import com.google.common.collect.ImmutableList;
-import com.google.testing.compile.CompilationRule;
-import org.junit.Rule;
-import org.junit.Test;
-
-import javax.tools.JavaFileObject;
-
 import static com.google.common.truth.Truth.assert_;
 import static com.google.testing.compile.JavaFileObjects.forResource;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 import static com.google.testing.compile.JavaSourcesSubjectFactory.javaSources;
+
+import javax.tools.JavaFileObject;
+import org.junit.Rule;
+import org.junit.Test;
+import com.google.common.collect.ImmutableList;
+import com.google.testing.compile.CompilationRule;
 
 public class LinkerAnnotationProcessorTest {
 
@@ -40,7 +39,7 @@ public class LinkerAnnotationProcessorTest {
                     forResource("BrandResourcePathParameters.java"),
                     forResource("PersonResourcePathParameters.java"),
                     forResource("PersonResourceQueryParameters.java"),
-                    forResource("linkers/Linkers.java")
+                    forResource("linkers/ContextPathHolder.java")
             );
     }
 
@@ -128,7 +127,7 @@ public class LinkerAnnotationProcessorTest {
             .and()
             .generatesSources(
                 forResource("BrandResourceLinker.java"),
-                forResource("linkers/LinkersPackageInfo.java"),
+                forResource("linkers/ContextPathHolder.java"),
                 forResource("linkers/ApplicationNamePackageInfo.java")
             );
     }

@@ -1,28 +1,46 @@
 package fr.vidal.oss.jax_rs_linker.writer;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.squareup.javapoet.*;
 import fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor;
 import fr.vidal.oss.jax_rs_linker.api.NoPathParameters;
 import fr.vidal.oss.jax_rs_linker.api.NoQueryParameters;
-import fr.vidal.oss.jax_rs_linker.model.*;
+import fr.vidal.oss.jax_rs_linker.model.Api;
+import fr.vidal.oss.jax_rs_linker.model.ApiLinkType;
+import fr.vidal.oss.jax_rs_linker.model.ApiPath;
+import fr.vidal.oss.jax_rs_linker.model.ApiQuery;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
+import fr.vidal.oss.jax_rs_linker.model.Mapping;
+import fr.vidal.oss.jax_rs_linker.model.PathParameter;
+import fr.vidal.oss.jax_rs_linker.model.QueryParameter;
+import fr.vidal.oss.jax_rs_linker.model.TemplatedUrl;
 
-import javax.annotation.Generated;
-import javax.annotation.Nullable;
-import javax.annotation.processing.Filer;
+import static com.google.common.base.CaseFormat.LOWER_CAMEL;
+import static com.google.common.base.CaseFormat.UPPER_CAMEL;
+import static com.squareup.javapoet.ClassName.bestGuess;
+import static fr.vidal.oss.jax_rs_linker.predicates.MappingByApiLinkTargetPredicate.BY_API_LINK_TARGET_PRESENCE;
+import static java.lang.String.format;
+import static javax.lang.model.element.Modifier.FINAL;
+import static javax.lang.model.element.Modifier.PRIVATE;
+import static javax.lang.model.element.Modifier.PUBLIC;
+import static javax.lang.model.element.Modifier.STATIC;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
-
-import static com.squareup.javapoet.ClassName.bestGuess;
-import static com.squareup.javapoet.MethodSpec.constructorBuilder;
-import static fr.vidal.oss.jax_rs_linker.predicates.MappingByApiLinkTargetPredicate.BY_API_LINK_TARGET_PRESENCE;
-import static java.lang.String.format;
-import static javax.lang.model.element.Modifier.*;
+import javax.annotation.Generated;
+import javax.annotation.Nullable;
+import javax.annotation.processing.Filer;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 
 public class LinkerWriter {
 
@@ -32,7 +50,7 @@ public class LinkerWriter {
         this.filer = filer;
     }
 
-    public void write(ClassName generatedClass, Collection<Mapping> mappings) throws IOException {
+    public void write(ClassName generatedClass, Collection<Mapping> mappings, ClassName linkersClassname) throws IOException {
         Optional<Mapping> selfMapping = FluentIterable.from(mappings)
             .firstMatch(new Predicate<Mapping>() {
                 @Override
@@ -54,21 +72,21 @@ public class LinkerWriter {
                 bestGuess(queryTypeParameter.fullyQualifiedName())
             );
 
-        TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(generatedClass.className())
-            .addModifiers(PUBLIC, FINAL)
+        String lowerCamelClassName = UPPER_CAMEL.to(LOWER_CAMEL, generatedClass.className());
+        TypeSpec.Builder typeBuilder = TypeSpec.enumBuilder(generatedClass.className())
+            .addModifiers(PUBLIC)
             .addAnnotation(AnnotationSpec.builder(Generated.class)
                 .addMember("value", "$S", LinkerAnnotationProcessor.class.getName())
                 .build())
-            .addField(FieldSpec.builder(String.class, "contextPath", PRIVATE, FINAL).build())
-            .addMethod(constructorBuilder()
-                .addModifiers(PUBLIC)
-                .addCode("this($S);\n", "")
+            .addEnumConstant("INSTANCE")
+            .addField(FieldSpec
+                .builder(String.class, "contextPath", PRIVATE, FINAL)
+                .initializer("$T.getContextPath()", toClassName(linkersClassname))
                 .build())
-            .addMethod(constructorBuilder()
-                .addModifiers(PUBLIC)
-                .addParameter(
-                    ParameterSpec.builder(String.class, "contextPath", FINAL).build())
-                .addStatement("this.$L = $L", "contextPath", "contextPath")
+            .addMethod(MethodSpec.methodBuilder(lowerCamelClassName)
+                .addModifiers(PUBLIC, STATIC)
+                .returns(toClassName(generatedClass))
+                .addStatement("return INSTANCE")
                 .build())
             .addMethod(
                 linkerMethod(
@@ -98,6 +116,10 @@ public class LinkerWriter {
             .build()
             .writeTo(filer);
 
+    }
+
+    private com.squareup.javapoet.ClassName toClassName(ClassName generatedClass) {
+        return com.squareup.javapoet.ClassName.get(generatedClass.packageName(), generatedClass.className());
     }
 
     private MethodSpec linkerMethod(String methodName, ApiPath apiPath, TypeName returnType, ApiQuery apiQuery) {

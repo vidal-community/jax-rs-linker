@@ -2,14 +2,17 @@ package fr.vidal.oss.jax_rs_linker.it;
 
 import fr.vidal.oss.jax_rs_linker.api.NoQueryParameters;
 import fr.vidal.oss.jax_rs_linker.model.TemplatedUrl;
-import org.junit.Test;
 
+import static fr.vidal.oss.jax_rs_linker.it.BrandResourceLinker.brandResourceLinker;
+import static fr.vidal.oss.jax_rs_linker.it.ProductResourceLinker.productResourceLinker;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.Test;
 
 public class LinkerTest {
 
-    private BrandResourceLinker brandLinker = new BrandResourceLinker();
-    private ProductResourceLinker productLinker = new ProductResourceLinker();
+    private BrandResourceLinker brandLinker = brandResourceLinker();
+    private ProductResourceLinker productLinker = productResourceLinker();
 
     @Test
     public void should_return_self_link() throws Exception {

@@ -1,6 +1,7 @@
 
 package fr.vidal.oss.jax_rs_linker.parser;
 
+import fr.vidal.oss.jax_rs_linker.ContextPathHolder;
 import fr.vidal.oss.jax_rs_linker.api.NoQueryParameters;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.PathParameter;
@@ -11,15 +12,13 @@ import java.util.Arrays;
 import javax.annotation.Generated;
 
 @Generated("fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
-public final class BrandResourceLinker {
-    private final String contextPath;
+public enum  BrandResourceLinker {
+    INSTANCE;
 
-    public BrandResourceLinker() {
-        this("");
-    }
+    private final String contextPath = ContextPathHolder.getContextPath();
 
-    public BrandResourceLinker(final String contextPath) {
-        this.contextPath = contextPath;
+    public static BrandResourceLinker brandResourceLinker() {
+        return INSTANCE;
     }
 
     public final TemplatedUrl<BrandResourcePathParameters, NoQueryParameters> self() {

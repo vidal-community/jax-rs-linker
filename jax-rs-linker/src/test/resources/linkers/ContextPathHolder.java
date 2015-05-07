@@ -1,9 +1,6 @@
 
 package fr.vidal.oss.jax_rs_linker;
 
-import fr.vidal.oss.jax_rs_linker.parser.BrandResourceLinker;
-import fr.vidal.oss.jax_rs_linker.parser.PersonResourceLinker;
-import fr.vidal.oss.jax_rs_linker.parser.ProductResourceLinker;
 import fr.vidal.oss.jax_rs_linker.servlet.ContextPaths;
 import java.lang.Override;
 import java.lang.String;
@@ -14,7 +11,7 @@ import javax.servlet.annotation.WebListener;
 
 @WebListener
 @Generated("fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
-public final class Linkers implements ServletContextListener {
+public final class ContextPathHolder implements ServletContextListener {
     private static String contextPath = "";
 
     private static String applicationName = ApplicationName.get();
@@ -28,15 +25,8 @@ public final class Linkers implements ServletContextListener {
     public void contextDestroyed(ServletContextEvent sce) {
     }
 
-    public static ProductResourceLinker productResourceLinker() {
-        return new ProductResourceLinker(contextPath);
+    public static String getContextPath() {
+        return contextPath;
     }
 
-    public static BrandResourceLinker brandResourceLinker() {
-        return new BrandResourceLinker(contextPath);
-    }
-
-    public static PersonResourceLinker personResourceLinker() {
-        return new PersonResourceLinker(contextPath);
-    }
 }

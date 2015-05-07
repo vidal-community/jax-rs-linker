@@ -1,9 +1,10 @@
 package fr.vidal.oss.jax_rs_linker.it;
 
 
-import fr.vidal.oss.jax_rs_linker.Linkers;
 import fr.vidal.oss.jax_rs_linker.api.Self;
 import fr.vidal.oss.jax_rs_linker.api.SubResource;
+
+import static fr.vidal.oss.jax_rs_linker.it.BrandResourceLinker.brandResourceLinker;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -17,7 +18,7 @@ public class BrandResource {
     @Path("/{id}")
     @GET
     public String getById(@PathParam("id") int id, @QueryParam("view") String view) {
-        return Linkers.brandResourceLinker()
+        return brandResourceLinker()
             .self()
             .replace(BrandResourcePathParameters.ID, String.valueOf(id))
             .append(BrandResourceQueryParameters.VIEW, view)
@@ -28,7 +29,7 @@ public class BrandResource {
     @Path("/{brand:[a-zA-Z]+}")
     @GET
     public String getBy(@PathParam("brand") String brand) {
-        return Linkers.brandResourceLinker()
+        return brandResourceLinker()
             .relatedBrandResource()
             .replace(BrandResourcePathParameters.BRAND, brand)
             .value();
@@ -38,7 +39,7 @@ public class BrandResource {
     @Path("/{code:[a-cA-C]+}")
     @GET
     public String getByCode(@PathParam("code") String code) {
-        return Linkers.brandResourceLinker()
+        return brandResourceLinker()
             .relatedBrandResourceByCode()
             .replace(BrandResourcePathParameters.CODE, code)
             .value();
@@ -48,7 +49,7 @@ public class BrandResource {
     @Path("/{zip:[d-zD-Z]+}")
     @GET
     public String getByZip(@PathParam("zip") String zip) {
-        return Linkers.brandResourceLinker()
+        return brandResourceLinker()
             .relatedBrandResourceByZipCode()
             .replace(BrandResourcePathParameters.ZIP, zip)
             .value();

@@ -1,21 +1,26 @@
 package fr.vidal.oss.jax_rs_linker.writer;
 
-import com.squareup.javapoet.*;
 import fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.servlet.ContextPaths;
 
+import static com.squareup.javapoet.ClassName.get;
+import static javax.lang.model.element.Modifier.FINAL;
+import static javax.lang.model.element.Modifier.PRIVATE;
+import static javax.lang.model.element.Modifier.PUBLIC;
+import static javax.lang.model.element.Modifier.STATIC;
+
+import java.io.IOException;
 import javax.annotation.Generated;
 import javax.annotation.processing.Filer;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-import java.beans.Introspector;
-import java.io.IOException;
-import java.util.Set;
-
-import static com.squareup.javapoet.ClassName.get;
-import static javax.lang.model.element.Modifier.*;
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeSpec;
 
 public class LinkersWriter {
 
@@ -25,7 +30,7 @@ public class LinkersWriter {
         this.filer = filer;
     }
 
-    public void write(ClassName linkers, Set<ClassName> classes) throws IOException {
+    public void write(ClassName linkers) throws IOException {
         TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(linkers.className())
             .addModifiers(PUBLIC, FINAL)
             .addSuperinterface(ServletContextListener.class)
@@ -57,20 +62,14 @@ public class LinkersWriter {
                 .addAnnotation(Override.class)
                 .returns(void.class)
                 .addParameter(ServletContextEvent.class, "sce")
+                .build())
+            .addMethod(MethodSpec.methodBuilder("getContextPath")
+                .addModifiers(PUBLIC, STATIC)
+                .returns(String.class)
+                .addCode(
+                    "return contextPath;\n")
                 .build());
 
-
-        for (ClassName linker : classes) {
-            String linkerName = linkerName(linker);
-            com.squareup.javapoet.ClassName linkerClassName = com.squareup.javapoet.ClassName.bestGuess(linkerName);
-            typeBuilder.addMethod(
-                MethodSpec.methodBuilder(Introspector.decapitalize(linkerClassName.simpleName()))
-                    .returns(linkerClassName)
-                    .addModifiers(PUBLIC, STATIC)
-                    .addCode("return new $T($L);\n", linkerClassName, "contextPath")
-                    .build()
-            );
-        }
 
         JavaFile.builder(linkers.packageName(), typeBuilder.build())
             .indent("\t")
@@ -78,7 +77,4 @@ public class LinkersWriter {
             .writeTo(filer);
     }
 
-    private static String linkerName(ClassName linker) {
-        return linker.fullyQualifiedName() + LinkerAnnotationProcessor.GENERATED_CLASSNAME_SUFFIX;
-    }
 }

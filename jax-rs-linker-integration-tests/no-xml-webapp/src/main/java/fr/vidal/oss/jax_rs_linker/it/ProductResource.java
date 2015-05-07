@@ -3,11 +3,12 @@ package fr.vidal.oss.jax_rs_linker.it;
 import fr.vidal.oss.jax_rs_linker.api.Self;
 import fr.vidal.oss.jax_rs_linker.api.SubResource;
 
+import static fr.vidal.oss.jax_rs_linker.it.ProductResourceLinker.productResourceLinker;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
-import static fr.vidal.oss.jax_rs_linker.Linkers.productResourceLinker;
 
 @Path("/product")
 public class ProductResource {

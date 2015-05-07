@@ -1,7 +1,5 @@
 package fr.vidal.oss.jax_rs_linker;
 
-import com.google.auto.service.AutoService;
-import com.google.common.collect.*;
 import fr.vidal.oss.jax_rs_linker.api.Self;
 import fr.vidal.oss.jax_rs_linker.api.SubResource;
 import fr.vidal.oss.jax_rs_linker.functions.ClassToName;
@@ -10,14 +8,12 @@ import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 import fr.vidal.oss.jax_rs_linker.parser.ElementParser;
 import fr.vidal.oss.jax_rs_linker.predicates.OptionalPredicates;
-import fr.vidal.oss.jax_rs_linker.writer.*;
-
-import javax.annotation.processing.*;
-import javax.lang.model.SourceVersion;
-import javax.lang.model.element.TypeElement;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Set;
+import fr.vidal.oss.jax_rs_linker.writer.DotFileWriter;
+import fr.vidal.oss.jax_rs_linker.writer.LinkerWriter;
+import fr.vidal.oss.jax_rs_linker.writer.LinkersWriter;
+import fr.vidal.oss.jax_rs_linker.writer.PathParamsEnumWriter;
+import fr.vidal.oss.jax_rs_linker.writer.QueryParamsEnumWriter;
+import fr.vidal.oss.jax_rs_linker.writer.ResourceFileWriters;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.base.Throwables.propagate;
@@ -29,6 +25,23 @@ import static fr.vidal.oss.jax_rs_linker.functions.TypeElementToElement.intoElem
 import static fr.vidal.oss.jax_rs_linker.predicates.ElementHasKind.byKind;
 import static javax.lang.model.SourceVersion.latest;
 import static javax.lang.model.element.ElementKind.METHOD;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Set;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.Processor;
+import javax.annotation.processing.RoundEnvironment;
+import javax.lang.model.SourceVersion;
+import javax.lang.model.element.TypeElement;
+import com.google.auto.service.AutoService;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 
 
 @AutoService(Processor.class)
@@ -50,6 +63,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     private boolean entryPointGenerated;
     private Messager messager;
     private ResourceFileWriters resourceFiles;
+    private static final ClassName LINKERS_CLASSNAME = ClassName.valueOf("fr.vidal.oss.jax_rs_linker.ContextPathHolder");
 
     @Override
     public Set<String> getSupportedOptions() {
@@ -134,21 +148,20 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     }
 
     private void generateLinkersSource() throws IOException {
-        ClassName linkers = ClassName.valueOf("fr.vidal.oss.jax_rs_linker.Linkers");
-        new LinkersWriter(processingEnv.getFiler()).write(linkers, elements.keySet());
+        new LinkersWriter(processingEnv.getFiler()).write(LINKERS_CLASSNAME);
     }
 
     private void generateLinkerSources(Multimap<ClassName, Mapping> elements) throws IOException {
         for (ClassName className : elements.keySet()) {
-            generateLinkerClasses(className, elements.get(className));
+            generateLinkerClasses(className, elements.get(className), LINKERS_CLASSNAME);
             generatePathParamEnums(className, elements.get(className));
             generateQueryParamEnums(className, elements.get(className));
         }
     }
 
-    private void generateLinkerClasses(ClassName className, Collection<Mapping> mappings) throws IOException {
+    private void generateLinkerClasses(ClassName className, Collection<Mapping> mappings, ClassName linkersClassname) throws IOException {
         ClassName generatedClass = className.append(GENERATED_CLASSNAME_SUFFIX);
-        new LinkerWriter(processingEnv.getFiler()).write(generatedClass, mappings);
+        new LinkerWriter(processingEnv.getFiler()).write(generatedClass, mappings, linkersClassname);
     }
 
     private void generatePathParamEnums(ClassName className, Collection<Mapping> mappings) throws IOException {

@@ -1,5 +1,6 @@
 package fr.vidal.oss.jax_rs_linker.parser;
 
+import fr.vidal.oss.jax_rs_linker.ContextPathHolder;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.PathParameter;
 import fr.vidal.oss.jax_rs_linker.model.QueryParameter;
@@ -9,15 +10,13 @@ import java.util.Arrays;
 import javax.annotation.Generated;
 
 @Generated("fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
-public final class PersonResourceLinker {
-    private final String contextPath;
+public enum PersonResourceLinker {
+    INSTANCE;
 
-    public PersonResourceLinker() {
-        this("");
-    }
+    private final String contextPath = ContextPathHolder.getContextPath();
 
-    public PersonResourceLinker(final String contextPath) {
-        this.contextPath = contextPath;
+    public static PersonResourceLinker personResourceLinker() {
+        return INSTANCE;
     }
 
     public final TemplatedUrl<PersonResourcePathParameters, PersonResourceQueryParameters> self() {

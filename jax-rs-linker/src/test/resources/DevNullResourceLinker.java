@@ -1,5 +1,6 @@
 package fr.vidal.oss.jax_rs_linker.parser;
 
+import fr.vidal.oss.jax_rs_linker.ContextPathHolder;
 import fr.vidal.oss.jax_rs_linker.api.NoPathParameters;
 import fr.vidal.oss.jax_rs_linker.api.NoQueryParameters;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
@@ -11,15 +12,13 @@ import java.util.Arrays;
 import javax.annotation.Generated;
 
 @Generated("fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor")
-public final class DevNullResourceLinker {
-    private final String contextPath;
+public enum  DevNullResourceLinker {
+    INSTANCE;
 
-    public DevNullResourceLinker() {
-        this("");
-    }
+    private final String contextPath = ContextPathHolder.getContextPath();
 
-    public DevNullResourceLinker(final String contextPath) {
-        this.contextPath = contextPath;
+    public static DevNullResourceLinker devNullResourceLinker() {
+        return INSTANCE;
     }
 
     public final TemplatedUrl<NoPathParameters, NoQueryParameters> self() {

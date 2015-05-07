@@ -36,7 +36,7 @@ Consider the following JAX-RS resources:
 
 ```java
 
-import fr.vidal.oss.jax_rs_linker.Linkers;
+import fr.vidal.oss.jax_rs_linker.ContextPathHolder;
 import fr.vidal.oss.jax_rs_linker.api.Self;
 import fr.vidal.oss.jax_rs_linker.api.SubResource;
 
@@ -105,7 +105,7 @@ Now comes the challenge: how do you cleanly resolve links between your resources
 JAX-RS Linker, as you will see, does not require much more information. Just add the following to your resources:
 
 ```java
-import fr.vidal.oss.jax_rs_linker.Linkers;
+import fr.vidal.oss.jax_rs_linker.ContextPathHolder;
 import fr.vidal.oss.jax_rs_linker.api.Self;
 import fr.vidal.oss.jax_rs_linker.api.SubResource;
 
@@ -177,7 +177,7 @@ Here a simplistic example of one use of the generated classes (don't do this for
 mapping, confine it to a clean and decoupled mapper instead).
 
 ```java
-import fr.vidal.oss.jax_rs_linker.Linkers;
+import fr.vidal.oss.jax_rs_linker.ContextPathHolder;
 import fr.vidal.oss.jax_rs_linker.api.Self;
 import fr.vidal.oss.jax_rs_linker.api.SubResource;
 
