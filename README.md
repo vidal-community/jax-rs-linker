@@ -25,6 +25,7 @@ These annotations are defined in:
 		<groupId>com.vidal.oss</groupId>
 		<artifactId>jax-rs-linker</artifactId>
 		<version>0.2</version>
+		<optional>true</optional><!-- disables processing when fetched transitively -->
 	</dependency>
 ```
 
