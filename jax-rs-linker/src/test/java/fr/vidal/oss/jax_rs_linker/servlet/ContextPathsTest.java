@@ -4,8 +4,10 @@ import org.junit.Test;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
+import java.util.Collections;
 import java.util.List;
 
+import static fr.vidal.oss.jax_rs_linker.servlet.ContextPaths.contextPath;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -21,7 +23,7 @@ public class ContextPathsTest {
                 "/prefix/"
         );
 
-        assertThat(ContextPaths.contextPath(servletContext, "w00t")).isEqualTo("/prefix/what");
+        assertThat(contextPath(servletContext, "w00t")).isEqualTo("/prefix/what");
     }
 
     @Test
@@ -32,7 +34,7 @@ public class ContextPathsTest {
                 "/prefix/"
         );
 
-        assertThat(ContextPaths.contextPath(servletContext, "w00t")).isEqualTo("/prefix/what");
+        assertThat(contextPath(servletContext, "w00t")).isEqualTo("/prefix/what");
     }
 
     @Test
@@ -43,7 +45,19 @@ public class ContextPathsTest {
                 "/prefix/"
         );
 
-        assertThat(ContextPaths.contextPath(servletContext, "w00t")).isEqualTo("/prefix/what");
+        assertThat(contextPath(servletContext, "w00t")).isEqualTo("/prefix/what");
+    }
+
+    @Test
+    public void defaults_to_environment_path_when_no_matching_registration() {
+        System.setProperty("LINKERS_DEFAULT_PATH", "kikoo");
+        ServletContext servletContext = servletContext(
+                servletRegistration(Collections.<String>emptyList()),
+                "w00t",
+                "/prefix/"
+        );
+
+        assertThat(contextPath(servletContext, "w00t")).isEqualTo("/prefix/kikoo");
     }
 
     private ServletContext servletContext(ServletRegistration servletRegistration, String applicationName, String contextPath) {
