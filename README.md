@@ -22,9 +22,9 @@ These annotations are defined in:
 
 ```xml
 	<dependency>
-		<groupId>com.vidal.oss</groupId>
+		<groupId>fr.vidal.oss</groupId>
 		<artifactId>jax-rs-linker</artifactId>
-		<version>0.2</version>
+		<version>0.3</version>
 		<optional>true</optional><!-- disables processing when fetched transitively -->
 	</dependency>
 ```
