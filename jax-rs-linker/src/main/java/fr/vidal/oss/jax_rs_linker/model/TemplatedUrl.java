@@ -1,7 +1,6 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -64,11 +63,9 @@ public class TemplatedUrl<T extends PathParameters, U extends QueryParameters> {
         return path + TO_QUERY_STRING.apply(queryParameters);
     }
 
-    private void validateParamValue(Optional<Pattern> regex, String value) {
-        if (regex.isPresent()) {
-            if (!regex.get().matcher(value).matches()) {
-                throw new IllegalArgumentException(String.format("The given value doesn't match the parameter regex: %s", regex.get()));
-            }
+    private void validateParamValue(Pattern regex, String value) {
+        if (regex != null && !regex.matcher(value).matches()) {
+            throw new IllegalArgumentException(String.format("The given value doesn't match the parameter regex: %s", regex));
         }
     }
 

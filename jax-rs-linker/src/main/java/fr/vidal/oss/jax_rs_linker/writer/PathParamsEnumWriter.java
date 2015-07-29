@@ -5,7 +5,6 @@ import com.google.common.collect.FluentIterable;
 import com.squareup.javapoet.*;
 import fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor;
 import fr.vidal.oss.jax_rs_linker.api.PathParameters;
-import fr.vidal.oss.jax_rs_linker.functions.MappingToPathParameters;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 import fr.vidal.oss.jax_rs_linker.model.PathParameter;
@@ -40,11 +39,7 @@ public class PathParamsEnumWriter {
 
         writeEnumeration(mappings, typeBuilder);
 
-        TypeName pattern =
-                ParameterizedTypeName.get(
-                        com.squareup.javapoet.ClassName.get(Optional.class),
-                        com.squareup.javapoet.ClassName.get(Pattern.class)
-                );
+        TypeName pattern = com.squareup.javapoet.ClassName.get(Pattern.class);
 
         typeBuilder.addField(String.class, "placeholder", PRIVATE, FINAL)
                 .addField(pattern, "regex", PRIVATE, FINAL)
@@ -66,7 +61,6 @@ public class PathParamsEnumWriter {
                         .returns(pattern)
                         .addCode("return this.$L;\n", "regex")
                         .build());
-        ;
 
 
         JavaFile.builder(generatedClass.packageName(), typeBuilder.build())
@@ -78,33 +72,35 @@ public class PathParamsEnumWriter {
 
     private void writeEnumeration(Collection<Mapping> mappings, TypeSpec.Builder typeBuilder) throws IOException {
         for (PathParameter parameter : enumConstants(mappings)) {
-            Optional<Pattern> regex = parameter.getRegex();
+            Optional<Pattern> pattern = parameter.getRegex();
             String name = parameter.getName();
-            if (regex.isPresent()) {
-                typeBuilder.addEnumConstant(
-                        EnumConstants.constantName(name),
-                        TypeSpec.anonymousClassBuilder("$S, Optional.<Pattern>of(Pattern.compile($S))", name, regex.get())
-                                .build()
-                );
-            } else {
-                typeBuilder.addEnumConstant(
-                        EnumConstants.constantName(name),
-                        TypeSpec.anonymousClassBuilder("$S, Optional.<Pattern>absent()", name)
-                                .build()
-                );
-            }
+            typeBuilder.addEnumConstant(
+                EnumConstants.constantName(name),
+                enumConstructorExpression(pattern, name)
+            );
         }
+    }
+
+    private TypeSpec enumConstructorExpression(Optional<Pattern> pattern, String name) {
+        if (pattern.isPresent()) {
+            return TypeSpec.anonymousClassBuilder("$S, Pattern.compile($S)", name, pattern.get().pattern()).build();
+        }
+        return TypeSpec.anonymousClassBuilder("$S, null", name).build();
     }
 
     private Collection<PathParameter> enumConstants(Collection<Mapping> mappings) {
         return FluentIterable.from(mappings)
-                .transformAndConcat(TO_PATH_PARAMETERS)
-                .toSortedSet(new Comparator<PathParameter>() {
-                    @Override
-                    public int compare(PathParameter firstParam, PathParameter secondParam) {
-                        return firstParam.getName().compareTo(secondParam.getName());
-                    }
-                });
+            .transformAndConcat(TO_PATH_PARAMETERS)
+            .toSortedSet(new Comparator<PathParameter>() {
+                @Override
+                public int compare(PathParameter firstParam, PathParameter secondParam) {
+                    return firstParam.getName().compareTo(secondParam.getName());
+                }
+            });
+    }
+
+    private String regex(Optional<Pattern> regex) {
+        return regex.transform(PatternToRegexString.INSTANCE).orNull();
     }
 
 }

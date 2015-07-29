@@ -1,6 +1,5 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import fr.vidal.oss.jax_rs_linker.api.NoQueryParameters;
 import fr.vidal.oss.jax_rs_linker.api.PathParameters;
@@ -78,7 +77,7 @@ enum ProductParameters implements PathParameters {
     }
 
     @Override
-    public Optional<Pattern> regex() {
-        return Optional.absent();
+    public Pattern regex() {
+        return null;
     }
 }

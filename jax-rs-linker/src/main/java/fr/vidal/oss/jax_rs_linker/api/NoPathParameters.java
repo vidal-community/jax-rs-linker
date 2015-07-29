@@ -1,7 +1,5 @@
 package fr.vidal.oss.jax_rs_linker.api;
 
-import com.google.common.base.Optional;
-
 import java.util.regex.Pattern;
 
 public enum NoPathParameters implements PathParameters {
@@ -13,7 +11,7 @@ public enum NoPathParameters implements PathParameters {
     }
 
     @Override
-    public Optional<Pattern> regex() {
+    public Pattern regex() {
         throw new UnsupportedOperationException();
     }
 }
