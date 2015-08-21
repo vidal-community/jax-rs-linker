@@ -60,6 +60,17 @@ public class ContextPathsTest {
         assertThat(contextPath(servletContext, "w00t")).isEqualTo("/prefix/kikoo");
     }
 
+    @Test
+    public void no_double_slash_when_context_path_is_slash() {
+        ServletContext servletContext = servletContext(
+            servletRegistration(asList("/what")),
+            "w00t",
+            "/"
+        );
+
+        assertThat(contextPath(servletContext, "w00t")).isEqualTo("/what");
+    }
+
     private ServletContext servletContext(ServletRegistration servletRegistration, String applicationName, String contextPath) {
         ServletContext servletContext = mock(ServletContext.class);
         when(servletContext.getServletRegistration(applicationName)).thenReturn(servletRegistration);

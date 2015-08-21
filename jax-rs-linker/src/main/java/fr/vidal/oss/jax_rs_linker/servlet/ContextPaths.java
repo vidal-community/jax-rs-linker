@@ -7,7 +7,12 @@ public class ContextPaths {
 
     public static String contextPath(ServletContext servletContext, String registeredKey) {
         String mappedPath = readMappingOrDefault(servletContext, registeredKey);
-        return servletContext.getContextPath() + mappedPath;
+        return trimSingleSlashContextPath(servletContext) + mappedPath;
+    }
+
+    private static String trimSingleSlashContextPath(ServletContext servletContext) {
+        String contextPath = servletContext.getContextPath();
+        return "/".equals(contextPath) ? "" : contextPath;
     }
 
     /**
