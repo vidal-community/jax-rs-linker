@@ -2,8 +2,8 @@
 
 ## Build status
 
-[![Build Status](https://travis-ci.org/softwarevidal/jax-rs-linker.png)](https://travis-ci.org/softwarevidal/jax-rs-linker)
-[![Coverage Status](https://coveralls.io/repos/softwarevidal/jax-rs-linker/badge.svg?branch=master)](https://coveralls.io/r/softwarevidal/jax-rs-linker?branch=master)
+[![Build Status](https://travis-ci.org/vidal-community/jax-rs-linker.png)](https://travis-ci.org/vidal-community/jax-rs-linker)
+[![Coverage Status](https://coveralls.io/repos/vidal-community/jax-rs-linker/badge.svg?branch=master)](https://coveralls.io/r/vidal-community/jax-rs-linker?branch=master)
 
 ## Scope
 
@@ -97,7 +97,7 @@ public class Configuration extends Application {
 
 Those are the basic building blocks of your hypermedia API
 (note that `web.xml`-based applications are also supported, as described in
-the [detailed documentation](https://github.com/softwarevidal/jax-rs-linker/wiki)).
+the [detailed documentation](https://github.com/vidal-community/jax-rs-linker/wiki)).
 
 Now comes the challenge: how do you cleanly resolve links between your resources?
 
