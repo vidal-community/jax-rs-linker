@@ -9,13 +9,14 @@
 
     <groupId>fr.vidal.oss</groupId>
     <artifactId>jax-rs-linker-parent</artifactId>
-    <version>0.5-SNAPSHOT</version>
+    <version>0.4.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>JAX-RS Linker: parent POM</name>
     <url>https://github.com/softwarevidal/jax-rs-linker</url>
 
     <properties>
+	<generateBackupPoms>false</generateBackupPoms><!-- maven versions plugin -->
         <encoding>UTF-8</encoding>
         <java.version>1.7</java.version>
         <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
