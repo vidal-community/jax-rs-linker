@@ -59,18 +59,9 @@ public class LinkerWriter {
                 }
             });
 
-        final Api api = selfMapping.get().getApi();
-        final ApiPath selfApiPath = api.getApiPath();
-        final ApiQuery selfApiQuery = api.getApiQuery();
 
-        ClassName pathTypeParameter = templatedPathTypeParameter(selfApiPath, generatedClass.fullyQualifiedName());
-        ClassName queryTypeParameter = templatedQueryTypeParameter(selfApiQuery, generatedClass.fullyQualifiedName());
-        TypeName templatedPathClass =
-            ParameterizedTypeName.get(
-                com.squareup.javapoet.ClassName.get(TemplatedUrl.class),
-                bestGuess(pathTypeParameter.fullyQualifiedName()),
-                bestGuess(queryTypeParameter.fullyQualifiedName())
-            );
+        final Api selfApi = selfMapping.get().getApi();
+        TypeName templatedPathClass = templatedUrlType(generatedClass, selfApi);
 
         String lowerCamelClassName = UPPER_CAMEL.to(LOWER_CAMEL, generatedClass.className());
         TypeSpec.Builder typeBuilder = TypeSpec.enumBuilder(generatedClass.className())
@@ -91,21 +82,21 @@ public class LinkerWriter {
             .addMethod(
                 linkerMethod(
                     "self",
-                    selfApiPath,
+                    selfApi.getApiPath(),
                     templatedPathClass,
-                    selfApiQuery
+                    selfApi.getApiQuery()
                 )
             );
 
 
         for (Mapping mapping : linked(mappings)) {
-            Api mappingApi = mapping.getApi();
+            Api apiMapping = mapping.getApi();
             typeBuilder.addMethod(
                 linkerMethod(
-                    format("related%s", mappingApi.getApiLink().getQualifiedTarget().get()),
-                    mappingApi.getApiPath(),
-                    templatedPathClass,
-                    mappingApi.getApiQuery()
+                    format("related%s", apiMapping.getApiLink().getQualifiedTarget().get()),
+                    apiMapping.getApiPath(),
+                    templatedUrlType(generatedClass, apiMapping),
+                    apiMapping.getApiQuery()
                 )
             );
         }
@@ -116,6 +107,16 @@ public class LinkerWriter {
             .build()
             .writeTo(filer);
 
+    }
+
+    private TypeName templatedUrlType(ClassName generatedClass, Api api) {
+        ClassName pathTypeParameter = templatedPathTypeParameter(api.getApiPath(), generatedClass.fullyQualifiedName());
+        ClassName queryTypeParameter = templatedQueryTypeParameter(api.getApiQuery(), generatedClass.fullyQualifiedName());
+        return ParameterizedTypeName.get(
+            com.squareup.javapoet.ClassName.get(TemplatedUrl.class),
+            bestGuess(pathTypeParameter.fullyQualifiedName()),
+            bestGuess(queryTypeParameter.fullyQualifiedName())
+        );
     }
 
     private com.squareup.javapoet.ClassName toClassName(ClassName generatedClass) {

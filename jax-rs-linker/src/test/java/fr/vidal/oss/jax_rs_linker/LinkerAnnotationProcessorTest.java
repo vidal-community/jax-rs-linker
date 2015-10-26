@@ -146,4 +146,22 @@ public class LinkerAnnotationProcessorTest {
             )
             .in(configuration);
     }
+
+    @Test
+    public void detects_all_query_parameters_even_when_none_on_self_method() {
+        JavaFileObject resource = forResource("query_parameters_misdetection/PeopleResource.java");
+
+        assert_().about(javaSources())
+            .that(ImmutableList.of(
+                forResource("Configuration.java"),
+                resource
+            ))
+            .processedWith(processor, applicationNameProcessor)
+            .compilesWithoutError()
+            .and()
+            .generatesSources(
+                forResource("query_parameters_misdetection/PeopleResourceQueryParameters.java"),
+                forResource("query_parameters_misdetection/PeopleResourceLinker.java")
+            );
+    }
 }
