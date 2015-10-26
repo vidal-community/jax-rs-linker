@@ -47,9 +47,8 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     private final Multimap<ClassName, Mapping> elements = LinkedHashMultimap.create();
     private ElementParser elementParser;
-    private Messager messager;
     private ResourceFileWriters resourceFiles;
-    private static final ClassName LINKERS_CLASSNAME = ClassName.valueOf("fr.vidal.oss.jax_rs_linker.ContextPathHolder");
+    private static final ClassName CONTEXT_PATH_HOLDER = ClassName.valueOf("fr.vidal.oss.jax_rs_linker.ContextPathHolder");
 
     @Override
     public Set<String> getSupportedOptions() {
@@ -69,10 +68,9 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     @Override
     public void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        messager = processingEnv.getMessager();
         resourceFiles = new ResourceFileWriters(processingEnv.getFiler());
         elementParser = new ElementParser(
-            messager,
+            processingEnv.getMessager(),
             processingEnv.getTypeUtils()
         );
     }
@@ -99,7 +97,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     private void tryGenerateSources(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv, Multimap<ClassName, Mapping> roundElements) {
         try {
-            generateSources(annotations, roundEnv, roundElements);
+            generateSources(roundElements);
         } catch (IOException ioe) {
             throw propagate(ioe);
         }
@@ -113,22 +111,22 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
         }
     }
 
-    private void generateSources(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv, Multimap<ClassName, Mapping> roundElements) throws IOException {
-        tryGenerateLinkersSource();
+    private void generateSources(Multimap<ClassName, Mapping> roundElements) throws IOException {
+        tryGenerateContextPathHolder();
         elements.putAll(roundElements);
         generateLinkerSources(roundElements);
     }
 
-    private void tryGenerateLinkersSource() throws IOException {
+    private void tryGenerateContextPathHolder() throws IOException {
         try {
-            new LinkersWriter(processingEnv.getFiler()).write(LINKERS_CLASSNAME);
+            new LinkersWriter(processingEnv.getFiler()).write(CONTEXT_PATH_HOLDER);
         } catch (FilerException ignored) {
         }
     }
 
     private void generateLinkerSources(Multimap<ClassName, Mapping> elements) throws IOException {
         for (ClassName className : elements.keySet()) {
-            generateLinkerClasses(className, elements.get(className), LINKERS_CLASSNAME);
+            generateLinkerClasses(className, elements.get(className), CONTEXT_PATH_HOLDER);
             generatePathParamEnums(className, elements.get(className));
             generateQueryParamEnums(className, elements.get(className));
         }
