@@ -2,7 +2,7 @@ package fr.vidal.oss.jax_rs_linker.model;
 
 import com.google.common.base.Objects;
 
-public final class ClassName {
+public final class ClassName implements Comparable<ClassName> {
 
     private final String name;
 
@@ -56,5 +56,10 @@ public final class ClassName {
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public int compareTo(ClassName other) {
+        return name.compareTo(other.name);
     }
 }

@@ -11,10 +11,21 @@ import fr.vidal.oss.jax_rs_linker.functions.OptionalFunctions;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 import fr.vidal.oss.jax_rs_linker.parser.ElementParser;
+import fr.vidal.oss.jax_rs_linker.parser.ResourceGraphValidator;
 import fr.vidal.oss.jax_rs_linker.predicates.OptionalPredicates;
-import fr.vidal.oss.jax_rs_linker.writer.*;
+import fr.vidal.oss.jax_rs_linker.writer.DotFileWriter;
+import fr.vidal.oss.jax_rs_linker.writer.LinkerWriter;
+import fr.vidal.oss.jax_rs_linker.writer.LinkersWriter;
+import fr.vidal.oss.jax_rs_linker.writer.PathParamsEnumWriter;
+import fr.vidal.oss.jax_rs_linker.writer.QueryParamsEnumWriter;
+import fr.vidal.oss.jax_rs_linker.writer.ResourceFileWriters;
 
-import javax.annotation.processing.*;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.FilerException;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.Processor;
+import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 import java.io.IOException;
@@ -42,8 +53,9 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     private static final String GRAPH_OPTION = "graph";
 
     private final Multimap<ClassName, Mapping> elements = LinkedHashMultimap.create();
-    private ElementParser elementParser;
     private ResourceFileWriters resourceFiles;
+    private ElementParser elementParser;
+    private ResourceGraphValidator validator;
 
     @Override
     public Set<String> getSupportedOptions() {
@@ -66,9 +78,11 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     @Override
     public void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
+        Messager messager = processingEnv.getMessager();
         resourceFiles = new ResourceFileWriters(processingEnv.getFiler());
+        validator = new ResourceGraphValidator(messager);
         elementParser = new ElementParser(
-            processingEnv.getMessager(),
+            messager,
             processingEnv.getTypeUtils()
         );
     }
@@ -87,8 +101,10 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
                 .filter(notNull())
                 .index(INTO_CLASS_NAME);
 
-        tryGenerateSources(roundElements);
-        tryExportGraph(roundEnv);
+        if (validator.validateMappings(roundElements)) {
+            tryGenerateSources(roundElements);
+            tryExportGraph(roundEnv);
+        }
 
         return false;
     }
@@ -124,15 +140,15 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     private void generateLinkerSources(Multimap<ClassName, Mapping> elements) throws IOException {
         for (ClassName className : elements.keySet()) {
-            generateLinkerClasses(className, elements.get(className), CONTEXT_PATH_HOLDER);
+            generateLinkerClasses(className, elements.get(className));
             generatePathParamEnums(className, elements.get(className));
             generateQueryParamEnums(className, elements.get(className));
         }
     }
 
-    private void generateLinkerClasses(ClassName className, Collection<Mapping> mappings, ClassName linkersClassname) throws IOException {
+    private void generateLinkerClasses(ClassName className, Collection<Mapping> mappings) throws IOException {
         ClassName generatedClass = className.append(GENERATED_CLASSNAME_SUFFIX);
-        new LinkerWriter(processingEnv.getFiler()).write(generatedClass, mappings, linkersClassname);
+        new LinkerWriter(processingEnv.getFiler()).write(generatedClass, mappings, CONTEXT_PATH_HOLDER);
     }
 
     private void generatePathParamEnums(ClassName className, Collection<Mapping> mappings) throws IOException {

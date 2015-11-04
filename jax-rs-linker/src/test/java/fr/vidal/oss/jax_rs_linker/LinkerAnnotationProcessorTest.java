@@ -4,6 +4,7 @@ import static com.google.common.truth.Truth.assert_;
 import static com.google.testing.compile.JavaFileObjects.forResource;
 import static com.google.testing.compile.JavaSourceSubjectFactory.javaSource;
 import static com.google.testing.compile.JavaSourcesSubjectFactory.javaSources;
+import static java.lang.System.lineSeparator;
 
 import javax.tools.JavaFileObject;
 import org.junit.Rule;
@@ -163,5 +164,20 @@ public class LinkerAnnotationProcessorTest {
                 forResource("query_parameters_misdetection/PeopleResourceQueryParameters.java"),
                 forResource("query_parameters_misdetection/PeopleResourceLinker.java")
             );
+    }
+
+    @Test
+    public void does_not_compile_when_no_self_defined() {
+        JavaFileObject resource = forResource("subresource_without_self/SelflessResource.java");
+
+        assert_().about(javaSources())
+            .that(ImmutableList.of(
+                forResource("Configuration.java"),
+                resource
+            ))
+            .processedWith(processor, applicationNameProcessor)
+            .failsToCompile()
+            .withErrorContaining("The following classes need exactly 1 method annotated with @Self annotation:" + lineSeparator() +
+                "  \t - subresource_without_self.SelflessResource");
     }
 }
