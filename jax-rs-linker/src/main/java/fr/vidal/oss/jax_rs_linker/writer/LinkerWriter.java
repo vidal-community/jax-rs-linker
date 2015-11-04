@@ -60,7 +60,7 @@ public class LinkerWriter {
             });
 
 
-        final Api selfApi = selfMapping.get().getApi();
+        Api selfApi = selfMapping.get().getApi();
         TypeName templatedPathClass = templatedUrlType(generatedClass, selfApi);
 
         String lowerCamelClassName = UPPER_CAMEL.to(LOWER_CAMEL, generatedClass.className());

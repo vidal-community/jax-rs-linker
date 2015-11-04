@@ -1,10 +1,12 @@
 package fr.vidal.oss.jax_rs_linker;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.*;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 import fr.vidal.oss.jax_rs_linker.api.Self;
 import fr.vidal.oss.jax_rs_linker.api.SubResource;
-import fr.vidal.oss.jax_rs_linker.functions.ClassToName;
 import fr.vidal.oss.jax_rs_linker.functions.OptionalFunctions;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
@@ -21,6 +23,7 @@ import java.util.Set;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Sets.newHashSet;
 import static fr.vidal.oss.jax_rs_linker.functions.JavaxElementToMappings.intoOptionalMapping;
 import static fr.vidal.oss.jax_rs_linker.functions.MappingToClassName.INTO_CLASS_NAME;
 import static fr.vidal.oss.jax_rs_linker.functions.MappingToPathParameters.TO_PATH_PARAMETERS;
@@ -35,20 +38,12 @@ import static javax.lang.model.element.ElementKind.METHOD;
 public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     public static final String GENERATED_CLASSNAME_SUFFIX = "Linker";
-    public static final String GENERATED_PATHPARAMETERS_ENUMNAME_SUFFIX = "PathParameters";
-    public static final String GENERATED_QUERYPARAMETERS_ENUMNAME_SUFFIX = "QueryParameters";
-    public static final String GRAPH_OPTION = "graph";
-
-    private static final Set<String> SUPPORTED_ANNOTATIONS =
-        FluentIterable
-            .from(Lists.<Class<?>>newArrayList(Self.class, SubResource.class))
-            .transform(ClassToName.INSTANCE)
-            .toSet();
+    private static final ClassName CONTEXT_PATH_HOLDER = ClassName.valueOf("fr.vidal.oss.jax_rs_linker.ContextPathHolder");
+    private static final String GRAPH_OPTION = "graph";
 
     private final Multimap<ClassName, Mapping> elements = LinkedHashMultimap.create();
     private ElementParser elementParser;
     private ResourceFileWriters resourceFiles;
-    private static final ClassName CONTEXT_PATH_HOLDER = ClassName.valueOf("fr.vidal.oss.jax_rs_linker.ContextPathHolder");
 
     @Override
     public Set<String> getSupportedOptions() {
@@ -57,7 +52,10 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
-        return SUPPORTED_ANNOTATIONS;
+        return newHashSet(
+            Self.class.getName(),
+            SubResource.class.getName()
+        );
     }
 
     @Override
@@ -89,13 +87,13 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
                 .filter(notNull())
                 .index(INTO_CLASS_NAME);
 
-        tryGenerateSources(annotations, roundEnv, roundElements);
+        tryGenerateSources(roundElements);
         tryExportGraph(roundEnv);
 
         return false;
     }
 
-    private void tryGenerateSources(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv, Multimap<ClassName, Mapping> roundElements) {
+    private void tryGenerateSources(Multimap<ClassName, Mapping> roundElements) {
         try {
             generateSources(roundElements);
         } catch (IOException ioe) {
@@ -141,7 +139,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
         if (FluentIterable.from(mappings).transformAndConcat(TO_PATH_PARAMETERS).isEmpty()) {
             return;
         }
-        ClassName generatedEnum = className.append(GENERATED_PATHPARAMETERS_ENUMNAME_SUFFIX);
+        ClassName generatedEnum = className.append("PathParameters");
         new PathParamsEnumWriter(processingEnv.getFiler()).write(generatedEnum, mappings);
     }
 
@@ -149,7 +147,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
         if (FluentIterable.from(mappings).transformAndConcat(TO_QUERY_PARAMETERS).isEmpty()) {
             return;
         }
-        ClassName generatedEnum = className.append(GENERATED_QUERYPARAMETERS_ENUMNAME_SUFFIX);
+        ClassName generatedEnum = className.append("QueryParameters");
         new QueryParamsEnumWriter(processingEnv.getFiler()).write(generatedEnum, mappings);
     }
 }
