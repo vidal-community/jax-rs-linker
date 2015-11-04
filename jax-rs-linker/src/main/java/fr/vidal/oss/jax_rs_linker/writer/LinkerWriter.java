@@ -4,7 +4,6 @@ import fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor;
 import fr.vidal.oss.jax_rs_linker.api.NoPathParameters;
 import fr.vidal.oss.jax_rs_linker.api.NoQueryParameters;
 import fr.vidal.oss.jax_rs_linker.model.Api;
-import fr.vidal.oss.jax_rs_linker.model.ApiLinkType;
 import fr.vidal.oss.jax_rs_linker.model.ApiPath;
 import fr.vidal.oss.jax_rs_linker.model.ApiQuery;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
@@ -16,6 +15,7 @@ import fr.vidal.oss.jax_rs_linker.model.TemplatedUrl;
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.squareup.javapoet.ClassName.bestGuess;
+import static fr.vidal.oss.jax_rs_linker.predicates.HasSelfMapping.HAS_SELF;
 import static fr.vidal.oss.jax_rs_linker.predicates.MappingByApiLinkTargetPredicate.BY_API_LINK_TARGET_PRESENCE;
 import static java.lang.String.format;
 import static javax.lang.model.element.Modifier.FINAL;
@@ -28,10 +28,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import javax.annotation.Generated;
-import javax.annotation.Nullable;
 import javax.annotation.processing.Filer;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.FieldSpec;
@@ -41,6 +39,7 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import fr.vidal.oss.jax_rs_linker.predicates.HasSelfMapping;
 
 public class LinkerWriter {
 
@@ -50,18 +49,8 @@ public class LinkerWriter {
         this.filer = filer;
     }
 
-    public void write(ClassName generatedClass, Collection<Mapping> mappings, ClassName linkersClassname) throws IOException {
-        Optional<Mapping> selfMapping = FluentIterable.from(mappings)
-            .firstMatch(new Predicate<Mapping>() {
-                @Override
-                public boolean apply(@Nullable Mapping input) {
-                    return input.getApi().getApiLink().getApiLinkType() == ApiLinkType.SELF;
-                }
-            });
-
-
-        Api selfApi = selfMapping.get().getApi();
-        TypeName templatedPathClass = templatedUrlType(generatedClass, selfApi);
+    public void write(ClassName generatedClass, Collection<Mapping> mappings, ClassName contextPathHolder) throws IOException {
+        Api selfApi = FluentIterable.from(mappings).firstMatch(HAS_SELF).get().getApi();
 
         String lowerCamelClassName = UPPER_CAMEL.to(LOWER_CAMEL, generatedClass.className());
         TypeSpec.Builder typeBuilder = TypeSpec.enumBuilder(generatedClass.className())
@@ -72,7 +61,7 @@ public class LinkerWriter {
             .addEnumConstant("INSTANCE")
             .addField(FieldSpec
                 .builder(String.class, "contextPath", PRIVATE, FINAL)
-                .initializer("$T.getContextPath()", toClassName(linkersClassname))
+                .initializer("$T.getContextPath()", toClassName(contextPathHolder))
                 .build())
             .addMethod(MethodSpec.methodBuilder(lowerCamelClassName)
                 .addModifiers(PUBLIC, STATIC)
@@ -83,7 +72,7 @@ public class LinkerWriter {
                 linkerMethod(
                     "self",
                     selfApi.getApiPath(),
-                    templatedPathClass,
+                    templatedUrlType(generatedClass, selfApi),
                     selfApi.getApiQuery()
                 )
             );
