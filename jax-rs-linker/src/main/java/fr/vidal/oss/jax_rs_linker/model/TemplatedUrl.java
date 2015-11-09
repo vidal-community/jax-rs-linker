@@ -58,6 +58,14 @@ public class TemplatedUrl<T extends PathParameters, U extends QueryParameters> {
             queryParameters);
     }
 
+    public TemplatedUrl<T,U> appendAll(U queryParameter, Collection<String> value) {
+        this.queryParameters.get(queryParameter.value()).addAll(value);
+        return new TemplatedUrl<>(
+            path,
+            pathParameters,
+            queryParameters);
+    }
+
     public String value() {
         checkState(pathParameters.isEmpty(), format("Parameters to replace: %s", parameterNames()));
         return path + TO_QUERY_STRING.apply(queryParameters);
