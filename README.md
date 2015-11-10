@@ -24,7 +24,7 @@ These annotations are defined in:
 	<dependency>
 		<groupId>fr.vidal.oss</groupId>
 		<artifactId>jax-rs-linker</artifactId>
-		<version>0.4</version>
+		<version>0.4.1</version>
 		<optional>true</optional><!-- won't be pulled transitively, i.e. no processing for projects client of yours -->
 	</dependency>
 ```
