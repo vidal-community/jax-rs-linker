@@ -5,6 +5,11 @@
 [![Build Status](https://travis-ci.org/vidal-community/jax-rs-linker.png)](https://travis-ci.org/vidal-community/jax-rs-linker)
 [![Coverage Status](https://coveralls.io/repos/vidal-community/jax-rs-linker/badge.svg?branch=master)](https://coveralls.io/r/vidal-community/jax-rs-linker?branch=master)
 
+## Scope
+
+JAX-RS Linker generates typesafe static links between resources at compile time!
+Tiny API, no runtime overhead!
+
 ## Compatibility note
 
 This works only with JAX-RS 2.x implementations!
