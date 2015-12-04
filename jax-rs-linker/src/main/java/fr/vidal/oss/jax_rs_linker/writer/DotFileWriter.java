@@ -41,7 +41,7 @@ public class DotFileWriter implements AutoCloseable {
 
     private Iterable<String> graph(Multimap<ClassName, Mapping> elements) {
         return ImmutableList.<String>builder()
-            .add("digraph resources {")
+            .add("dinetwork {")
             .addAll(mappings(elements))
             .add("}")
             .build();

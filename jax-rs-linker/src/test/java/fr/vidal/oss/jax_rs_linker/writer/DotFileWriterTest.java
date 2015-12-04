@@ -22,7 +22,7 @@ public class DotFileWriterTest {
         writer.write(mappings());
 
         assertThat(string.toString()).isEqualTo(
-            "digraph resources {\n" +
+            "dinetwork {\n" +
             "\tcom_acme_Foo -> com_acme_Bar [label=\"/foo/{id}/bar\"];\n" +
             "}"
         );
