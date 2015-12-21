@@ -1,8 +1,20 @@
 package fr.vidal.oss.jax_rs_linker.writer;
 
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeSpec;
 import fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.servlet.ContextPaths;
+
+import javax.annotation.Generated;
+import javax.annotation.processing.Filer;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.annotation.WebListener;
+import java.io.IOException;
 
 import static com.squareup.javapoet.ClassName.get;
 import static javax.lang.model.element.Modifier.FINAL;
@@ -10,23 +22,11 @@ import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
-import java.io.IOException;
-import javax.annotation.Generated;
-import javax.annotation.processing.Filer;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
-
-public class LinkersWriter {
+public class ContextPathHolderWriter {
 
     private final Filer filer;
 
-    public LinkersWriter(Filer filer) {
+    public ContextPathHolderWriter(Filer filer) {
         this.filer = filer;
     }
 

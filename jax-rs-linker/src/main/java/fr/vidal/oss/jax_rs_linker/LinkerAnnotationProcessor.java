@@ -15,7 +15,7 @@ import fr.vidal.oss.jax_rs_linker.parser.ResourceGraphValidator;
 import fr.vidal.oss.jax_rs_linker.predicates.OptionalPredicates;
 import fr.vidal.oss.jax_rs_linker.writer.DotFileWriter;
 import fr.vidal.oss.jax_rs_linker.writer.LinkerWriter;
-import fr.vidal.oss.jax_rs_linker.writer.LinkersWriter;
+import fr.vidal.oss.jax_rs_linker.writer.ContextPathHolderWriter;
 import fr.vidal.oss.jax_rs_linker.writer.PathParamsEnumWriter;
 import fr.vidal.oss.jax_rs_linker.writer.QueryParamsEnumWriter;
 import fr.vidal.oss.jax_rs_linker.writer.ResourceFileWriters;
@@ -133,7 +133,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     private void tryGenerateContextPathHolder() throws IOException {
         try {
-            new LinkersWriter(processingEnv.getFiler()).write(CONTEXT_PATH_HOLDER);
+            new ContextPathHolderWriter(processingEnv.getFiler()).write(CONTEXT_PATH_HOLDER);
         } catch (FilerException ignored) {
         }
     }
