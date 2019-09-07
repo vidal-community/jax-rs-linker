@@ -1,6 +1,6 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
-import com.google.common.base.Objects;
+import java.util.Objects;
 
 public class Mapping {
 
@@ -22,7 +22,7 @@ public class Mapping {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(javaLocation, api);
+        return Objects.hash(javaLocation, api);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class Mapping {
             return false;
         }
         final Mapping other = (Mapping) obj;
-        return Objects.equal(this.javaLocation, other.javaLocation) && Objects.equal(this.api, other.api);
+        return Objects.equals(this.javaLocation, other.javaLocation) && Objects.equals(this.api, other.api);
     }
 
     @Override

@@ -1,9 +1,8 @@
 package fr.vidal.oss.jax_rs_linker.predicates;
 
-import com.google.common.base.Predicate;
-
 import javax.lang.model.element.Element;
 import java.lang.annotation.Annotation;
+import java.util.function.Predicate;
 
 public class AnnotationMatchesElement implements Predicate<Class<? extends Annotation>> {
 
@@ -18,8 +17,7 @@ public class AnnotationMatchesElement implements Predicate<Class<? extends Annot
     }
 
     @Override
-    public boolean apply(Class<? extends Annotation> input) {
+    public boolean test(Class<? extends Annotation> input) {
         return element.getAnnotation(input) != null;
     }
-
 }

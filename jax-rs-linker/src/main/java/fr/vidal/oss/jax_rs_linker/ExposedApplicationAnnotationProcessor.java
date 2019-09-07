@@ -1,22 +1,24 @@
 package fr.vidal.oss.jax_rs_linker;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import fr.vidal.oss.jax_rs_linker.api.ExposedApplication;
 import fr.vidal.oss.jax_rs_linker.errors.CompilationError;
 import fr.vidal.oss.jax_rs_linker.visitor.ApplicationNameVisitor;
 import fr.vidal.oss.jax_rs_linker.writer.ApplicationNameWriter;
 
-import javax.annotation.processing.*;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.Processor;
+import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Set;
 
-import static com.google.common.base.Optional.absent;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Sets.newHashSet;
 import static javax.lang.model.SourceVersion.latest;
@@ -71,18 +73,14 @@ public class ExposedApplicationAnnotationProcessor extends AbstractProcessor {
         Set<? extends Element> applications = roundEnv.getElementsAnnotatedWith(ExposedApplication.class);
         if (applications.size() != 1) {
             messager.printMessage(ERROR, CompilationError.ONE_APPLICATION_ONLY.text());
-            return absent();
+            return Optional.empty();
         }
         return new ApplicationNameVisitor(messager).visit(applications.iterator().next());
     }
 
     private Optional<? extends TypeElement> extractExposedApplication(Set<? extends TypeElement> annotations) {
-        return FluentIterable.from(annotations)
-            .firstMatch(new Predicate<TypeElement>() {
-                @Override
-                public boolean apply(TypeElement typeElement) {
-                    return typeElement.getQualifiedName().contentEquals(ExposedApplication.class.getCanonicalName());
-                }
-            });
+        return annotations.stream()
+            .filter(typeElement -> typeElement.getQualifiedName().contentEquals(ExposedApplication.class.getCanonicalName()))
+            .findFirst();
     }
 }

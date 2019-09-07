@@ -1,7 +1,7 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
 
-import com.google.common.base.Objects;
+import java.util.Objects;
 
 public class QueryParameter {
 
@@ -24,12 +24,12 @@ public class QueryParameter {
             return false;
         }
         final QueryParameter other = (QueryParameter) obj;
-        return Objects.equal(this.name, other.name);
+        return Objects.equals(this.name, other.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name);
+        return Objects.hash(name);
     }
 
     @Override

@@ -1,13 +1,13 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import static fr.vidal.oss.jax_rs_linker.parser.ApiPaths.decorate;
 import static fr.vidal.oss.jax_rs_linker.parser.ApiPaths.sanitize;
+import static java.util.stream.Collectors.joining;
 
 public class ApiPath {
 
@@ -29,7 +29,7 @@ public class ApiPath {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(path, pathParameters);
+        return Objects.hash(path, pathParameters);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class ApiPath {
             return false;
         }
         final ApiPath other = (ApiPath) obj;
-        return Objects.equal(this.path, other.path) && Objects.equal(this.pathParameters, other.pathParameters);
+        return Objects.equals(this.path, other.path) && Objects.equals(this.pathParameters, other.pathParameters);
     }
 
     @Override
@@ -49,7 +49,9 @@ public class ApiPath {
         if (pathParameters.isEmpty()) {
             return path;
         }
-        return String.format("%s (%s)", path, Joiner.on(",").join(pathParameters));
+        return String.format("%s (%s)",
+            path,
+            pathParameters.stream().map(PathParameter::toString).collect(joining(",")));
     }
 
 }

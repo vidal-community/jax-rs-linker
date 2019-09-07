@@ -52,7 +52,7 @@ public class ContextPathsTest {
     public void defaults_to_environment_path_when_no_matching_registration() {
         System.setProperty("LINKERS_DEFAULT_PATH", "kikoo");
         ServletContext servletContext = servletContext(
-                servletRegistration(Collections.<String>emptyList()),
+                servletRegistration(Collections.emptyList()),
                 "w00t",
                 "/prefix/"
         );

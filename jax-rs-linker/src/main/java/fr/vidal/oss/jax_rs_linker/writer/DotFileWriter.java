@@ -1,7 +1,6 @@
 package fr.vidal.oss.jax_rs_linker.writer;
 
 import com.google.common.base.Joiner;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
@@ -9,10 +8,11 @@ import fr.vidal.oss.jax_rs_linker.model.Mapping;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Objects;
 
-import static com.google.common.base.Predicates.notNull;
 import static com.google.common.base.Throwables.propagate;
 import static fr.vidal.oss.jax_rs_linker.functions.MappingToDot.TO_DOT_STATEMENT;
+import static java.util.stream.Collectors.toList;
 
 public class DotFileWriter implements AutoCloseable {
 
@@ -48,10 +48,10 @@ public class DotFileWriter implements AutoCloseable {
     }
 
     private Iterable<String> mappings(Multimap<ClassName, Mapping> elements) {
-        return FluentIterable.from(elements.entries())
-            .transform(TO_DOT_STATEMENT)
-            .filter(notNull())
-            .toList();
+        return elements.entries().stream()
+            .map(TO_DOT_STATEMENT)
+            .filter(Objects::nonNull)
+            .collect(toList());
     }
 
 }

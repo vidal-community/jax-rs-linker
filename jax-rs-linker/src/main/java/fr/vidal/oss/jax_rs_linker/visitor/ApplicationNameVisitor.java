@@ -1,6 +1,5 @@
 package fr.vidal.oss.jax_rs_linker.visitor;
 
-import com.google.common.base.Optional;
 import fr.vidal.oss.jax_rs_linker.api.ExposedApplication;
 
 import javax.annotation.processing.Messager;
@@ -8,8 +7,8 @@ import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.ElementKindVisitor7;
 import javax.ws.rs.ApplicationPath;
+import java.util.Optional;
 
-import static com.google.common.base.Optional.absent;
 import static fr.vidal.oss.jax_rs_linker.errors.CompilationError.INCONSISTENT_APPLICATION_MAPPING;
 import static fr.vidal.oss.jax_rs_linker.errors.CompilationError.NO_APPLICATION_SERVLET_NAME;
 import static javax.tools.Diagnostic.Kind.ERROR;
@@ -27,7 +26,7 @@ public class ApplicationNameVisitor extends ElementKindVisitor7<Optional<String>
         String servletName = element.getAnnotation(ExposedApplication.class).servletName();
         if (servletName.isEmpty()) {
             messager.printMessage(ERROR, NO_APPLICATION_SERVLET_NAME.format(element), element);
-            return absent();
+            return Optional.empty();
         }
         return Optional.of(servletName);
     }
@@ -39,7 +38,7 @@ public class ApplicationNameVisitor extends ElementKindVisitor7<Optional<String>
         String applicationName = String.valueOf(element.getQualifiedName());
         if (!(applicationPath != null ^ !servletName.isEmpty())) {
             messager.printMessage(ERROR, INCONSISTENT_APPLICATION_MAPPING.format(applicationName), element);
-            return absent();
+            return Optional.empty();
         }
 
         if (applicationPath != null) {

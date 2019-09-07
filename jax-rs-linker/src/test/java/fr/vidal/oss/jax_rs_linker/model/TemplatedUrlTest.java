@@ -37,7 +37,7 @@ public class TemplatedUrlTest {
     public void renders_parameterless_path() {
         TemplatedUrl<ProductParameters,NoQueryParameters> templatedUrl = templatedUrl(
             "/product/",
-            Lists.<PathParameter>newArrayList());
+            Lists.newArrayList());
 
         assertThat(templatedUrl.value()).isEqualTo("/product/");
     }
@@ -102,7 +102,7 @@ public class TemplatedUrlTest {
     }
 
     private TemplatedUrl<ProductParameters, NoQueryParameters> templatedUrl(String path, Collection<PathParameter> parameters) {
-        return new TemplatedUrl<>(path, parameters, Lists.<QueryParameter>newArrayList());
+        return new TemplatedUrl<>(path, parameters, Lists.newArrayList());
     }
 
     private TemplatedUrl<ProductParameters, ProductQueryParameters> templatedUrl(String path, Collection<PathParameter> parameters, Collection<QueryParameter> queryParameters) {

@@ -1,8 +1,10 @@
 package fr.vidal.oss.jax_rs_linker.writer;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
-import com.squareup.javapoet.*;
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 import fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor;
 import fr.vidal.oss.jax_rs_linker.api.PathParameters;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
@@ -14,10 +16,15 @@ import javax.annotation.processing.Filer;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Optional;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import static fr.vidal.oss.jax_rs_linker.functions.MappingToPathParameters.TO_PATH_PARAMETERS;
-import static javax.lang.model.element.Modifier.*;
+import static java.util.stream.Collectors.toCollection;
+import static javax.lang.model.element.Modifier.FINAL;
+import static javax.lang.model.element.Modifier.PRIVATE;
+import static javax.lang.model.element.Modifier.PUBLIC;
 
 public class PathParamsEnumWriter {
 
@@ -70,7 +77,7 @@ public class PathParamsEnumWriter {
 
     }
 
-    private void writeEnumeration(Collection<Mapping> mappings, TypeSpec.Builder typeBuilder) throws IOException {
+    private void writeEnumeration(Collection<Mapping> mappings, TypeSpec.Builder typeBuilder) {
         for (PathParameter parameter : enumConstants(mappings)) {
             Optional<Pattern> pattern = parameter.getRegex();
             String name = parameter.getName();
@@ -82,25 +89,15 @@ public class PathParamsEnumWriter {
     }
 
     private TypeSpec enumConstructorExpression(Optional<Pattern> pattern, String name) {
-        if (pattern.isPresent()) {
-            return TypeSpec.anonymousClassBuilder("$S, Pattern.compile($S)", name, pattern.get().pattern()).build();
-        }
-        return TypeSpec.anonymousClassBuilder("$S, null", name).build();
+        return pattern
+            .map(value -> TypeSpec.anonymousClassBuilder("$S, Pattern.compile($S)", name, value.pattern()).build())
+            .orElseGet(() -> TypeSpec.anonymousClassBuilder("$S, null", name).build());
     }
 
     private Collection<PathParameter> enumConstants(Collection<Mapping> mappings) {
-        return FluentIterable.from(mappings)
-            .transformAndConcat(TO_PATH_PARAMETERS)
-            .toSortedSet(new Comparator<PathParameter>() {
-                @Override
-                public int compare(PathParameter firstParam, PathParameter secondParam) {
-                    return firstParam.getName().compareTo(secondParam.getName());
-                }
-            });
-    }
-
-    private String regex(Optional<Pattern> regex) {
-        return regex.transform(PatternToRegexString.INSTANCE).orNull();
+        return mappings.stream()
+            .flatMap(TO_PATH_PARAMETERS)
+            .collect(toCollection(() -> new TreeSet<>(Comparator.comparing(PathParameter::getName))));
     }
 
 }
