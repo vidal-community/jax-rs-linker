@@ -7,21 +7,23 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.lang.model.element.TypeElement;
 import java.util.Map;
 
 import static fr.vidal.oss.jax_rs_linker.functions.MappingToDot.TO_DOT_STATEMENT;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MappingToDotTest {
 
     @Mock
-    Map.Entry<ClassName, Mapping> entry;
+    Map.Entry<ClassNameGeneration, Mapping> entry;
 
     @Test
     public void maps_subresource_mapping_to_dot_statement() {
-        ClassName bar = ClassName.valueOf("com.acme.Bar");
+        ClassNameGeneration bar = new ClassNameGeneration(ClassName.valueOf("com.acme.Bar"), mock(TypeElement.class));
         when(entry.getKey()).thenReturn(bar);
         when(entry.getValue()).thenReturn(new Mapping(
                 new JavaLocation(bar, "dealWithIt"),
@@ -38,7 +40,7 @@ public class MappingToDotTest {
 
     @Test
     public void maps_self_mapping_to_null() {
-        ClassName bar = ClassName.valueOf("com.acme.Bar");
+        ClassNameGeneration bar = new ClassNameGeneration(ClassName.valueOf("com.acme.Bar"), mock(TypeElement.class));
         when(entry.getKey()).thenReturn(bar);
         when(entry.getValue()).thenReturn(new Mapping(
                 new JavaLocation(bar, "dealWithIt"),

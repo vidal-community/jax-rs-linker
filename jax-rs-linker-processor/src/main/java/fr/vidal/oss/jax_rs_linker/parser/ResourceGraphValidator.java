@@ -2,7 +2,7 @@ package fr.vidal.oss.jax_rs_linker.parser;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Multimap;
-import fr.vidal.oss.jax_rs_linker.model.ClassName;
+import fr.vidal.oss.jax_rs_linker.model.ClassNameGeneration;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 
 import javax.annotation.processing.Messager;
@@ -23,8 +23,8 @@ public class ResourceGraphValidator {
         this.messager = messager;
     }
 
-    public boolean validateMappings(Multimap<ClassName, Mapping> roundElements) {
-        Collection<ClassName> classesWithoutSelf = classesWithoutSelf(roundElements);
+    public boolean validateMappings(Multimap<ClassNameGeneration, Mapping> roundElements) {
+        Collection<ClassNameGeneration> classesWithoutSelf = classesWithoutSelf(roundElements);
         if (classesWithoutSelf.isEmpty()) {
             return true;
         }
@@ -35,7 +35,7 @@ public class ResourceGraphValidator {
 
 
 
-    private Collection<ClassName> classesWithoutSelf(Multimap<ClassName, Mapping> roundElements) {
+    private Collection<ClassNameGeneration> classesWithoutSelf(Multimap<ClassNameGeneration, Mapping> roundElements) {
         return roundElements.asMap().entrySet().stream()
             .filter(classMappings -> classMappings.getValue().stream().noneMatch(HAS_SELF))
             .map(Map.Entry::getKey)
