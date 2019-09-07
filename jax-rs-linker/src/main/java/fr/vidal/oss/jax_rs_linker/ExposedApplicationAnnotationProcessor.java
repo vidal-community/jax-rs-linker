@@ -16,10 +16,10 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Sets.newHashSet;
 import static javax.lang.model.SourceVersion.latest;
 import static javax.tools.Diagnostic.Kind.ERROR;
@@ -65,7 +65,7 @@ public class ExposedApplicationAnnotationProcessor extends AbstractProcessor {
         try {
             new ApplicationNameWriter(filer).write(name);
         } catch (IOException e) {
-            throw propagate(e);
+            throw new UncheckedIOException(e);
         }
     }
 
