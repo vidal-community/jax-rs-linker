@@ -1,24 +1,21 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import fr.vidal.oss.jax_rs_linker.api.PathParameters;
 import fr.vidal.oss.jax_rs_linker.api.QueryParameters;
-import fr.vidal.oss.jax_rs_linker.functions.PathParameterToName;
 import fr.vidal.oss.jax_rs_linker.predicates.PathParameterPredicate;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Predicates.not;
-import static com.google.common.collect.Collections2.filter;
 import static fr.vidal.oss.jax_rs_linker.functions.QueryParametersToQueryString.TO_QUERY_STRING;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 
 public class TemplatedUrl<T extends PathParameters, U extends QueryParameters> {
 
@@ -30,7 +27,7 @@ public class TemplatedUrl<T extends PathParameters, U extends QueryParameters> {
         this.path = path;
         this.pathParameters = ImmutableList.copyOf(pathParameters);
         for (QueryParameter queryParameter : queryParameters) {
-            this.queryParameters.put(queryParameter.getName(), Lists.<String>newArrayList());
+            this.queryParameters.put(queryParameter.getName(), new ArrayList<>());
         }
     }
 
@@ -46,7 +43,7 @@ public class TemplatedUrl<T extends PathParameters, U extends QueryParameters> {
 
         return new TemplatedUrl<>(
             path.replace(placeholder(parameter.placeholder()), value),
-            filter(pathParameters, not(PathParameterPredicate.byName(parameter.placeholder()))),
+            pathParameters.stream().filter(PathParameterPredicate.byName(parameter.placeholder()).negate()).collect(toList()),
             queryParameters);
     }
 
@@ -78,9 +75,9 @@ public class TemplatedUrl<T extends PathParameters, U extends QueryParameters> {
     }
 
     private String parameterNames() {
-        return FluentIterable.from(pathParameters)
-                .transform(PathParameterToName.TO_NAME)
-                .join(Joiner.on(","));
+        return pathParameters.stream()
+            .map(PathParameter::getName)
+            .collect(Collectors.joining(","));
     }
 
     private String placeholder(String name) {

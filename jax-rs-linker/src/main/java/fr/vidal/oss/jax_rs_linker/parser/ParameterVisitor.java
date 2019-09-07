@@ -1,10 +1,5 @@
 package fr.vidal.oss.jax_rs_linker.parser;
 
-import static java.util.Arrays.asList;
-
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collection;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -13,6 +8,11 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.SimpleElementVisitor7;
 import javax.lang.model.util.Types;
 import javax.ws.rs.BeanParam;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import static java.util.Collections.singletonList;
 
 class ParameterVisitor<T> extends SimpleElementVisitor7<Collection<T>, Void> {
 
@@ -55,7 +55,7 @@ class ParameterVisitor<T> extends SimpleElementVisitor7<Collection<T>, Void> {
     }
 
     private Collection<T> map(ExecutableElement executableElement) {
-        return asList(annotatedElementMapping.map(executableElement));
+        return singletonList(annotatedElementMapping.map(executableElement));
     }
 
     private boolean hasAnnotation(ExecutableElement executableElement, Class<? extends Annotation> annotationType) {

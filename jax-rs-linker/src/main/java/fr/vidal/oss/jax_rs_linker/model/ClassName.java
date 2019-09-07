@@ -1,6 +1,6 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
-import com.google.common.base.Objects;
+import java.util.Objects;
 
 public final class ClassName implements Comparable<ClassName> {
 
@@ -38,7 +38,7 @@ public final class ClassName implements Comparable<ClassName> {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name);
+        return Objects.hash(name);
     }
 
     @Override
@@ -50,7 +50,7 @@ public final class ClassName implements Comparable<ClassName> {
             return false;
         }
         final ClassName other = (ClassName) obj;
-        return Objects.equal(this.name, other.name);
+        return Objects.equals(this.name, other.name);
     }
 
     @Override

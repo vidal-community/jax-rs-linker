@@ -1,19 +1,13 @@
 package fr.vidal.oss.jax_rs_linker.parser;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
 import fr.vidal.oss.jax_rs_linker.model.PathParameter;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import static com.google.common.base.Optional.absent;
-import static com.google.common.base.Optional.of;
-import static com.google.common.collect.Maps.newHashMap;
+import static java.util.stream.Collectors.toList;
 
 public final class ApiPaths {
 
@@ -31,23 +25,21 @@ public final class ApiPaths {
     public static Collection<PathParameter> decorate(Collection<PathParameter> pathParameters, String path) {
         final Map<String, String> parametersRegex = extractParametersRegex(path);
 
-        return FluentIterable.from(pathParameters).transform(new Function<PathParameter, PathParameter>() {
-            @Nullable
-            @Override
-            public PathParameter apply(PathParameter pathParameter) {
+        return pathParameters.stream()
+            .map(pathParameter -> {
                 if (parametersRegex.containsKey(pathParameter.getName())) {
                     return new PathParameter(pathParameter.getType(),
-                            pathParameter.getName(),
-                            parametersRegex.get(pathParameter.getName())
+                        pathParameter.getName(),
+                        parametersRegex.get(pathParameter.getName())
                     );
                 }
                 return pathParameter;
-            }
-        }).toList();
+            })
+            .collect(toList());
     }
 
     private static Map<String, String> extractParametersRegex(String path) {
-        Map<String, String> parameterAndRegex = newHashMap();
+        Map<String, String> parameterAndRegex = new HashMap<>();
 
         StringTokenizer st = new StringTokenizer(path, "/");
         while (st.hasMoreTokens()) {

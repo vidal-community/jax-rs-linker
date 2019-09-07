@@ -1,7 +1,7 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
-import com.google.common.base.Objects;
-import com.google.common.base.Optional;
+import java.util.Objects;
+import java.util.Optional;
 
 import static java.util.Locale.ENGLISH;
 
@@ -16,7 +16,7 @@ public class ApiLink {
     }
 
     public static ApiLink SELF() {
-        return new ApiLink(ApiLinkType.SELF, Optional.<SubResourceTarget>absent());
+        return new ApiLink(ApiLinkType.SELF, Optional.empty());
     }
 
     public static ApiLink SUB_RESOURCE(SubResourceTarget target) {
@@ -28,15 +28,12 @@ public class ApiLink {
     }
 
     public Optional<ClassName> getTarget() {
-        if (!target.isPresent()) {
-            return Optional.absent();
-        }
-        return Optional.of(target.get().getClassName());
+        return target.map(SubResourceTarget::getClassName);
     }
 
     public Optional<String> getQualifiedTarget() {
         if (!target.isPresent()) {
-            return Optional.absent();
+            return Optional.empty();
         }
         SubResourceTarget subResourceTarget = target.get();
         return Optional.of(format(subResourceTarget));
@@ -44,7 +41,7 @@ public class ApiLink {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(apiLinkType, target);
+        return Objects.hash(apiLinkType, target);
     }
 
     @Override
@@ -56,7 +53,7 @@ public class ApiLink {
             return false;
         }
         final ApiLink other = (ApiLink) obj;
-        return Objects.equal(this.apiLinkType, other.apiLinkType) && Objects.equal(this.target, other.target);
+        return Objects.equals(this.apiLinkType, other.apiLinkType) && Objects.equals(this.target, other.target);
     }
 
     private String format(SubResourceTarget subResourceTarget) {

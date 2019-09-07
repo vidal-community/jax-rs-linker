@@ -1,11 +1,5 @@
 package fr.vidal.oss.jax_rs_linker.parser;
 
-import static com.google.common.base.Optional.absent;
-import static com.google.common.base.Optional.fromNullable;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.emptyToNull;
-import static java.lang.String.format;
-
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
@@ -14,7 +8,11 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 import javax.ws.rs.Path;
-import com.google.common.base.Optional;
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.emptyToNull;
+import static java.lang.String.format;
 
 class PathVisitor {
 
@@ -27,11 +25,11 @@ class PathVisitor {
     public Optional<String> visitPath(ExecutableElement element) {
         String aggregatedPath = emptyToNull(
             aggregate(
-                currentPath(element).or(""),
+                currentPath(element).orElse(""),
                 element.getEnclosingElement()
             )
         );
-        return fromNullable(aggregatedPath);
+        return Optional.ofNullable(aggregatedPath);
     }
 
     private String aggregate(String acc, Element element) {
@@ -63,7 +61,7 @@ class PathVisitor {
     private Optional<String> currentPath(Element element) {
         Path annotation = element.getAnnotation(Path.class);
         if (annotation == null) {
-            return absent();
+            return Optional.empty();
         }
         return Optional.of(annotation.value());
     }

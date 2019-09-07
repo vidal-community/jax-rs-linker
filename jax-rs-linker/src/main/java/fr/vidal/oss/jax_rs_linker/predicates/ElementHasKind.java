@@ -1,9 +1,8 @@
 package fr.vidal.oss.jax_rs_linker.predicates;
 
-import com.google.common.base.Predicate;
-
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import java.util.function.Predicate;
 
 public class ElementHasKind implements Predicate<Element> {
 
@@ -21,7 +20,7 @@ public class ElementHasKind implements Predicate<Element> {
     }
 
     @Override
-    public boolean apply(Element input) {
+    public boolean test(Element input) {
         return input != null && input.getKind() == kind;
     }
 }

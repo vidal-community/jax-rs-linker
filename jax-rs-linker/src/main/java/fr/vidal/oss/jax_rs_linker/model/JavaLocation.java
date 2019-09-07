@@ -1,6 +1,6 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
-import com.google.common.base.Objects;
+import java.util.Objects;
 
 public class JavaLocation {
 
@@ -24,7 +24,7 @@ public class JavaLocation {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(className, methodName);
+        return Objects.hash(className, methodName);
     }
 
     @Override
@@ -36,8 +36,8 @@ public class JavaLocation {
             return false;
         }
         final JavaLocation other = (JavaLocation) obj;
-        return Objects.equal(this.className, other.className)
-                && Objects.equal(this.methodName, other.methodName);
+        return Objects.equals(this.className, other.className)
+                && Objects.equals(this.methodName, other.methodName);
     }
 
     @Override

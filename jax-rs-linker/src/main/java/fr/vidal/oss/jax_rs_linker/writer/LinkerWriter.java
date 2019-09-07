@@ -1,5 +1,13 @@
 package fr.vidal.oss.jax_rs_linker.writer;
 
+import com.squareup.javapoet.AnnotationSpec;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 import fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor;
 import fr.vidal.oss.jax_rs_linker.api.NoPathParameters;
 import fr.vidal.oss.jax_rs_linker.api.NoQueryParameters;
@@ -12,34 +20,24 @@ import fr.vidal.oss.jax_rs_linker.model.PathParameter;
 import fr.vidal.oss.jax_rs_linker.model.QueryParameter;
 import fr.vidal.oss.jax_rs_linker.model.TemplatedUrl;
 
+import javax.annotation.Generated;
+import javax.annotation.processing.Filer;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+
 import static com.google.common.base.CaseFormat.LOWER_CAMEL;
 import static com.google.common.base.CaseFormat.UPPER_CAMEL;
 import static com.squareup.javapoet.ClassName.bestGuess;
 import static fr.vidal.oss.jax_rs_linker.predicates.HasSelfMapping.HAS_SELF;
 import static fr.vidal.oss.jax_rs_linker.predicates.MappingByApiLinkTargetPredicate.BY_API_LINK_TARGET_PRESENCE;
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PRIVATE;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import javax.annotation.Generated;
-import javax.annotation.processing.Filer;
-import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
-import com.squareup.javapoet.AnnotationSpec;
-import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
-import fr.vidal.oss.jax_rs_linker.predicates.HasSelfMapping;
 
 public class LinkerWriter {
 
@@ -50,7 +48,7 @@ public class LinkerWriter {
     }
 
     public void write(ClassName generatedClass, Collection<Mapping> mappings, ClassName contextPathHolder) throws IOException {
-        Api selfApi = FluentIterable.from(mappings).firstMatch(HAS_SELF).get().getApi();
+        Api selfApi = mappings.stream().filter(HAS_SELF).findFirst().get().getApi();
 
         String lowerCamelClassName = UPPER_CAMEL.to(LOWER_CAMEL, generatedClass.className());
         TypeSpec.Builder typeBuilder = TypeSpec.enumBuilder(generatedClass.className())
@@ -89,8 +87,8 @@ public class LinkerWriter {
                 )
             );
         }
-        typeBuilder = typeBuilder.addMethod(pathParameterMethod());
-        typeBuilder = typeBuilder.addMethod(queryParameterMethod());
+        typeBuilder.addMethod(pathParameterMethod());
+        typeBuilder.addMethod(queryParameterMethod());
         JavaFile.builder(generatedClass.packageName(), typeBuilder.build())
             .indent("\t")
             .build()
@@ -145,9 +143,7 @@ public class LinkerWriter {
     }
 
     private Iterable<Mapping> linked(Collection<Mapping> mappings) {
-        return FluentIterable.from(mappings)
-            .filter(BY_API_LINK_TARGET_PRESENCE)
-            .toList();
+        return mappings.stream().filter(BY_API_LINK_TARGET_PRESENCE).collect(toList());
     }
 
     private String pathParametersAsList(Collection<PathParameter> pathParameters) {
@@ -155,7 +151,7 @@ public class LinkerWriter {
         for (Iterator<PathParameter> iterator = pathParameters.iterator(); iterator.hasNext(); ) {
             PathParameter parameter = iterator.next();
             String separator = iterator.hasNext() ? "," : "";
-            builder.append(String.format(
+            builder.append(format(
                 "pathParameter(\"%s\", \"%s\")%s",
                 parameter.getType(),
                 parameter.getName(),
@@ -173,7 +169,7 @@ public class LinkerWriter {
         while (iterator.hasNext()) {
             QueryParameter parameter = iterator.next();
             String separator = iterator.hasNext() ? "," : "";
-            builder.append(String.format(
+            builder.append(format(
                 "queryParameter(\"%s\")%s",
                 parameter.getName(),
                 separator

@@ -1,9 +1,9 @@
 package fr.vidal.oss.jax_rs_linker.parser;
 
-import java.lang.annotation.Annotation;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import com.google.common.base.Function;
+import java.lang.annotation.Annotation;
+import java.util.function.Function;
 
 public class AnnotatedElementMapping<T> {
 
