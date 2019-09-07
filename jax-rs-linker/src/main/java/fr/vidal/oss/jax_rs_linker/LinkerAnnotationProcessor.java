@@ -28,12 +28,12 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Sets.newHashSet;
 import static fr.vidal.oss.jax_rs_linker.functions.MappingToPathParameters.TO_PATH_PARAMETERS;
 import static fr.vidal.oss.jax_rs_linker.functions.MappingToQueryParameters.TO_QUERY_PARAMETERS;
@@ -111,7 +111,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
         try {
             generateSources(roundElements);
         } catch (IOException ioe) {
-            throw propagate(ioe);
+            throw new UncheckedIOException(ioe);
         }
     }
 
