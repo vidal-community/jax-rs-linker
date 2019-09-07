@@ -15,6 +15,8 @@ import fr.vidal.oss.jax_rs_linker.model.Api;
 import fr.vidal.oss.jax_rs_linker.model.ApiPath;
 import fr.vidal.oss.jax_rs_linker.model.ApiQuery;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
+import fr.vidal.oss.jax_rs_linker.model.ClassNameGeneration;
+import fr.vidal.oss.jax_rs_linker.model.ClassNames;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 import fr.vidal.oss.jax_rs_linker.model.PathParameter;
 import fr.vidal.oss.jax_rs_linker.model.QueryParameter;
@@ -47,11 +49,12 @@ public class LinkerWriter {
         this.filer = filer;
     }
 
-    public void write(ClassName generatedClass, Collection<Mapping> mappings, ClassName contextPathHolder) throws IOException {
+    public void write(ClassNameGeneration generatedClass, Collection<Mapping> mappings) throws IOException {
         Api selfApi = mappings.stream().filter(HAS_SELF).findFirst().get().getApi();
 
         String lowerCamelClassName = UPPER_CAMEL.to(LOWER_CAMEL, generatedClass.className());
         TypeSpec.Builder typeBuilder = TypeSpec.enumBuilder(generatedClass.className())
+            .addOriginatingElement(generatedClass.getOriginatingElement())
             .addModifiers(PUBLIC)
             .addAnnotation(AnnotationSpec.builder(Generated.class)
                 .addMember("value", "$S", LinkerAnnotationProcessor.class.getName())
@@ -59,7 +62,7 @@ public class LinkerWriter {
             .addEnumConstant("INSTANCE")
             .addField(FieldSpec
                 .builder(String.class, "contextPath", PRIVATE, FINAL)
-                .initializer("$T.getContextPath()", toClassName(contextPathHolder))
+                .initializer("$T.getContextPath()", toClassName(ClassNames.CONTEXT_PATH_HOLDER))
                 .build())
             .addMethod(MethodSpec.methodBuilder(lowerCamelClassName)
                 .addModifiers(PUBLIC, STATIC)
@@ -96,14 +99,18 @@ public class LinkerWriter {
 
     }
 
-    private TypeName templatedUrlType(ClassName generatedClass, Api api) {
-        ClassName pathTypeParameter = templatedPathTypeParameter(api.getApiPath(), generatedClass.fullyQualifiedName());
-        ClassName queryTypeParameter = templatedQueryTypeParameter(api.getApiQuery(), generatedClass.fullyQualifiedName());
+    private TypeName templatedUrlType(ClassNameGeneration generatedClass, Api api) {
+        ClassName pathTypeParameter = templatedPathTypeParameter(api.getApiPath(), generatedClass.getClassName().fullyQualifiedName());
+        ClassName queryTypeParameter = templatedQueryTypeParameter(api.getApiQuery(), generatedClass.getClassName().fullyQualifiedName());
         return ParameterizedTypeName.get(
             com.squareup.javapoet.ClassName.get(TemplatedUrl.class),
             bestGuess(pathTypeParameter.fullyQualifiedName()),
             bestGuess(queryTypeParameter.fullyQualifiedName())
         );
+    }
+
+    private com.squareup.javapoet.ClassName toClassName(ClassNameGeneration generatedClass) {
+        return com.squareup.javapoet.ClassName.get(generatedClass.packageName(), generatedClass.className());
     }
 
     private com.squareup.javapoet.ClassName toClassName(ClassName generatedClass) {

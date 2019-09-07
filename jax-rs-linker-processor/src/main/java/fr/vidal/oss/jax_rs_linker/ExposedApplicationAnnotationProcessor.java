@@ -3,8 +3,10 @@ package fr.vidal.oss.jax_rs_linker;
 import com.google.auto.service.AutoService;
 import fr.vidal.oss.jax_rs_linker.api.ExposedApplication;
 import fr.vidal.oss.jax_rs_linker.errors.CompilationError;
+import fr.vidal.oss.jax_rs_linker.model.ClassNames;
 import fr.vidal.oss.jax_rs_linker.visitor.ApplicationNameVisitor;
 import fr.vidal.oss.jax_rs_linker.writer.ApplicationNameWriter;
+import fr.vidal.oss.jax_rs_linker.writer.ContextPathHolderWriter;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
@@ -55,15 +57,16 @@ public class ExposedApplicationAnnotationProcessor extends AbstractProcessor {
             if (!name.isPresent()) {
                 return false;
             }
-            write(name.get());
+            write(name.get(), maybeExposedApplication.get());
         }
 
         return false;
     }
 
-    private void write(String name) {
+    private void write(String name, TypeElement originatingElement) {
         try {
-            new ApplicationNameWriter(filer).write(name);
+            new ApplicationNameWriter(filer).write(name, originatingElement);
+            new ContextPathHolderWriter(filer).write(ClassNames.CONTEXT_PATH_HOLDER, originatingElement);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

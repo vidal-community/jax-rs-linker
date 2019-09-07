@@ -3,7 +3,7 @@ package fr.vidal.oss.jax_rs_linker.writer;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
-import fr.vidal.oss.jax_rs_linker.model.ClassName;
+import fr.vidal.oss.jax_rs_linker.model.ClassNameGeneration;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class DotFileWriter implements AutoCloseable {
         this.writer = writer;
     }
 
-    public void write(Multimap<ClassName, Mapping> elements) {
+    public void write(Multimap<ClassNameGeneration, Mapping> elements) {
         try {
             writer.append(Joiner.on("\n").join(graph(elements)));
         } catch (IOException e) {
@@ -39,7 +39,7 @@ public class DotFileWriter implements AutoCloseable {
         }
     }
 
-    private Iterable<String> graph(Multimap<ClassName, Mapping> elements) {
+    private Iterable<String> graph(Multimap<ClassNameGeneration, Mapping> elements) {
         return ImmutableList.<String>builder()
             .add("dinetwork {")
             .addAll(mappings(elements))
@@ -47,7 +47,7 @@ public class DotFileWriter implements AutoCloseable {
             .build();
     }
 
-    private Iterable<String> mappings(Multimap<ClassName, Mapping> elements) {
+    private Iterable<String> mappings(Multimap<ClassNameGeneration, Mapping> elements) {
         return elements.entries().stream()
             .map(TO_DOT_STATEMENT)
             .filter(Objects::nonNull)

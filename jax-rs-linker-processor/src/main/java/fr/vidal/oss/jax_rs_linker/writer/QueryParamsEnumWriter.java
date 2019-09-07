@@ -7,7 +7,7 @@ import com.squareup.javapoet.TypeSpec;
 import fr.vidal.oss.jax_rs_linker.LinkerAnnotationProcessor;
 import fr.vidal.oss.jax_rs_linker.api.QueryParameters;
 import fr.vidal.oss.jax_rs_linker.functions.MappingToQueryParameters;
-import fr.vidal.oss.jax_rs_linker.model.ClassName;
+import fr.vidal.oss.jax_rs_linker.model.ClassNameGeneration;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 import fr.vidal.oss.jax_rs_linker.model.QueryParameter;
 
@@ -30,8 +30,9 @@ public class QueryParamsEnumWriter {
         this.filer = filer;
     }
 
-    public void write(ClassName generatedClass, Collection<Mapping> mappings) throws IOException {
+    public void write(ClassNameGeneration generatedClass, Collection<Mapping> mappings) throws IOException {
         TypeSpec.Builder typeBuilder = TypeSpec.enumBuilder(generatedClass.className())
+            .addOriginatingElement(generatedClass.getOriginatingElement())
             .addModifiers(PUBLIC)
             .addSuperinterface(QueryParameters.class)
             .addAnnotation(AnnotationSpec.builder(Generated.class)

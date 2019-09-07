@@ -11,6 +11,7 @@ import fr.vidal.oss.jax_rs_linker.servlet.ContextPaths;
 
 import javax.annotation.Generated;
 import javax.annotation.processing.Filer;
+import javax.lang.model.element.TypeElement;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -30,8 +31,9 @@ public class ContextPathHolderWriter {
         this.filer = filer;
     }
 
-    public void write(ClassName linkers) throws IOException {
+    public void write(ClassName linkers, TypeElement originatingElement) throws IOException {
         TypeSpec.Builder typeBuilder = TypeSpec.classBuilder(linkers.className())
+            .addOriginatingElement(originatingElement)
             .addModifiers(PUBLIC, FINAL)
             .addSuperinterface(ServletContextListener.class)
             .addAnnotation(AnnotationSpec.builder(WebListener.class).build())
