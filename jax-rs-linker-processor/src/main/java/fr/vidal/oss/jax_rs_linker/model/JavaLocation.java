@@ -4,17 +4,17 @@ import java.util.Objects;
 
 public class JavaLocation {
 
-    private final ClassName className;
+    private final ClassNameGeneration classNameGeneration;
     private final String methodName;
 
 
-    public JavaLocation(ClassName className, String methodName) {
-        this.className = className;
+    public JavaLocation(ClassNameGeneration classNameGeneration, String methodName) {
+        this.classNameGeneration = classNameGeneration;
         this.methodName = methodName;
     }
 
-    public ClassName getClassName() {
-        return className;
+    public ClassNameGeneration getClassNameGeneration() {
+        return classNameGeneration;
     }
 
     public String getMethodName() {
@@ -24,7 +24,7 @@ public class JavaLocation {
 
     @Override
     public int hashCode() {
-        return Objects.hash(className, methodName);
+        return Objects.hash(classNameGeneration, methodName);
     }
 
     @Override
@@ -36,12 +36,12 @@ public class JavaLocation {
             return false;
         }
         final JavaLocation other = (JavaLocation) obj;
-        return Objects.equals(this.className, other.className)
+        return Objects.equals(this.classNameGeneration, other.classNameGeneration)
                 && Objects.equals(this.methodName, other.methodName);
     }
 
     @Override
     public String toString() {
-        return String.format("%s#%s", className, methodName);
+        return String.format("%s#%s", classNameGeneration, methodName);
     }
 }

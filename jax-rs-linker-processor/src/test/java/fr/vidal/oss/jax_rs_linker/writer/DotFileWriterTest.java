@@ -3,14 +3,23 @@ package fr.vidal.oss.jax_rs_linker.writer;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import fr.vidal.oss.jax_rs_linker.model.*;
+import fr.vidal.oss.jax_rs_linker.model.Api;
+import fr.vidal.oss.jax_rs_linker.model.ApiPath;
+import fr.vidal.oss.jax_rs_linker.model.ClassName;
+import fr.vidal.oss.jax_rs_linker.model.ClassNameGeneration;
+import fr.vidal.oss.jax_rs_linker.model.HttpVerb;
+import fr.vidal.oss.jax_rs_linker.model.JavaLocation;
+import fr.vidal.oss.jax_rs_linker.model.Mapping;
+import fr.vidal.oss.jax_rs_linker.model.SubResourceTarget;
 import org.junit.After;
 import org.junit.Test;
 
+import javax.lang.model.element.TypeElement;
 import java.io.StringWriter;
 
 import static fr.vidal.oss.jax_rs_linker.model.ApiLink.SUB_RESOURCE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class DotFileWriterTest {
 
@@ -33,12 +42,13 @@ public class DotFileWriterTest {
         writer.close();
     }
 
-    private Multimap<ClassName, Mapping> mappings() {
-        HashMultimap<ClassName, Mapping> multimap = HashMultimap.create();
+    private Multimap<ClassNameGeneration, Mapping> mappings() {
+        HashMultimap<ClassNameGeneration, Mapping> multimap = HashMultimap.create();
+        ClassNameGeneration foo = new ClassNameGeneration(ClassName.valueOf("com.acme.Foo"), mock(TypeElement.class));
         multimap.put(
-                ClassName.valueOf("com.acme.Foo"),
+                foo,
                 new Mapping(
-                        new JavaLocation(ClassName.valueOf("com.acme.Foo"), "doIt"),
+                        new JavaLocation(foo, "doIt"),
                         new Api(
                                 HttpVerb.GET,
                                 SUB_RESOURCE(new SubResourceTarget(ClassName.valueOf("com.acme.Bar"), "")),

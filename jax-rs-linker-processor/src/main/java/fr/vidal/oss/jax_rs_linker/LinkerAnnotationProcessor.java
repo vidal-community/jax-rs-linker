@@ -8,11 +8,10 @@ import com.google.common.collect.Multimap;
 import fr.vidal.oss.jax_rs_linker.api.Self;
 import fr.vidal.oss.jax_rs_linker.api.SubResource;
 import fr.vidal.oss.jax_rs_linker.functions.OptionalFunctions;
-import fr.vidal.oss.jax_rs_linker.model.ClassName;
+import fr.vidal.oss.jax_rs_linker.model.ClassNameGeneration;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 import fr.vidal.oss.jax_rs_linker.parser.ElementParser;
 import fr.vidal.oss.jax_rs_linker.parser.ResourceGraphValidator;
-import fr.vidal.oss.jax_rs_linker.writer.ContextPathHolderWriter;
 import fr.vidal.oss.jax_rs_linker.writer.DotFileWriter;
 import fr.vidal.oss.jax_rs_linker.writer.LinkerWriter;
 import fr.vidal.oss.jax_rs_linker.writer.PathParamsEnumWriter;
@@ -20,7 +19,6 @@ import fr.vidal.oss.jax_rs_linker.writer.QueryParamsEnumWriter;
 import fr.vidal.oss.jax_rs_linker.writer.ResourceFileWriters;
 
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.FilerException;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
@@ -46,10 +44,9 @@ import static javax.lang.model.element.ElementKind.METHOD;
 public class LinkerAnnotationProcessor extends AbstractProcessor {
 
     private static final String GENERATED_CLASSNAME_SUFFIX = "Linker";
-    private static final ClassName CONTEXT_PATH_HOLDER = ClassName.valueOf("fr.vidal.oss.jax_rs_linker.ContextPathHolder");
     private static final String GRAPH_OPTION = "graph";
 
-    private final Multimap<ClassName, Mapping> elements = LinkedHashMultimap.create();
+    private final Multimap<ClassNameGeneration, Mapping> elements = LinkedHashMultimap.create();
     private ResourceFileWriters resourceFiles;
     private ElementParser elementParser;
     private ResourceGraphValidator validator;
@@ -88,7 +85,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations,
                            RoundEnvironment roundEnv) {
 
-        ImmutableListMultimap.Builder<ClassName, Mapping> buildingRoundElements = ImmutableListMultimap.builder();
+        ImmutableListMultimap.Builder<ClassNameGeneration, Mapping> buildingRoundElements = ImmutableListMultimap.builder();
         annotations.stream()
             .flatMap(annotation -> roundEnv.getElementsAnnotatedWith(annotation).stream())
             .filter(byKind(METHOD))
@@ -96,9 +93,9 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
             .filter(Optional::isPresent)
             .map(OptionalFunctions.intoUnwrapped())
             .filter(Objects::nonNull)
-            .forEach(e -> buildingRoundElements.put(e.getJavaLocation().getClassName(), e));
+            .forEach(e -> buildingRoundElements.put(e.getJavaLocation().getClassNameGeneration(), e));
 
-        Multimap<ClassName, Mapping> roundElements = buildingRoundElements.build();
+        Multimap<ClassNameGeneration, Mapping> roundElements = buildingRoundElements.build();
         if (validator.validateMappings(roundElements)) {
             tryGenerateSources(roundElements);
             tryExportGraph(roundEnv);
@@ -107,7 +104,7 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
         return false;
     }
 
-    private void tryGenerateSources(Multimap<ClassName, Mapping> roundElements) {
+    private void tryGenerateSources(Multimap<ClassNameGeneration, Mapping> roundElements) {
         try {
             generateSources(roundElements);
         } catch (IOException ioe) {
@@ -123,45 +120,37 @@ public class LinkerAnnotationProcessor extends AbstractProcessor {
         }
     }
 
-    private void generateSources(Multimap<ClassName, Mapping> roundElements) throws IOException {
-        tryGenerateContextPathHolder();
+    private void generateSources(Multimap<ClassNameGeneration, Mapping> roundElements) throws IOException {
         elements.putAll(roundElements);
         generateLinkerSources(roundElements);
     }
 
-    private void tryGenerateContextPathHolder() throws IOException {
-        try {
-            new ContextPathHolderWriter(processingEnv.getFiler()).write(CONTEXT_PATH_HOLDER);
-        } catch (FilerException ignored) {
-        }
-    }
-
-    private void generateLinkerSources(Multimap<ClassName, Mapping> elements) throws IOException {
-        for (ClassName className : elements.keySet()) {
+    private void generateLinkerSources(Multimap<ClassNameGeneration, Mapping> elements) throws IOException {
+        for (ClassNameGeneration className : elements.keySet()) {
             generateLinkerClasses(className, elements.get(className));
             generatePathParamEnums(className, elements.get(className));
             generateQueryParamEnums(className, elements.get(className));
         }
     }
 
-    private void generateLinkerClasses(ClassName className, Collection<Mapping> mappings) throws IOException {
-        ClassName generatedClass = className.append(GENERATED_CLASSNAME_SUFFIX);
-        new LinkerWriter(processingEnv.getFiler()).write(generatedClass, mappings, CONTEXT_PATH_HOLDER);
+    private void generateLinkerClasses(ClassNameGeneration className, Collection<Mapping> mappings) throws IOException {
+        ClassNameGeneration generatedClass = className.append(GENERATED_CLASSNAME_SUFFIX);
+        new LinkerWriter(processingEnv.getFiler()).write(generatedClass, mappings);
     }
 
-    private void generatePathParamEnums(ClassName className, Collection<Mapping> mappings) throws IOException {
+    private void generatePathParamEnums(ClassNameGeneration className, Collection<Mapping> mappings) throws IOException {
         if (!mappings.stream().flatMap(TO_PATH_PARAMETERS).findAny().isPresent()) {
             return;
         }
-        ClassName generatedEnum = className.append("PathParameters");
+        ClassNameGeneration generatedEnum = className.append("PathParameters");
         new PathParamsEnumWriter(processingEnv.getFiler()).write(generatedEnum, mappings);
     }
 
-    private void generateQueryParamEnums(ClassName className, Collection<Mapping> mappings) throws IOException {
+    private void generateQueryParamEnums(ClassNameGeneration className, Collection<Mapping> mappings) throws IOException {
         if (!mappings.stream().flatMap(TO_QUERY_PARAMETERS).findAny().isPresent()) {
             return;
         }
-        ClassName generatedEnum = className.append("QueryParameters");
+        ClassNameGeneration generatedEnum = className.append("QueryParameters");
         new QueryParamsEnumWriter(processingEnv.getFiler()).write(generatedEnum, mappings);
     }
 }

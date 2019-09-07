@@ -9,6 +9,7 @@ import fr.vidal.oss.jax_rs_linker.model.ApiLinkType;
 import fr.vidal.oss.jax_rs_linker.model.ApiPath;
 import fr.vidal.oss.jax_rs_linker.model.ApiQuery;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
+import fr.vidal.oss.jax_rs_linker.model.ClassNameGeneration;
 import fr.vidal.oss.jax_rs_linker.model.HttpVerb;
 import fr.vidal.oss.jax_rs_linker.model.JavaLocation;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
@@ -143,7 +144,7 @@ public class ElementParser {
         }
 
         checkArgument(link.getApiLinkType() == ApiLinkType.SELF, "SubResource should define a target");
-        ClassName className = mapping.getJavaLocation().getClassName();
+        ClassName className = mapping.getJavaLocation().getClassNameGeneration().getClassName();
         if (workLoad.isCompleted(className)) {
             return Optional.of(CompilationError.TOO_MANY_SELF);
         }
@@ -170,9 +171,9 @@ public class ElementParser {
         return new Api(httpVerb, link, apiPath, apiQuery);
     }
 
-    private ClassName className(ExecutableElement element) {
+    private ClassNameGeneration className(ExecutableElement element) {
         TypeElement classElement = (TypeElement) element.getEnclosingElement();
-        return ClassName.valueOf(classElement.getQualifiedName().toString());
+        return new ClassNameGeneration(classElement);
     }
 
     private Optional<Mapping> compilationError(Element element, String errorMsg) {

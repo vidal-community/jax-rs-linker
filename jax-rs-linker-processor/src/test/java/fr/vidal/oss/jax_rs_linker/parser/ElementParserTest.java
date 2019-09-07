@@ -47,7 +47,7 @@ public class ElementParserTest {
         Mapping mapping = parser.parse(method).get();
 
         JavaLocation javaLocation = mapping.getJavaLocation();
-        assertThat(javaLocation.getClassName().fullyQualifiedName())
+        assertThat(javaLocation.getClassNameGeneration().getClassName().fullyQualifiedName())
             .isEqualTo("fr.vidal.oss.jax_rs_linker.parser.ProductResource");
         assertThat(javaLocation.getMethodName())
             .isEqualTo("productById");
@@ -73,7 +73,7 @@ public class ElementParserTest {
         Mapping mapping = parser.parse(method).get();
 
         JavaLocation javaLocation = mapping.getJavaLocation();
-        assertThat(javaLocation.getClassName().fullyQualifiedName())
+        assertThat(javaLocation.getClassNameGeneration().getClassName().fullyQualifiedName())
             .isEqualTo("fr.vidal.oss.jax_rs_linker.parser.ProductResource");
         assertThat(javaLocation.getMethodName())
             .isEqualTo("productById");
