@@ -1,6 +1,5 @@
 package fr.vidal.oss.jax_rs_linker;
 
-import com.google.common.collect.ImmutableList;
 import com.google.testing.compile.CompilationRule;
 import org.junit.Rule;
 import org.junit.Test;

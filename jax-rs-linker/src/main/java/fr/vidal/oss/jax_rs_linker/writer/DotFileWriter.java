@@ -7,10 +7,10 @@ import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.Objects;
 
-import static com.google.common.base.Throwables.propagate;
 import static fr.vidal.oss.jax_rs_linker.functions.MappingToDot.TO_DOT_STATEMENT;
 import static java.util.stream.Collectors.toList;
 
@@ -26,7 +26,7 @@ public class DotFileWriter implements AutoCloseable {
         try {
             writer.append(Joiner.on("\n").join(graph(elements)));
         } catch (IOException e) {
-            throw propagate(e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -35,7 +35,7 @@ public class DotFileWriter implements AutoCloseable {
         try {
             writer.close();
         } catch (IOException e) {
-            throw propagate(e);
+            throw new UncheckedIOException(e);
         }
     }
 
