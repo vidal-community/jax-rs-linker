@@ -1,14 +1,20 @@
 package fr.vidal.oss.jax_rs_linker.parser;
 
-import com.google.common.base.Optional;
 import com.google.testing.compile.CompilationRule;
-import fr.vidal.oss.jax_rs_linker.model.*;
+import fr.vidal.oss.jax_rs_linker.model.Api;
+import fr.vidal.oss.jax_rs_linker.model.ApiLinkType;
+import fr.vidal.oss.jax_rs_linker.model.ClassName;
+import fr.vidal.oss.jax_rs_linker.model.JavaLocation;
+import fr.vidal.oss.jax_rs_linker.model.Mapping;
+import fr.vidal.oss.jax_rs_linker.model.PathParameter;
+import fr.vidal.oss.jax_rs_linker.model.QueryParameter;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.ExecutableElement;
+import java.util.Optional;
 
 import static javax.tools.Diagnostic.Kind.ERROR;
 import static org.assertj.core.api.Assertions.assertThat;

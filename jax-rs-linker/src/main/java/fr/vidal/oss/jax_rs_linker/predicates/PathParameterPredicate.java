@@ -1,7 +1,8 @@
 package fr.vidal.oss.jax_rs_linker.predicates;
 
-import com.google.common.base.Predicate;
 import fr.vidal.oss.jax_rs_linker.model.PathParameter;
+
+import java.util.function.Predicate;
 
 public class PathParameterPredicate implements Predicate<PathParameter> {
 
@@ -16,7 +17,7 @@ public class PathParameterPredicate implements Predicate<PathParameter> {
     }
 
     @Override
-    public boolean apply(PathParameter input) {
+    public boolean test(PathParameter input) {
         return parameter.equals(input.getName());
     }
 }

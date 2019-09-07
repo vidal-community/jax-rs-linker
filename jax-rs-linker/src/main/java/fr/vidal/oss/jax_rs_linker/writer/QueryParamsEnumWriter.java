@@ -1,7 +1,5 @@
 package fr.vidal.oss.jax_rs_linker.writer;
 
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Ordering;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -11,14 +9,18 @@ import fr.vidal.oss.jax_rs_linker.api.QueryParameters;
 import fr.vidal.oss.jax_rs_linker.functions.MappingToQueryParameters;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
+import fr.vidal.oss.jax_rs_linker.model.QueryParameter;
 
 import javax.annotation.Generated;
 import javax.annotation.processing.Filer;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
-import static fr.vidal.oss.jax_rs_linker.functions.QueryParameterToString.TO_STRING;
-import static javax.lang.model.element.Modifier.*;
+import static javax.lang.model.element.Modifier.FINAL;
+import static javax.lang.model.element.Modifier.PRIVATE;
+import static javax.lang.model.element.Modifier.PUBLIC;
 
 public class QueryParamsEnumWriter {
 
@@ -57,7 +59,7 @@ public class QueryParamsEnumWriter {
             .writeTo(filer);
     }
 
-    private void writeEnumeration(Collection<Mapping> mappings, TypeSpec.Builder typeBuilder) throws IOException {
+    private void writeEnumeration(Collection<Mapping> mappings, TypeSpec.Builder typeBuilder) {
         Collection<String> apiQueryEnums = getApiQuerysEnums(mappings);
         for (String parameterName : apiQueryEnums) {
             typeBuilder.addEnumConstant(
@@ -70,9 +72,9 @@ public class QueryParamsEnumWriter {
     }
 
     private Collection<String> getApiQuerysEnums(Collection<Mapping> mappings) {
-        return FluentIterable.from(mappings)
-            .transformAndConcat(MappingToQueryParameters.TO_QUERY_PARAMETERS)
-            .transform(TO_STRING)
-            .toSortedSet(Ordering.natural());
+        return mappings.stream()
+            .flatMap(MappingToQueryParameters.TO_QUERY_PARAMETERS)
+            .map(QueryParameter::getName)
+            .collect(Collectors.toCollection(TreeSet::new));
     }
 }

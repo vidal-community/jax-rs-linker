@@ -1,16 +1,15 @@
 package fr.vidal.oss.jax_rs_linker.predicates;
 
-import com.google.common.base.Predicate;
 import fr.vidal.oss.jax_rs_linker.model.ApiLinkType;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 
-import javax.annotation.Nullable;
+import java.util.function.Predicate;
 
 public enum HasSelfMapping implements Predicate<Mapping> {
     HAS_SELF;
 
     @Override
-    public boolean apply(Mapping input) {
+    public boolean test(Mapping input) {
         return input.getApi().getApiLink().getApiLinkType() == ApiLinkType.SELF;
     }
 }

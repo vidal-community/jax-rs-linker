@@ -34,7 +34,7 @@ public class DotFileWriterTest {
     }
 
     private Multimap<ClassName, Mapping> mappings() {
-        HashMultimap<ClassName, Mapping> multimap = HashMultimap.<ClassName, Mapping>create();
+        HashMultimap<ClassName, Mapping> multimap = HashMultimap.create();
         multimap.put(
                 ClassName.valueOf("com.acme.Foo"),
                 new Mapping(
@@ -42,7 +42,7 @@ public class DotFileWriterTest {
                         new Api(
                                 HttpVerb.GET,
                                 SUB_RESOURCE(new SubResourceTarget(ClassName.valueOf("com.acme.Bar"), "")),
-                                new ApiPath("/foo/{id}/bar", Lists.<PathParameter>newArrayList()),
+                                new ApiPath("/foo/{id}/bar", Lists.newArrayList()),
                                 null)
                 )
         );

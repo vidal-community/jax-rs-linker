@@ -1,8 +1,7 @@
 package fr.vidal.oss.jax_rs_linker.predicates;
 
-import com.google.common.base.Predicate;
-
 import javax.lang.model.element.AnnotationMirror;
+import java.util.function.Predicate;
 
 public class AnnotationMirrorByNamePredicate implements Predicate<AnnotationMirror> {
 
@@ -17,7 +16,7 @@ public class AnnotationMirrorByNamePredicate implements Predicate<AnnotationMirr
     }
 
     @Override
-    public boolean apply(AnnotationMirror input) {
+    public boolean test(AnnotationMirror input) {
         return input.getAnnotationType().asElement().getSimpleName().contentEquals(annotationName);
     }
 }

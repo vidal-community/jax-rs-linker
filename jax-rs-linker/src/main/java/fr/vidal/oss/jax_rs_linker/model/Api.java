@@ -1,6 +1,6 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
-import com.google.common.base.Objects;
+import java.util.Objects;
 
 public class Api {
 
@@ -34,7 +34,7 @@ public class Api {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(httpVerb, apiPath);
+        return Objects.hash(httpVerb, apiPath);
     }
 
     @Override
@@ -46,9 +46,9 @@ public class Api {
             return false;
         }
         final Api other = (Api) obj;
-        return Objects.equal(this.httpVerb, other.httpVerb)
-                && Objects.equal(this.apiPath, other.apiPath)
-                && Objects.equal(this.apiQuery, other.apiQuery);
+        return Objects.equals(this.httpVerb, other.httpVerb)
+                && Objects.equals(this.apiPath, other.apiPath)
+                && Objects.equals(this.apiQuery, other.apiQuery);
     }
 
     @Override

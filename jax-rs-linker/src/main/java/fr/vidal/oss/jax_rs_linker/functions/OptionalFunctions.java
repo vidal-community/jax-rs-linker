@@ -1,9 +1,8 @@
 package fr.vidal.oss.jax_rs_linker.functions;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-
 import javax.annotation.Nullable;
+import java.util.Optional;
+import java.util.function.Function;
 
 public class OptionalFunctions {
 
@@ -14,11 +13,11 @@ public class OptionalFunctions {
         return new Function<Optional<T>, T>() {
             @Nullable
             @Override
-            public T apply(@Nullable Optional<T> input) {
+            public T apply(Optional<T> input) {
                 if (input == null) {
                     return null;
                 }
-                return input.get();
+                return input.orElse(null);
             }
         };
     }

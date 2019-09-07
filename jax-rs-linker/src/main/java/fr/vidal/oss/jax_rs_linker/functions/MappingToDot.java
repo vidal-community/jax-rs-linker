@@ -1,10 +1,14 @@
 package fr.vidal.oss.jax_rs_linker.functions;
 
-import com.google.common.base.Function;
-import fr.vidal.oss.jax_rs_linker.model.*;
+import fr.vidal.oss.jax_rs_linker.model.Api;
+import fr.vidal.oss.jax_rs_linker.model.ApiLink;
+import fr.vidal.oss.jax_rs_linker.model.ApiLinkType;
+import fr.vidal.oss.jax_rs_linker.model.ClassName;
+import fr.vidal.oss.jax_rs_linker.model.Mapping;
 
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.function.Function;
 
 import static java.lang.String.format;
 

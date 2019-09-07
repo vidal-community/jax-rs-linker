@@ -16,20 +16,6 @@ import fr.vidal.oss.jax_rs_linker.model.PathParameter;
 import fr.vidal.oss.jax_rs_linker.model.QueryParameter;
 import fr.vidal.oss.jax_rs_linker.model.SubResourceTarget;
 
-import static com.google.common.base.Optional.absent;
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Predicates.not;
-import static fr.vidal.oss.jax_rs_linker.functions.AnnotationMirrorToMethodValueEntryFunction.TO_METHOD_VALUE_ENTRIES;
-import static fr.vidal.oss.jax_rs_linker.functions.ElementToPathParameter.ELEMENT_INTO_PATH_PARAMETER;
-import static fr.vidal.oss.jax_rs_linker.functions.ElementToQueryParameter.ELEMENT_INTO_QUERY_PARAMETER;
-import static fr.vidal.oss.jax_rs_linker.functions.EntriesToStringValueFunction.TO_STRING_VALUE;
-import static fr.vidal.oss.jax_rs_linker.functions.SetterToPathParameter.SETTER_TO_PATH_PARAMETER;
-import static fr.vidal.oss.jax_rs_linker.functions.SetterToQueryParameter.SETTER_TO_QUERY_PARAMETER;
-import static fr.vidal.oss.jax_rs_linker.predicates.AnnotationMirrorByNamePredicate.byName;
-import static fr.vidal.oss.jax_rs_linker.predicates.ElementHasAnnotation.BY_ANNOTATION;
-import static fr.vidal.oss.jax_rs_linker.predicates.UnparseableValuePredicate.IS_UNPARSEABLE;
-import static javax.tools.Diagnostic.Kind.ERROR;
-
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -38,8 +24,17 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Types;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
-import com.google.common.base.Optional;
-import com.google.common.collect.FluentIterable;
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static fr.vidal.oss.jax_rs_linker.functions.ElementToPathParameter.ELEMENT_INTO_PATH_PARAMETER;
+import static fr.vidal.oss.jax_rs_linker.functions.ElementToQueryParameter.ELEMENT_INTO_QUERY_PARAMETER;
+import static fr.vidal.oss.jax_rs_linker.functions.EntriesToStringValueFunction.TO_STRING_VALUE;
+import static fr.vidal.oss.jax_rs_linker.functions.SetterToPathParameter.SETTER_TO_PATH_PARAMETER;
+import static fr.vidal.oss.jax_rs_linker.functions.SetterToQueryParameter.SETTER_TO_QUERY_PARAMETER;
+import static fr.vidal.oss.jax_rs_linker.predicates.AnnotationMirrorByNamePredicate.byName;
+import static fr.vidal.oss.jax_rs_linker.predicates.ElementHasAnnotation.byAnnotation;
+import static javax.tools.Diagnostic.Kind.ERROR;
 
 public class ElementParser {
 
@@ -92,8 +87,8 @@ public class ElementParser {
             return compilationError(method, CompilationError.NO_HTTP_ANNOTATION_FOUND.format(qualified(method)));
         }
 
-        boolean withSelf = BY_ANNOTATION(Self.class).apply(method);
-        boolean withSubResource = BY_ANNOTATION(SubResource.class).apply(method);
+        boolean withSelf = byAnnotation(Self.class).test(method);
+        boolean withSubResource = byAnnotation(SubResource.class).test(method);
         if (!(withSelf ^ withSubResource)) {
             return compilationError(method, CompilationError.ANNOTATION_MISUSE.format(qualified(method)));
         }
@@ -116,19 +111,16 @@ public class ElementParser {
         if (withSelf) {
             return Optional.of(ApiLink.SELF());
         }
-        Optional<SubResourceTarget> location = relatedResourceName(methodElement);
-        if (!location.isPresent()) {
-            return absent();
-        }
-        return Optional.of(ApiLink.SUB_RESOURCE(location.get()));
+        return relatedResourceName(methodElement).map(ApiLink::SUB_RESOURCE);
     }
 
     private Optional<SubResourceTarget> relatedResourceName(ExecutableElement methodElement) {
-        return FluentIterable.from(methodElement.getAnnotationMirrors())
+        return methodElement.getAnnotationMirrors().stream()
             .filter(byName("SubResource"))
-            .transform(TO_METHOD_VALUE_ENTRIES)
-            .transform(TO_STRING_VALUE)
-            .firstMatch(not(IS_UNPARSEABLE));
+            .map(e -> e.getElementValues().entrySet())
+            .map(TO_STRING_VALUE)
+            .filter(e -> !e.isUnparseable())
+            .findFirst();
     }
 
     private Mapping mapping(ExecutableElement methodElement, ApiLink link, HttpVerb httpVerb, String path) {
@@ -147,7 +139,7 @@ public class ElementParser {
         Optional<ClassName> relatedResource = link.getTarget();
         if (relatedResource.isPresent()) {
             workLoad.addPendingIfNone(relatedResource.get());
-            return absent();
+            return Optional.empty();
         }
 
         checkArgument(link.getApiLinkType() == ApiLinkType.SELF, "SubResource should define a target");
@@ -156,7 +148,7 @@ public class ElementParser {
             return Optional.of(CompilationError.TOO_MANY_SELF);
         }
         workLoad.complete(className);
-        return absent();
+        return Optional.empty();
     }
 
     private JavaLocation javaLocation(ExecutableElement methodElement) {
@@ -185,7 +177,7 @@ public class ElementParser {
 
     private Optional<Mapping> compilationError(Element element, String errorMsg) {
         messager.printMessage(ERROR, errorMsg, element);
-        return absent();
+        return Optional.empty();
     }
 
     private String qualified(Element element) {

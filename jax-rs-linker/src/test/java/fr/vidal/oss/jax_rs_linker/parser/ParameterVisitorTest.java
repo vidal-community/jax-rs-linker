@@ -1,21 +1,21 @@
 package fr.vidal.oss.jax_rs_linker.parser;
 
+import com.google.testing.compile.CompilationRule;
 import fr.vidal.oss.jax_rs_linker.model.PathParameter;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 
-import static fr.vidal.oss.jax_rs_linker.functions.ElementToPathParameter.ELEMENT_INTO_PATH_PARAMETER;
-import static fr.vidal.oss.jax_rs_linker.functions.SetterToPathParameter.SETTER_TO_PATH_PARAMETER;
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Collection;
-import java.util.NoSuchElementException;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.ws.rs.PathParam;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import com.google.testing.compile.CompilationRule;
+import java.util.Collection;
+import java.util.NoSuchElementException;
+
+import static fr.vidal.oss.jax_rs_linker.functions.ElementToPathParameter.ELEMENT_INTO_PATH_PARAMETER;
+import static fr.vidal.oss.jax_rs_linker.functions.SetterToPathParameter.SETTER_TO_PATH_PARAMETER;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ParameterVisitorTest {
 
@@ -37,8 +37,8 @@ public class ParameterVisitorTest {
             compilation.getTypes(),
             new AnnotatedElementMapping<>(
                 PathParam.class,
-                ELEMENT_INTO_PATH_PARAMETER,
-                SETTER_TO_PATH_PARAMETER
+                ELEMENT_INTO_PATH_PARAMETER::apply,
+                SETTER_TO_PATH_PARAMETER::apply
             )
         );
 

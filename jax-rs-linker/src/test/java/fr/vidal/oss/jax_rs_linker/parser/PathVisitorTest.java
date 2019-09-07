@@ -1,8 +1,6 @@
 package fr.vidal.oss.jax_rs_linker.parser;
 
 import com.google.testing.compile.CompilationRule;
-import fr.vidal.oss.jax_rs_linker.model.ClassName;
-import fr.vidal.oss.jax_rs_linker.model.PathParameter;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

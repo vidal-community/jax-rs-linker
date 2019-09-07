@@ -1,19 +1,17 @@
 package fr.vidal.oss.jax_rs_linker.functions;
 
-import com.google.common.base.Function;
 import fr.vidal.oss.jax_rs_linker.model.Mapping;
 import fr.vidal.oss.jax_rs_linker.model.PathParameter;
 
-import javax.annotation.Nullable;
-import java.util.Collection;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
-public enum MappingToPathParameters implements Function<Mapping, Collection<PathParameter>> {
+public enum MappingToPathParameters implements Function<Mapping, Stream<PathParameter>> {
 
     TO_PATH_PARAMETERS;
 
-    @Nullable
     @Override
-    public Collection<PathParameter> apply(@Nullable Mapping mapping) {
-        return mapping.getApi().getApiPath().getPathParameters();
+    public Stream<PathParameter> apply(Mapping mapping) {
+        return mapping.getApi().getApiPath().getPathParameters().stream();
     }
 }

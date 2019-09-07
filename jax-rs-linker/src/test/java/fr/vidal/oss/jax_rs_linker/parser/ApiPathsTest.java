@@ -1,15 +1,13 @@
 package fr.vidal.oss.jax_rs_linker.parser;
 
-import com.google.common.base.Optional;
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.PathParameter;
 import org.assertj.core.api.iterable.Extractor;
 import org.junit.Test;
 
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static fr.vidal.oss.jax_rs_linker.parser.ApiPaths.decorate;
@@ -81,7 +79,7 @@ public class ApiPathsTest {
         Set<PathParameter> pathParameters = newHashSet(new PathParameter(ClassName.valueOf(String.class.getName()), "param"));
         Collection<PathParameter> result = decorate(pathParameters, "/api/boring/{param}");
 
-        assertThat(result).extracting(patternToOptionalOfString()).containsExactly(Optional.<String>absent());
+        assertThat(result).extracting(patternToOptionalOfString()).containsExactly(Optional.empty());
     }
 
     @Test
@@ -93,7 +91,7 @@ public class ApiPathsTest {
         Collection<PathParameter> result = decorate(pathParameters, "/api/boring/{param}/{other}");
 
         assertThat(result).extracting(patternToOptionalOfString())
-                .containsExactly(Optional.<String>absent(), Optional.<String>absent());
+                .containsExactly(Optional.empty(), Optional.empty());
     }
 
     @Test
@@ -106,17 +104,12 @@ public class ApiPathsTest {
         Collection<PathParameter> result = decorate(pathParameters, "/api/boring/{param}/{other:[1-9]}/{last}");
 
         assertThat(result).extracting(patternToOptionalOfString())
-                .contains(Optional.<String>absent(), Optional.of("[1-9]"), Optional.<String>absent());
+                .contains(Optional.empty(), Optional.of("[1-9]"), Optional.empty());
     }
 
     private Extractor<PathParameter, Optional<String>> patternToOptionalOfString() {
-        return new Extractor<PathParameter, Optional<String>>() {
-            @Override
-            public Optional<String> extract(PathParameter pathParameter) {
-                return pathParameter.getRegex().isPresent()?
-                        Optional.of(pathParameter.getRegex().get().pattern()):
-                        Optional.<String>absent();
-            }
-        };
+        return pathParameter -> pathParameter.getRegex().isPresent()?
+                Optional.of(pathParameter.getRegex().get().pattern()):
+                Optional.empty();
     }
 }
