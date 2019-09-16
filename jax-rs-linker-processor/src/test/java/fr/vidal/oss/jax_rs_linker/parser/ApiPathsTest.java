@@ -2,12 +2,12 @@ package fr.vidal.oss.jax_rs_linker.parser;
 
 import fr.vidal.oss.jax_rs_linker.model.ClassName;
 import fr.vidal.oss.jax_rs_linker.model.PathParameter;
-import org.assertj.core.api.iterable.Extractor;
 import org.junit.Test;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static fr.vidal.oss.jax_rs_linker.parser.ApiPaths.decorate;
@@ -107,7 +107,7 @@ public class ApiPathsTest {
                 .contains(Optional.empty(), Optional.of("[1-9]"), Optional.empty());
     }
 
-    private Extractor<PathParameter, Optional<String>> patternToOptionalOfString() {
+    private Function<PathParameter, Optional<String>> patternToOptionalOfString() {
         return pathParameter -> pathParameter.getRegex().isPresent()?
                 Optional.of(pathParameter.getRegex().get().pattern()):
                 Optional.empty();
