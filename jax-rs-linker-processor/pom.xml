@@ -32,6 +32,7 @@
         <dependency>
             <groupId>com.google.auto.service</groupId>
             <artifactId>auto-service</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
