@@ -31,6 +31,7 @@
         <module>jax-rs-linker-api</module>
         <module>jax-rs-linker-processor</module>
         <module>jax-rs-linker-integration-tests</module>
+        <module>jax-rs-linker-coverage-report</module>
     </modules>
 
     <dependencyManagement>
@@ -122,12 +123,17 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.4</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>prepare-agent-integration</id>
+                        <goals>
+                            <goal>prepare-agent-integration</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -273,6 +279,11 @@
                     <groupId>org.sonatype.plugins</groupId>
                     <artifactId>port-allocator-maven-plugin</artifactId>
                     <version>1.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.4</version>
                 </plugin>
                 <plugin>
                     <groupId>org.eclipse.jetty</groupId>
