@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>fr.vidal.oss</groupId>
+        <artifactId>jax-rs-linker-parent</artifactId>
+        <version>0.5-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>jax-rs-linker-coverage-report</artifactId>
+    <packaging>pom</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jax-rs-linker-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jax-rs-linker-processor</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>no-configuration-webapp</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>no-xml-webapp</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>xml-webapp</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>generate-aggregate-report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report-aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <configuration>
+                    <jacocoReports>
+                        <jacocoReport>${project.reporting.outputDirectory}/jacoco-aggregate/jacoco.xml</jacocoReport>
+                    </jacocoReports>
+                    <sourceDirectories>
+                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-api/src/main/java</sourceDirectory>
+                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-processor/src/main/java</sourceDirectory>
+                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-integration-tests/no-configuration-webapp/target/generated-sources/annotations</sourceDirectory>
+                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-integration-tests/no-configuration-webapp/src/main/java</sourceDirectory>
+                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-integration-tests/no-xml-webapp/target/generated-sources/annotations</sourceDirectory>
+                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-integration-tests/no-xml-webapp/src/main/java</sourceDirectory>
+                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-integration-tests/xml-webapp/target/generated-sources/annotations</sourceDirectory>
+                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-integration-tests/xml-webapp/src/main/java</sourceDirectory>
+                    </sourceDirectories>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

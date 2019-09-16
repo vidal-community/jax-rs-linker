@@ -53,13 +53,14 @@
                         <stopKey>toto</stopKey>
                         <stopPort>${jetty.stop.port}</stopPort>
                         <waitForChild>false</waitForChild>
+                        <jvmArgs>${argLine}</jvmArgs>
                     </configuration>
                     <executions>
                         <execution>
                             <id>start-server</id>
                             <phase>pre-integration-test</phase>
                             <goals>
-                                <goal>run-forked</goal>
+                                <goal>start</goal>
                             </goals>
                         </execution>
                         <execution>
@@ -84,13 +85,6 @@
                 </plugin>
                 <plugin>
                     <artifactId>maven-source-plugin</artifactId>
-                </plugin>
-                <plugin>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <configuration>
-                        <skip>true</skip>
-                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
