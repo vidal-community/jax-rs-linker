@@ -52,6 +52,7 @@
                         </systemProperties>
                         <stopKey>toto</stopKey>
                         <stopPort>${jetty.stop.port}</stopPort>
+                        <stopWait>10</stopWait>
                         <waitForChild>false</waitForChild>
                         <jvmArgs>${argLine}</jvmArgs>
                     </configuration>
