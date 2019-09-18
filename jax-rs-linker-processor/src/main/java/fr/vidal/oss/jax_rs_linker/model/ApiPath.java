@@ -9,7 +9,7 @@ import static fr.vidal.oss.jax_rs_linker.parser.ApiPaths.decorate;
 import static fr.vidal.oss.jax_rs_linker.parser.ApiPaths.sanitize;
 import static java.util.stream.Collectors.joining;
 
-public class ApiPath {
+public final class ApiPath {
 
     private final String path;
     private final Collection<PathParameter> pathParameters;

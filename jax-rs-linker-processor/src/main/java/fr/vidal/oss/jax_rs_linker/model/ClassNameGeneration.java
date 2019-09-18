@@ -3,7 +3,7 @@ package fr.vidal.oss.jax_rs_linker.model;
 import javax.lang.model.element.TypeElement;
 import java.util.Objects;
 
-public class ClassNameGeneration implements Comparable<ClassNameGeneration> {
+public final class ClassNameGeneration implements Comparable<ClassNameGeneration> {
 
     private final ClassName className;
     private final TypeElement originatingElement;

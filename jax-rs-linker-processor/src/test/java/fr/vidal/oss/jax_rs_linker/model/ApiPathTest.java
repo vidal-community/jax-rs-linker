@@ -1,5 +1,6 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -56,5 +57,10 @@ public class ApiPathTest {
         ApiPath apiPath = new ApiPath("/dev/null",pathParameters);
 
         assertThat(apiPath.toString()).isEqualTo("/dev/null (fr.vidal.oss.Foo Foo,fr.vidal.oss.Bar Bar)");
+    }
+
+    @Test
+    public void equals_contract() {
+        EqualsVerifier.forClass(ApiPath.class).verify();
     }
 }

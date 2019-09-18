@@ -1,5 +1,6 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,5 +36,10 @@ public class QueryParameterTest {
         QueryParameter queryParameter = new QueryParameter("Foo");
 
         assertThat(queryParameter.toString()).isEqualTo("QueryParameter{name='Foo'}");
+    }
+
+    @Test
+    public void equals_contract() {
+        EqualsVerifier.forClass(QueryParameter.class).verify();
     }
 }

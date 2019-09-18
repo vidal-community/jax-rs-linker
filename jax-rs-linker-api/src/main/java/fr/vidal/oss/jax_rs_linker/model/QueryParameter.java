@@ -3,9 +3,9 @@ package fr.vidal.oss.jax_rs_linker.model;
 
 import java.util.Objects;
 
-public class QueryParameter {
+public final class QueryParameter {
 
-    private String name;
+    private final String name;
 
     public QueryParameter(String name) {
         this.name = name;

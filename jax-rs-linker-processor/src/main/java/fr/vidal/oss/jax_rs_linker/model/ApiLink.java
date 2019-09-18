@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import static java.util.Locale.ENGLISH;
 
-public class ApiLink {
+public final class ApiLink {
 
     private final ApiLinkType apiLinkType;
     private final Optional<SubResourceTarget> target;
