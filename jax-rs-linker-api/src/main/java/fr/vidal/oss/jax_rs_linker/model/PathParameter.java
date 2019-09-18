@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 import static java.lang.String.format;
 
-public class PathParameter {
+public final class PathParameter {
 
     private final ClassName type;
     private final String name;
@@ -42,10 +42,9 @@ public class PathParameter {
         return regex;
     }
 
-
     @Override
     public int hashCode() {
-        return Objects.hash(type, name);
+        return Objects.hash(type, name, regex);
     }
 
     @Override
@@ -57,7 +56,9 @@ public class PathParameter {
             return false;
         }
         final PathParameter other = (PathParameter) obj;
-        return Objects.equals(this.type, other.type) && Objects.equals(this.name, other.name);
+        return Objects.equals(this.type, other.type)
+            && Objects.equals(this.name, other.name)
+            && Objects.equals(this.regex, other.regex);
     }
 
     @Override

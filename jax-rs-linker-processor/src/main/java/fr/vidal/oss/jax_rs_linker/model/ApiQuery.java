@@ -5,7 +5,7 @@ import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
-public class ApiQuery {
+public final class ApiQuery {
 
     private final Collection<QueryParameter> queryParameters;
 

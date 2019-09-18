@@ -2,7 +2,7 @@ package fr.vidal.oss.jax_rs_linker.model;
 
 import java.util.Objects;
 
-public class SubResourceTarget {
+public final class SubResourceTarget {
 
     private static final String UNPARSEABLE = "<error>";
     private final ClassName className;

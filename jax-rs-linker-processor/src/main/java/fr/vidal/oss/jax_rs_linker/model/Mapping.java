@@ -2,7 +2,7 @@ package fr.vidal.oss.jax_rs_linker.model;
 
 import java.util.Objects;
 
-public class Mapping {
+public final class Mapping {
 
     private final JavaLocation javaLocation;
     private final Api api;

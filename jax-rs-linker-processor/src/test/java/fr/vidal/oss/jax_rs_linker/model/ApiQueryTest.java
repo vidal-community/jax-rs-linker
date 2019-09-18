@@ -1,6 +1,7 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
 import com.google.common.collect.ImmutableList;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -27,5 +28,10 @@ public class ApiQueryTest {
         ApiQuery apiQuery = new ApiQuery(queryParameters);
 
         assertThat(apiQuery.toString()).isEqualTo("ApiQuery{queryParameters=[FooBar]}");
+    }
+
+    @Test
+    public void equals_contract() {
+        EqualsVerifier.forClass(ApiQuery.class).verify();
     }
 }

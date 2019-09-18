@@ -2,7 +2,7 @@ package fr.vidal.oss.jax_rs_linker.model;
 
 import java.util.Objects;
 
-public class JavaLocation {
+public final class JavaLocation {
 
     private final ClassNameGeneration classNameGeneration;
     private final String methodName;
