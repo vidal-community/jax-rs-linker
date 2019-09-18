@@ -7,5 +7,8 @@ branches:
     - /.*wip.*/i
 script: "mvn -T4 clean package"
 after_success:
-- mvn clean test jacoco:report coveralls:report 
+- mvn clean test jacoco:report coveralls:report
 - "[ ${TRAVIS_PULL_REQUEST} = 'false' ] && [ ${TRAVIS_BRANCH} = 'master' ] && mvn clean deploy -DskipTests --settings ./deploy-settings.xml"
+cache:
+  directories:
+    - $HOME/.m2/repository
