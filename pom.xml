@@ -8,6 +8,7 @@
 
     <name>JAX-RS Linker: parent POM</name>
     <url>https://github.com/softwarevidal/jax-rs-linker</url>
+    <description>Compile-time resource link resolution for JAX-RS</description>
 
     <properties>
 	<generateBackupPoms>false</generateBackupPoms><!-- maven versions plugin -->
