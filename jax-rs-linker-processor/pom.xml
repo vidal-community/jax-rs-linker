@@ -4,7 +4,7 @@
     <parent>
         <groupId>fr.vidal.oss</groupId>
         <artifactId>jax-rs-linker-parent</artifactId>
-        <version>1.0.0-M1</version>
+        <version>1.0.0-M2-SNAPSHOT</version>
     </parent>
 
     <artifactId>jax-rs-linker-processor</artifactId>
