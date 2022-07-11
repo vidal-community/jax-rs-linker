@@ -11,7 +11,7 @@ public class PreconditionsTest {
 
     @Test
     public void do_not_throw_IllegalStateException_when_condition_is_true() {
-        Preconditions.checkState(true, "should not happen!");
+        Preconditions.checkState(true, () -> "should not happen!");
     }
 
     @Test
@@ -19,6 +19,6 @@ public class PreconditionsTest {
         thrown.expect(IllegalStateException.class);
         thrown.expectMessage("must fail!");
 
-        Preconditions.checkState(false, "must fail!");
+        Preconditions.checkState(false, () -> "must fail!");
     }
 }

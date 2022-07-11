@@ -22,6 +22,6 @@ public enum QueryParametersToQueryString implements Function<Map<String,Collecti
                 builder.append(key).append("=").append(value).append("&");
             }
         }
-        return builder.toString().substring(0, builder.length() - 1);
+        return builder.substring(0, builder.length() - 1);
     }
 }
