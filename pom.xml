@@ -284,7 +284,7 @@
                 <plugin>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-maven-plugin</artifactId>
-                    <version>9.4.20.v20190813</version>
+                    <version>11.0.11</version>
                 </plugin>
                 <plugin>
                     <artifactId>maven-site-plugin</artifactId>
