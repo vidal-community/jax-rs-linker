@@ -1,20 +1,19 @@
 package fr.vidal.oss.jax_rs_linker.model;
 
+import static fr.vidal.oss.jax_rs_linker.base.Preconditions.checkState;
+import static fr.vidal.oss.jax_rs_linker.functions.QueryParametersToQueryString.TO_QUERY_STRING;
+import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
+
 import fr.vidal.oss.jax_rs_linker.api.PathParameters;
 import fr.vidal.oss.jax_rs_linker.api.QueryParameters;
 import fr.vidal.oss.jax_rs_linker.predicates.PathParameterPredicate;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static fr.vidal.oss.jax_rs_linker.base.Preconditions.checkState;
-import static fr.vidal.oss.jax_rs_linker.functions.QueryParametersToQueryString.TO_QUERY_STRING;
-import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
 
 public class TemplatedUrl<T extends PathParameters, U extends QueryParameters> {
 
@@ -37,7 +36,7 @@ public class TemplatedUrl<T extends PathParameters, U extends QueryParameters> {
     }
 
     public TemplatedUrl<T,U> replace(T parameter, String value) {
-        checkState(!pathParameters.isEmpty(), "No more path parameters to replace");
+        checkState(!pathParameters.isEmpty(), () -> "No more path parameters to replace");
         validateParamValue(parameter.regex(), value);
 
         return new TemplatedUrl<>(
@@ -63,7 +62,7 @@ public class TemplatedUrl<T extends PathParameters, U extends QueryParameters> {
     }
 
     public String value() {
-        checkState(pathParameters.isEmpty(), format("Parameters to replace: %s", parameterNames()));
+        checkState(pathParameters.isEmpty(), () -> format("Parameters to replace: %s", parameterNames()));
         return path + TO_QUERY_STRING.apply(queryParameters);
     }
 
@@ -80,7 +79,7 @@ public class TemplatedUrl<T extends PathParameters, U extends QueryParameters> {
     }
 
     private String placeholder(String name) {
-        return format("{%s}", name);
+        return "{" + name + "}";
     }
 
 }
