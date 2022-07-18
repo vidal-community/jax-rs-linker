@@ -27,6 +27,7 @@
         <module>jax-rs-linker-processor</module>
         <module>jax-rs-linker-integration-tests</module>
         <module>jax-rs-linker-coverage-report</module>
+        <module>jax-rs-linker-performance</module>
     </modules>
 
     <dependencyManagement>
