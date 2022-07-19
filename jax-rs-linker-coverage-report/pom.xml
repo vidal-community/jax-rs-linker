@@ -55,25 +55,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
-                <configuration>
-                    <jacocoReports>
-                        <jacocoReport>${project.reporting.outputDirectory}/jacoco-aggregate/jacoco.xml</jacocoReport>
-                    </jacocoReports>
-                    <sourceDirectories>
-                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-api/src/main/java</sourceDirectory>
-                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-processor/src/main/java</sourceDirectory>
-                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-integration-tests/no-configuration-webapp/target/generated-sources/annotations</sourceDirectory>
-                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-integration-tests/no-configuration-webapp/src/main/java</sourceDirectory>
-                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-integration-tests/no-xml-webapp/target/generated-sources/annotations</sourceDirectory>
-                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-integration-tests/no-xml-webapp/src/main/java</sourceDirectory>
-                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-integration-tests/xml-webapp/target/generated-sources/annotations</sourceDirectory>
-                        <sourceDirectory>${maven.multiModuleProjectDirectory}/jax-rs-linker-integration-tests/xml-webapp/src/main/java</sourceDirectory>
-                    </sourceDirectories>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 

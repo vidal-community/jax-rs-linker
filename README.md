@@ -3,7 +3,7 @@
 ## Build status
 
 [![Build Status](https://travis-ci.org/vidal-community/jax-rs-linker.png)](https://travis-ci.org/vidal-community/jax-rs-linker)
-[![Coverage Status](https://coveralls.io/repos/vidal-community/jax-rs-linker/badge.svg?branch=master)](https://coveralls.io/r/vidal-community/jax-rs-linker?branch=master)
+[![Coverage Status](https://codecov.io/gh/vidal-community/jax-rs-linker/branch/master/graph/badge.svg?token=GELB1T0KF3)](https://codecov.io/gh/vidal-community/jax-rs-linker)
 
 ## Scope
 

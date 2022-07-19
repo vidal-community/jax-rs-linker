@@ -32,3 +32,7 @@ jobs:
         junit_files: |
             **/target/surefire-reports/TEST*.xml
             **/target/failsafe-reports/TEST*.xml
+    - name: Codecov
+      uses: codecov/codecov-action@v3.1.0
+      with:
+          files: jax-rs-linker-coverage-report/target/site/jacoco-aggregate/jacoco.xml

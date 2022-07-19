@@ -7,7 +7,6 @@ branches:
     - /.*wip.*/i
 script: "mvn clean verify"
 after_success:
-- mvn coveralls:report -pl fr.vidal.oss:jax-rs-linker-coverage-report
 - "[ ${TRAVIS_PULL_REQUEST} = 'false' ] && [ ${TRAVIS_BRANCH} = 'master' ] && mvn deploy -DskipTests --settings ./deploy-settings.xml"
 cache:
   directories:
